@@ -1,5 +1,6 @@
 package com.caobolun.framework.convention;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL) //在将 Java 对象序列化为 JSON 字符串时，自动忽略值为 null 的字段。
 public class SourceRef {
 
     /**
