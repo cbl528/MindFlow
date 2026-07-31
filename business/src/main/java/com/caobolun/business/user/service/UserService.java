@@ -1,5 +1,12 @@
 package com.caobolun.business.user.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.caobolun.business.user.request.ChangePasswordRequest;
+import com.caobolun.business.user.request.UserCreateRequest;
+import com.caobolun.business.user.request.UserPageRequest;
+import com.caobolun.business.user.request.UserUpdateRequest;
+import com.caobolun.business.user.vo.UserVO;
+
 public interface UserService {
 
     /**
