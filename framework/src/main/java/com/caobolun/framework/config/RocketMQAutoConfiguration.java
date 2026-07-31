@@ -1,5 +1,8 @@
 package com.caobolun.framework.config;
 
+import com.caobolun.framework.mq.producer.DelegatingTransactionListener;
+import com.caobolun.framework.mq.producer.MessageQueueProducer;
+import com.caobolun.framework.mq.producer.RocketMQProducerAdapter;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
