@@ -2,6 +2,7 @@ package com.caobolun.business.rag.service.pipeline;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.caobolun.business.rag.core.guidance.GuidanceDecision;
 import com.caobolun.business.rag.core.guidance.IntentGuidanceService;
 import com.caobolun.business.rag.core.intent.IntentResolver;
 import com.caobolun.business.rag.core.memory.ConversationMemoryService;
@@ -11,6 +12,10 @@ import com.caobolun.business.rag.core.prompt.RAGPromptService;
 import com.caobolun.business.rag.core.retrieval.RetrievalEngine;
 import com.caobolun.business.rag.core.rewrite.QueryRewriteService;
 import com.caobolun.business.rag.core.rewrite.RewriteResult;
+import com.caobolun.business.rag.core.source.CitationContextEnricher;
+import com.caobolun.business.rag.core.source.GroundingChunksAssembler;
+import com.caobolun.business.rag.core.source.SourcesAssembler;
+import com.caobolun.business.rag.dto.IntentGroup;
 import com.caobolun.business.rag.dto.RetrievalContext;
 import com.caobolun.business.rag.dto.SubQuestionIntent;
 import com.caobolun.business.rag.service.handler.StreamTaskManager;
@@ -26,6 +31,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.caobolun.business.rag.constant.RAGConstant.CHAT_SYSTEM_PROMPT_PATH;
 
 /**
  * 流式对话流水线

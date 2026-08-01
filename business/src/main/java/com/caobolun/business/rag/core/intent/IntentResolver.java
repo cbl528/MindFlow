@@ -3,6 +3,7 @@ package com.caobolun.business.rag.core.intent;
 import cn.hutool.core.collection.CollUtil;
 import com.caobolun.business.rag.core.rewrite.RewriteResult;
 import com.caobolun.business.rag.dto.IntentCandidate;
+import com.caobolun.business.rag.dto.IntentGroup;
 import com.caobolun.business.rag.dto.SubQuestionIntent;
 import com.caobolun.framework.trace.RagTraceNode;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+
+import static com.caobolun.business.rag.constant.RAGConstant.INTENT_MIN_SCORE;
+import static com.caobolun.business.rag.constant.RAGConstant.MAX_INTENT_COUNT;
+import static com.caobolun.business.rag.enums.IntentKind.SYSTEM;
 
 @Slf4j
 @Service

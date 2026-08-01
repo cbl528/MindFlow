@@ -1,5 +1,7 @@
 package com.caobolun.business.rag.service.pipeline;
 
+import com.caobolun.business.rag.core.rewrite.RewriteResult;
+import com.caobolun.business.rag.dto.SubQuestionIntent;
 import com.caobolun.framework.convention.ChatMessage;
 import com.caobolun.infraai.chat.StreamCallback;
 import lombok.Builder;

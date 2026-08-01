@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.caobolun.business.rag.dto.CompletionPayload;
 import com.caobolun.business.rag.enums.SSEEventType;
 import com.caobolun.framework.web.SseEmitterSender;
+import com.caobolun.infraai.chat.StreamCancellationHandle;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import jakarta.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 @Slf4j
 @Component
