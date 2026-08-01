@@ -2,16 +2,24 @@ package com.caobolun.business.rag.service.pipeline;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.caobolun.business.rag.core.guidance.IntentGuidanceService;
+import com.caobolun.business.rag.core.intent.IntentResolver;
 import com.caobolun.business.rag.core.memory.ConversationMemoryService;
+import com.caobolun.business.rag.core.prompt.PromptContext;
 import com.caobolun.business.rag.core.prompt.PromptTemplateLoader;
+import com.caobolun.business.rag.core.prompt.RAGPromptService;
+import com.caobolun.business.rag.core.retrieval.RetrievalEngine;
 import com.caobolun.business.rag.core.rewrite.QueryRewriteService;
 import com.caobolun.business.rag.core.rewrite.RewriteResult;
+import com.caobolun.business.rag.dto.RetrievalContext;
 import com.caobolun.business.rag.dto.SubQuestionIntent;
 import com.caobolun.business.rag.service.handler.StreamTaskManager;
 import com.caobolun.framework.convention.ChatMessage;
 import com.caobolun.framework.convention.ChatRequest;
 import com.caobolun.framework.convention.SourceRef;
+import com.caobolun.infraai.chat.LLMService;
 import com.caobolun.infraai.chat.StreamCallback;
+import com.caobolun.infraai.chat.StreamCancellationHandle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,7 +59,7 @@ public class StreamChatPipeline {
     public void execute(StreamChatContext ctx) {
         loadMemory(ctx); // 加载记忆
         rewriteQueryWithSplit(ctx); // 问题改写+问题拆分
-        resolveIntents(ctx); //
+        resolveIntents(ctx); // 意图识别
 
         if (handleGuidance(ctx)) {
             return;

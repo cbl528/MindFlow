@@ -2,6 +2,7 @@ package com.caobolun.infraai.chat;
 
 import com.caobolun.framework.convention.ChatRequest;
 import com.caobolun.infraai.enums.ModelProvider;
+import com.caobolun.infraai.model.ModelTarget;
 
 /**
  * 聊天客户端接口
