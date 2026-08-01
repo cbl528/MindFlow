@@ -3,6 +3,8 @@ package com.caobolun.business.rag.service.pipeline;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.caobolun.business.rag.core.memory.ConversationMemoryService;
+import com.caobolun.business.rag.core.prompt.PromptTemplateLoader;
+import com.caobolun.business.rag.core.rewrite.QueryRewriteService;
 import com.caobolun.business.rag.core.rewrite.RewriteResult;
 import com.caobolun.business.rag.dto.SubQuestionIntent;
 import com.caobolun.business.rag.service.handler.StreamTaskManager;
@@ -47,9 +49,9 @@ public class StreamChatPipeline {
      * 执行流式对话管道
      */
     public void execute(StreamChatContext ctx) {
-        loadMemory(ctx);
-        rewriteQuery(ctx);
-        resolveIntents(ctx);
+        loadMemory(ctx); // 加载记忆
+        rewriteQueryWithSplit(ctx); // 问题改写+问题拆分
+        resolveIntents(ctx); //
 
         if (handleGuidance(ctx)) {
             return;
@@ -76,7 +78,7 @@ public class StreamChatPipeline {
         ctx.setHistory(history);
     }
 
-    private void rewriteQuery(StreamChatContext ctx) {
+    private void rewriteQueryWithSplit(StreamChatContext ctx) {
         RewriteResult rewriteResult = queryRewriteService.rewriteWithSplit(ctx.getQuestion(), ctx.getHistory());
         ctx.setRewriteResult(rewriteResult);
     }

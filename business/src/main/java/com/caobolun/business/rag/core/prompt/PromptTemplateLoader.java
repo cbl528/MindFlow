@@ -3,10 +3,13 @@ package com.caobolun.business.rag.core.prompt;
 import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,7 +35,7 @@ public class PromptTemplateLoader {
      * @throws IllegalStateException    当模板文件不存在或读取失败时抛出
      */
     public String load(String path) {
-        if(StrUtil.isBlank(path)){
+        if (StrUtil.isBlank(path)) {
             throw new IllegalArgumentException("提示词模板为空");
         }
         return cache.computeIfAbsent(path, this::readResource);
@@ -51,4 +54,58 @@ public class PromptTemplateLoader {
         return PromptTemplateUtils.cleanupPrompt(filled);
     }
 
+    /**
+     * 加载模板文件中指定 section 的原始内容
+     *
+     * @param path    模板文件路径
+     * @param section section 名称（对应 {@code --- section: name ---} 中的 name）
+     * @return section 的原始模板内容
+     * @throws IllegalStateException 当 section 不存在时抛出
+     */
+    public String loadSection(String path, String section) {
+        Map<String, String> sections = sectionCache.computeIfAbsent(path, p -> {
+            String content = load(p);
+            return PromptTemplateUtils.parseSections(content);
+        });
+        String template = sections.get(section);
+        if (template == null) {
+            throw new IllegalStateException("模板 section 不存在：" + path + " -> " + section);
+        }
+        return template;
+    }
+
+    /**
+     * 渲染模板文件中指定 section，并填充占位符
+     *
+     * @param path    模板文件路径
+     * @param section section 名称
+     * @param slots   占位符映射表
+     * @return 渲染后的文本
+     */
+    public String renderSection(String path, String section, Map<String, String> slots) {
+        String template = loadSection(path, section);
+        String filled = PromptTemplateUtils.fillSlots(template, slots);
+        return PromptTemplateUtils.cleanupPrompt(filled);
+    }
+
+    /**
+     * 从资源路径读取模板内容
+     *
+     * @param path 模板文件路径
+     * @return 模板内容字符串
+     * @throws IllegalStateException 当模板文件不存在或读取失败时抛出
+     */
+    private String readResource(String path) {
+        String location = path.startsWith("classpath:") ? path : "classpath:" + path;
+        Resource resource = resourceLoader.getResource(location);
+        if (!resource.exists()) {
+            throw new IllegalStateException("提示词模板路径不存在：" + path);
+        }
+        try (InputStream in = resource.getInputStream()) {
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("读取提示模板失败，路径：{}", path, e);
+            throw new IllegalStateException("读取提示模板失败，路径：" + path, e);
+        }
+    }
 }
