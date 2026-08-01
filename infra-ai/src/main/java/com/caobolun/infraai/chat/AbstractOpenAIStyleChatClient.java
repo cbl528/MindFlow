@@ -4,8 +4,10 @@ import cn.hutool.core.collection.CollUtil;
 import com.caobolun.framework.convention.ChatMessage;
 import com.caobolun.framework.convention.ChatRequest;
 import com.caobolun.framework.trace.RagStreamTraceSupport;
+import com.caobolun.framework.trace.RagStreamTraceSupport.StreamSpan;
 import com.caobolun.infraai.config.AIModelProperties;
 import com.caobolun.infraai.enums.ModelCapability;
+import com.caobolun.infraai.http.*;
 import com.caobolun.infraai.model.ModelTarget;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
