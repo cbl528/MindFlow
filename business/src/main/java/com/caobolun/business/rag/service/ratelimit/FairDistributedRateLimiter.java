@@ -69,7 +69,7 @@ public final class FairDistributedRateLimiter {
         this.claimLua = loadLuaScript();
 
         String threadPrefix = name.replace(':', '_');
-        int schedulerSize = Math.min(4, Math.max(2, Runtime.getRuntime().availableProcessors() / 2));
+        int schedulerSize = Math.clamp(Runtime.getRuntime().availableProcessors() / 2, 2, 4);
         AtomicInteger threadCounter = new AtomicInteger();
         this.scheduler = new ScheduledThreadPoolExecutor(schedulerSize, r -> {
             Thread t = new Thread(r);

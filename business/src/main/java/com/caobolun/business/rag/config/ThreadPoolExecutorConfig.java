@@ -2,6 +2,8 @@ package com.caobolun.business.rag.config;
 
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import com.alibaba.ttl.threadpool.TtlExecutors;
+import com.caobolun.business.rag.service.ratelimit.FairDistributedRateLimiter;
+import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
