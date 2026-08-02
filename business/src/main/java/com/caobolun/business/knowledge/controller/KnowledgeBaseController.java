@@ -1,15 +1,15 @@
 package com.caobolun.business.knowledge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.nageoffer.ai.ragent.core.chunk.ChunkingMode;
-import com.nageoffer.ai.ragent.framework.convention.Result;
-import com.nageoffer.ai.ragent.framework.web.Results;
-import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeBaseCreateRequest;
-import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeBasePageRequest;
-import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeBaseUpdateRequest;
-import com.nageoffer.ai.ragent.knowledge.controller.vo.ChunkStrategyVO;
-import com.nageoffer.ai.ragent.knowledge.controller.vo.KnowledgeBaseVO;
-import com.nageoffer.ai.ragent.knowledge.service.KnowledgeBaseService;
+import com.caobolun.business.core.chunk.ChunkingMode;
+import com.caobolun.business.knowledge.request.KnowledgeBaseCreateRequest;
+import com.caobolun.business.knowledge.request.KnowledgeBasePageRequest;
+import com.caobolun.business.knowledge.request.KnowledgeBaseUpdateRequest;
+import com.caobolun.business.knowledge.service.KnowledgeBaseService;
+import com.caobolun.business.knowledge.vo.ChunkStrategyVO;
+import com.caobolun.business.knowledge.vo.KnowledgeBaseVO;
+import com.caobolun.framework.convention.Result;
+import com.caobolun.framework.web.Results;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

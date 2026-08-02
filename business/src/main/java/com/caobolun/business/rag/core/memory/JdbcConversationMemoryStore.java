@@ -1,5 +1,7 @@
 package com.caobolun.business.rag.core.memory;
 
+import com.caobolun.business.rag.config.MemoryProperties;
+import com.caobolun.business.rag.service.ConversationService;
 import com.caobolun.framework.convention.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

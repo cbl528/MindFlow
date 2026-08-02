@@ -56,8 +56,8 @@ public class ChatQueueLimiter {
         }
 
         chatRateLimiter.acquire(AcquireRequest.builder()
-                .maxWaitMillis(TimeUnit.SECONDS.toMillis(rateLimitProperties.getGlobalMaxWaitSeconds()))
-                .onAcquired(TtlRunnable.get(onAcquire))
+                .maxWaitMillis(TimeUnit.SECONDS.toMillis(rateLimitProperties.getGlobalMaxWaitSeconds())) // 最大等待时间
+                .onAcquired(TtlRunnable.get(onAcquire)) //
                 .onTimeout(TtlRunnable.get(() -> handleReject(question, conversationId, emitter)))
                 .onAcquiredExecutor(chatEntryExecutor)
                 .cancelBinder(cancel -> {

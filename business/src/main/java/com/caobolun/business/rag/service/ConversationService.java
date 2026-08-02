@@ -1,5 +1,9 @@
 package com.caobolun.business.rag.service;
 
+import com.caobolun.business.rag.bo.ConversationCreateBO;
+import com.caobolun.business.rag.request.ConversationUpdateRequest;
+import com.caobolun.business.rag.vo.ConversationVO;
+
 import java.util.List;
 
 public interface ConversationService {

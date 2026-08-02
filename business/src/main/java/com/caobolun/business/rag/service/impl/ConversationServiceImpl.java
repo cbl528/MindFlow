@@ -1,6 +1,9 @@
 package com.caobolun.business.rag.service.impl;
 
+import com.caobolun.business.rag.bo.ConversationCreateBO;
+import com.caobolun.business.rag.request.ConversationUpdateRequest;
 import com.caobolun.business.rag.service.ConversationService;
+import com.caobolun.business.rag.vo.ConversationVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
