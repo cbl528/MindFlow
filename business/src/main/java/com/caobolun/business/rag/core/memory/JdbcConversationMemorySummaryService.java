@@ -138,7 +138,17 @@ public class JdbcConversationMemorySummaryService implements ConversationMemoryS
     }
     @Override
     public ChatMessage loadLatestSummary(String conversationId, String userId) {
-        return null;
+        // 获取最新的对话摘要
+        ConversationSummaryDO summary = conversationGroupService.findLatestSummary(conversationId, userId);
+        // 将对话摘要转换为对话信息对象
+        return toChatMessage(summary);
+    }
+
+    private ChatMessage toChatMessage(ConversationSummaryDO record) {
+        if (record == null || StrUtil.isBlank(record.getContent())) {
+            return null;
+        }
+        return new ChatMessage(ChatMessage.Role.SYSTEM, record.getContent());
     }
 
     @Override
