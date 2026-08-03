@@ -3,9 +3,11 @@ package com.caobolun.business.rag.core.rewrite;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.caobolun.business.rag.config.RAGConfigProperties;
+import com.caobolun.business.rag.core.prompt.PromptTemplateLoader;
 import com.caobolun.framework.convention.ChatMessage;
 import com.caobolun.framework.convention.ChatRequest;
 import com.caobolun.framework.trace.RagTraceNode;
+import com.caobolun.infraai.chat.LLMService;
 import com.caobolun.infraai.enums.Tier;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -19,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.caobolun.business.rag.constant.RAGConstant.QUERY_REWRITE_AND_SPLIT_PROMPT_PATH;
 
 /**
  * 查询预处理：改写 + 拆分多问句

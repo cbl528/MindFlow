@@ -30,8 +30,7 @@ public interface StreamCallback {
      *
      * @param messageId 用户消息 ID
      */
-    default void onReplyToMessageId(String messageId) {
-    }
+    default void onReplyToMessageId(String messageId) {}
 
     /**
      * 接收一次增量内容（Delta Token 或部分片段）

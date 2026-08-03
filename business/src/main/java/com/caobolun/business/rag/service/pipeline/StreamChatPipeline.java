@@ -89,7 +89,7 @@ public class StreamChatPipeline {
         List<ChatMessage> history = memoryService.load(ctx.getConversationId(), ctx.getUserId()); // 加载历史会话
         String questionMessageId = memoryService.append(
                 ctx.getConversationId(), ctx.getUserId(), ChatMessage.user(ctx.getQuestion()));
-        ctx.getCallback().onReplyToMessageId(questionMessageId);
+        ctx.getCallback().onReplyToMessageId(questionMessageId); // 设置关联的问题ID
         ctx.setHistory(history);
     }
 
