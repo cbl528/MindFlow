@@ -67,10 +67,11 @@ public class StreamChatPipeline {
         loadMemory(ctx); // 加载记忆
         rewriteQueryWithSplit(ctx); // 问题改写+问题拆分
         resolveIntents(ctx); // 意图识别
-
+        // 提问引导
         if (handleGuidance(ctx)) {
             return;
         }
+        // 回答非相关问题
         if (handleSystemOnly(ctx)) {
             return;
         }

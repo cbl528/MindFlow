@@ -5,11 +5,18 @@ import cn.hutool.core.util.StrUtil;
 import com.caobolun.business.rag.config.SearchChannelProperties;
 import com.caobolun.business.rag.core.intent.IntentNode;
 import com.caobolun.business.rag.core.intent.NodeScore;
+import com.caobolun.business.rag.core.mcp.McpExtractionResult;
+import com.caobolun.business.rag.core.mcp.McpParameterExtractor;
+import com.caobolun.business.rag.core.mcp.McpToolExecutor;
+import com.caobolun.business.rag.core.mcp.McpToolRegistry;
 import com.caobolun.business.rag.core.prompt.PromptTemplateLoader;
+import com.caobolun.business.rag.dto.KbResult;
 import com.caobolun.business.rag.dto.RetrievalContext;
 import com.caobolun.business.rag.dto.SubQuestionIntent;
 import com.caobolun.framework.convention.RetrievedChunk;
 import com.caobolun.framework.trace.RagTraceNode;
+import io.modelcontextprotocol.spec.McpSchema;
+import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.bridge.context.ContextFormatter;
@@ -19,6 +26,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+
+import static com.caobolun.business.rag.constant.RAGConstant.CONTEXT_FORMAT_PATH;
 
 /**
  * 检索引擎
@@ -93,7 +102,7 @@ public class RetrievalEngine {
         String mcpContext;
 
         if (singleQuestion) {
-            SubQuestionContext only = contexts.get(0);
+            SubQuestionContext only = contexts.getFirst();
             kbContext = StrUtil.emptyIfNull(only.kbContext()).trim();
             mcpContext = StrUtil.emptyIfNull(only.mcpContext()).trim();
         } else {
@@ -153,7 +162,7 @@ public class RetrievalEngine {
             return "";
         }
 
-        Map<String, List<CallToolResult>> toolResults = executeMcpTools(question, mcpIntents);
+        Map<String, List<McpSchema.CallToolResult>> toolResults = executeMcpTools(question, mcpIntents);
         if (toolResults.isEmpty()) {
             return "";
         }

@@ -2,8 +2,12 @@ package com.caobolun.business.rag.core.guidance;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.caobolun.business.rag.config.GuidanceProperties;
+import com.caobolun.business.rag.constant.RAGConstant;
 import com.caobolun.business.rag.core.intent.IntentNode;
+import com.caobolun.business.rag.core.intent.IntentNodeRegistry;
 import com.caobolun.business.rag.core.intent.NodeScore;
+import com.caobolun.business.rag.core.intent.NodeScoreFilters;
 import com.caobolun.business.rag.core.prompt.PromptTemplateLoader;
 import com.caobolun.business.rag.dto.SubQuestionIntent;
 import com.caobolun.business.rag.enums.IntentLevel;
@@ -45,7 +49,7 @@ public class IntentGuidanceService {
             return null;
         }
 
-        List<NodeScore> candidates = filterCandidates(subIntents.get(0).nodeScores());
+        List<NodeScore> candidates = filterCandidates(subIntents.getFirst().nodeScores());
         if (candidates.size() < 2) {
             return null;
         }
@@ -75,7 +79,7 @@ public class IntentGuidanceService {
         }
 
         List<NodeScore> trimmedRanked = trimRankedOptions(ranked);
-        String topicName = trimmedRanked.get(0).getNode().getName();
+        String topicName = trimmedRanked.getFirst().getNode().getName();
         return new AmbiguityGroup(topicName, trimmedRanked);
     }
 

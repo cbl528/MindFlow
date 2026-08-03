@@ -33,9 +33,11 @@ public class IntentResolver {
 
     @RagTraceNode(name = "intent-resolve", type = "INTENT")
     public List<SubQuestionIntent> resolve(RewriteResult rewriteResult) {
+        // 如果子问题列表不为空返回列表，为空返回重写问题
         List<String> subQuestions = CollUtil.isNotEmpty(rewriteResult.subQuestions())
                 ? rewriteResult.subQuestions()
                 : List.of(rewriteResult.rewrittenQuestion());
+        // 将子问题转换为Stream流，然后每个并行执行意图识别
         List<CompletableFuture<SubQuestionIntent>> tasks = subQuestions.stream()
                 .map(q -> CompletableFuture.supplyAsync(
                         () -> {
@@ -47,8 +49,8 @@ public class IntentResolver {
                             }
                         },
                         intentClassifyExecutor
-                ))
-                .toList();
+                )).toList();
+        // 获取每个任务的执行结果
         List<SubQuestionIntent> subIntents = tasks.stream()
                 .map(CompletableFuture::join)
                 .toList();
@@ -67,8 +69,8 @@ public class IntentResolver {
 
     public boolean isSystemOnly(List<NodeScore> nodeScores) {
         return nodeScores.size() == 1
-                && nodeScores.get(0).getNode() != null
-                && nodeScores.get(0).getNode().getKind() == SYSTEM;
+                && nodeScores.getFirst().getNode() != null
+                && nodeScores.getFirst().getNode().getKind() == SYSTEM;
     }
 
     private List<NodeScore> classifyIntents(String question) {
