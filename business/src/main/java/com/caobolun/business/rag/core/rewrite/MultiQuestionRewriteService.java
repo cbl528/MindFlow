@@ -9,6 +9,7 @@ import com.caobolun.framework.convention.ChatRequest;
 import com.caobolun.framework.trace.RagTraceNode;
 import com.caobolun.infraai.chat.LLMService;
 import com.caobolun.infraai.enums.Tier;
+import com.caobolun.infraai.util.LLMResponseCleaner;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -51,14 +52,10 @@ public class MultiQuestionRewriteService implements QueryRewriteService {
     @Override
     @RagTraceNode(name = "query-rewrite-and-split", type = "REWRITE")
     public RewriteResult rewriteWithSplit(String userQuestion, List<ChatMessage> history) {
-        if (!ragConfigProperties.getQueryRewriteEnabled()) {
-            String normalized = queryTermMappingService.normalize(userQuestion);
-            List<String> subs = ruleBasedSplit(normalized);
-            return new RewriteResult(normalized, subs);
-        }
-
         String normalizedQuestion = queryTermMappingService.normalize(userQuestion);
-
+        if (!ragConfigProperties.getQueryRewriteEnabled()) {
+            return rewriteWithoutLLM(normalizedQuestion);
+        }
         return callLLMRewriteAndSplit(normalizedQuestion, userQuestion, history);
     }
 
@@ -66,18 +63,19 @@ public class MultiQuestionRewriteService implements QueryRewriteService {
      * 先用默认改写做归一化，再进行多问句拆分。
      */
     private RewriteResult rewriteAndSplit(String userQuestion) {
-        // 开关关闭：直接做规则归一化 + 规则拆分
-        if (!ragConfigProperties.getQueryRewriteEnabled()) {
-            String normalized = queryTermMappingService.normalize(userQuestion);
-            List<String> subs = ruleBasedSplit(normalized);
-            return new RewriteResult(normalized, subs);
-        }
-
         String normalizedQuestion = queryTermMappingService.normalize(userQuestion);
-
+        if (!ragConfigProperties.getQueryRewriteEnabled()) {
+            return rewriteWithoutLLM(normalizedQuestion);
+        }
         return callLLMRewriteAndSplit(normalizedQuestion, userQuestion, List.of());
+    }
 
-        // 兜底：使用归一化结果 + 规则拆分
+    /**
+     * 开关关闭时的纯规则路径：归一化 + 规则拆分
+     */
+    private RewriteResult rewriteWithoutLLM(String normalizedQuestion) {
+        List<String> subs = ruleBasedSplit(normalizedQuestion);
+        return new RewriteResult(normalizedQuestion, subs);
     }
 
     private RewriteResult callLLMRewriteAndSplit(String normalizedQuestion,
@@ -86,8 +84,8 @@ public class MultiQuestionRewriteService implements QueryRewriteService {
         String systemPrompt = promptTemplateLoader.load(QUERY_REWRITE_AND_SPLIT_PROMPT_PATH);
         ChatRequest req = buildRewriteRequest(systemPrompt, normalizedQuestion, history);
 
-        // 快速档调用；解析失败或调用失败均用归一化问题兜底（档位内多候选已提供传输容错，不再跨档升级）
-        RewriteResult fallback = new RewriteResult(normalizedQuestion, List.of(normalizedQuestion));
+        // 快速档调用；解析失败或调用失败时降级为规则拆分兜底（档位内多候选已提供传输容错，不再跨档升级）
+        RewriteResult fallback = new RewriteResult(normalizedQuestion, ruleBasedSplit(normalizedQuestion));
         RewriteResult result;
         try {
             RewriteResult parsed = parseRewriteAndSplit(llmService.chat(req, Tier.FAST));
