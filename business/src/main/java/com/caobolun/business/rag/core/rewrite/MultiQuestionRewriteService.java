@@ -54,8 +54,10 @@ public class MultiQuestionRewriteService implements QueryRewriteService {
     public RewriteResult rewriteWithSplit(String userQuestion, List<ChatMessage> history) {
         String normalizedQuestion = queryTermMappingService.normalize(userQuestion);
         if (!ragConfigProperties.getQueryRewriteEnabled()) {
+            // 不调用大模型的默认重写方法，仅做了关键词映射和按照标点符号的问题划分
             return rewriteWithoutLLM(normalizedQuestion);
         }
+        // 调用大模型进行重写和问题拆分
         return callLLMRewriteAndSplit(normalizedQuestion, userQuestion, history);
     }
 
@@ -74,6 +76,7 @@ public class MultiQuestionRewriteService implements QueryRewriteService {
      * 开关关闭时的纯规则路径：归一化 + 规则拆分
      */
     private RewriteResult rewriteWithoutLLM(String normalizedQuestion) {
+        // 问题拆分
         List<String> subs = ruleBasedSplit(normalizedQuestion);
         return new RewriteResult(normalizedQuestion, subs);
     }

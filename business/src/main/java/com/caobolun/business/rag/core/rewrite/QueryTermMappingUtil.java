@@ -31,9 +31,7 @@ public class QueryTermMappingUtil {
 
             // 判断当前位置是否已经是 targetTerm 的开头
             boolean alreadyTarget =
-                    targetTerm != null
-                            && hit + targetLen <= len
-                            && text.startsWith(targetTerm, hit);
+                    hit + targetLen <= len && text.startsWith(targetTerm, hit);
 
             if (alreadyTarget) {
                 // 已经是目标词开头了，直接按原文拷贝 targetTerm，一次性跳过
