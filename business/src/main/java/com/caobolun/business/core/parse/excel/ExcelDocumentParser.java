@@ -17,11 +17,11 @@
 
 package com.caobolun.business.core.parse.excel;
 
+import com.caobolun.business.core.parse.DocumentParser;
 import com.caobolun.business.core.parse.ParserType;
-import com.caobolun.business.core.parse.model.HeadingBlock;
-import com.caobolun.business.core.parse.model.ParsedDocument;
-import com.caobolun.business.core.parse.model.Provenance;
+import com.caobolun.business.core.parse.model.*;
 import com.caobolun.business.core.parse.registry.ParseProfile;
+import com.caobolun.framework.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Component;
@@ -116,7 +116,7 @@ public class ExcelDocumentParser implements DocumentParser {
      */
     private List<Block> buildSheetBlocks(Sheet sheet, String sourceFile, int headerRows,
                                          DataFormatter formatter, FormulaEvaluator evaluator) {
-        NormalizedTable table = ExcelTableNormalizer.normalize(sheet, formatter, evaluator, headerRows);
+        ExcelTableNormalizer.NormalizedTable table = ExcelTableNormalizer.normalize(sheet, formatter, evaluator, headerRows);
         if (table.isEmpty()) {
             log.debug("Sheet [{}] 为空，跳过", sheet.getSheetName());
             return List.of();

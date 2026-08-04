@@ -2,6 +2,7 @@ package com.caobolun.business.rag.config;
 
 import com.caobolun.business.rag.core.keyword.KeywordIndexService;
 import com.caobolun.business.rag.core.vector.VectorStoreService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;

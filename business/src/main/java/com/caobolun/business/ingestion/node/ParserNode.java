@@ -1,38 +1,21 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.caobolun.business.ingestion.node;
 
+import com.caobolun.business.core.parse.BlockTextRenderer;
+import com.caobolun.business.core.parse.DocumentParser;
+import com.caobolun.business.core.parse.MimeTypeDetector;
+import com.caobolun.business.core.parse.model.Block;
+import com.caobolun.business.core.parse.model.ParsedDocument;
+import com.caobolun.business.core.parse.registry.ParseProfile;
+import com.caobolun.business.core.parse.registry.ParserRegistry;
+import com.caobolun.business.ingestion.domain.context.IngestionContext;
+import com.caobolun.business.ingestion.domain.context.StructuredDocument;
+import com.caobolun.business.ingestion.domain.enums.IngestionNodeType;
+import com.caobolun.business.ingestion.domain.pipeline.NodeConfig;
+import com.caobolun.business.ingestion.domain.result.NodeResult;
+import com.caobolun.business.ingestion.domain.settings.ParserSettings;
+import com.caobolun.framework.exception.ClientException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nageoffer.ai.ragent.core.parser.BlockTextRenderer;
-import com.nageoffer.ai.ragent.core.parser.DocumentParser;
-import com.nageoffer.ai.ragent.core.parser.mime.MimeTypeDetector;
-import com.nageoffer.ai.ragent.core.parser.model.Block;
-import com.nageoffer.ai.ragent.core.parser.model.ParsedDocument;
-import com.nageoffer.ai.ragent.core.parser.registry.ParseProfile;
-import com.nageoffer.ai.ragent.core.parser.registry.ParserRegistry;
-import com.nageoffer.ai.ragent.framework.exception.ClientException;
-import com.nageoffer.ai.ragent.ingestion.domain.context.IngestionContext;
-import com.nageoffer.ai.ragent.ingestion.domain.context.StructuredDocument;
-import com.nageoffer.ai.ragent.ingestion.domain.enums.IngestionNodeType;
-import com.nageoffer.ai.ragent.ingestion.domain.pipeline.NodeConfig;
-import com.nageoffer.ai.ragent.ingestion.domain.result.NodeResult;
-import com.nageoffer.ai.ragent.ingestion.domain.settings.ParserSettings;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 

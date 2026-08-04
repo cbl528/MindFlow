@@ -24,13 +24,14 @@ import com.caobolun.business.ingestion.vo.IngestionPipelineNodeVO;
 import com.caobolun.business.ingestion.vo.IngestionPipelineVO;
 import com.caobolun.framework.context.UserContext;
 import com.caobolun.framework.exception.ClientException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mzt.logapi.starter.annotation.LogRecord;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 

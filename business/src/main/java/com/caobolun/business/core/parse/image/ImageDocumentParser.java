@@ -9,6 +9,8 @@ import com.caobolun.business.core.parse.model.Provenance;
 import com.caobolun.business.core.parse.registry.ParseProfile;
 import com.caobolun.business.rag.dto.StoredFileDTO;
 import com.caobolun.business.rag.service.FileStorageService;
+import com.caobolun.framework.exception.ServiceException;
+import com.caobolun.infraai.vlm.VlmService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
@@ -17,10 +19,9 @@ import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * 图片文档解析器（PNG / JPG / SVG）：入库期用 VLM 把图片转成「中文描述 + 图中文字 OCR」，产出单个 {@link ImageBlock}

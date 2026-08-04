@@ -3,6 +3,7 @@ package com.caobolun.business.rag.core.vector;
 import com.caobolun.business.rag.config.RAGDefaultProperties;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.common.ConsistencyLevel;
+import io.milvus.v2.common.DataType;
 import io.milvus.v2.common.IndexParam;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
 import io.milvus.v2.service.collection.request.HasCollectionReq;

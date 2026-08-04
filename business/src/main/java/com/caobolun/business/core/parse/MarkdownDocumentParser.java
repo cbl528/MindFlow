@@ -4,7 +4,6 @@ package com.caobolun.business.core.parse;
 import com.caobolun.business.core.parse.model.*;
 import com.caobolun.business.core.parse.model.Block;
 import com.caobolun.business.core.parse.model.ListBlock;
-import com.caobolun.business.core.parse.model.TableBlock;
 import com.caobolun.business.core.parse.registry.ParseProfile;
 import org.commonmark.ext.gfm.tables.*;
 import org.commonmark.node.*;
@@ -173,7 +172,7 @@ public class MarkdownDocumentParser implements DocumentParser {
         @Override
         public void visit(org.commonmark.node.CustomBlock customBlock) {
             // GFM TableBlock 是 CustomBlock 子类
-            if (customBlock instanceof TableBlock tableBlock) {
+            if (customBlock instanceof org.commonmark.ext.gfm.tables.TableBlock tableBlock) {
                 handleTable(tableBlock);
                 return;
             }
@@ -192,7 +191,7 @@ public class MarkdownDocumentParser implements DocumentParser {
             return new ListBlock(provenance, ordered, items);
         }
 
-        private void handleTable(TableBlock tableBlock) {
+        private void handleTable(org.commonmark.ext.gfm.tables.TableBlock tableBlock) {
             List<String> headers = new ArrayList<>();
             List<List<String>> rows = new ArrayList<>();
 
@@ -215,7 +214,7 @@ public class MarkdownDocumentParser implements DocumentParser {
                 child = child.getNext();
             }
 
-            blocks.add(new TableBlock(
+            blocks.add(new com.caobolun.business.core.parse.model.TableBlock(
                     provenance,
                     headers,
                     rows

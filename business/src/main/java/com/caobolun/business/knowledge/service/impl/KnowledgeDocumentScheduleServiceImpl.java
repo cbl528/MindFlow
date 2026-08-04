@@ -22,15 +22,20 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.caobolun.business.knowledge.entity.KnowledgeDocumentDO;
 import com.caobolun.business.knowledge.entity.KnowledgeDocumentScheduleDO;
 import com.caobolun.business.knowledge.entity.KnowledgeDocumentScheduleExecDO;
+import com.caobolun.business.knowledge.enums.SourceType;
 import com.caobolun.business.knowledge.mapper.KnowledgeDocumentScheduleExecMapper;
 import com.caobolun.business.knowledge.mapper.KnowledgeDocumentScheduleMapper;
+import com.caobolun.business.knowledge.schedule.CronScheduleHelper;
 import com.caobolun.business.knowledge.service.KnowledgeDocumentScheduleService;
 import com.caobolun.framework.exception.ClientException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.Date;
 
 @Slf4j
 @Service
@@ -39,6 +44,7 @@ public class KnowledgeDocumentScheduleServiceImpl implements KnowledgeDocumentSc
 
     private final KnowledgeDocumentScheduleMapper scheduleMapper;
     private final KnowledgeDocumentScheduleExecMapper scheduleExecMapper;
+
     @Value("${rag.knowledge.schedule.min-interval-seconds:60}")
     private long scheduleMinIntervalSeconds;
 

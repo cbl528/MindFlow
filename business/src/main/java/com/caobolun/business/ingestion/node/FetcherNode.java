@@ -24,11 +24,14 @@ import com.caobolun.business.ingestion.domain.enums.IngestionNodeType;
 import com.caobolun.business.ingestion.domain.enums.SourceType;
 import com.caobolun.business.ingestion.domain.pipeline.NodeConfig;
 import com.caobolun.business.ingestion.domain.result.NodeResult;
+import com.caobolun.business.ingestion.fetcher.DocumentFetcher;
+import com.caobolun.business.ingestion.fetcher.FetchResult;
 import com.caobolun.framework.exception.ClientException;
-import org.netpreserve.jwarc.FetchResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.caobolun.business.rag.config.KeywordProperties;
 import com.caobolun.framework.convention.RetrievedChunk;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

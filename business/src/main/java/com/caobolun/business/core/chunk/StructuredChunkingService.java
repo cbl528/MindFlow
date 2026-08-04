@@ -1,8 +1,9 @@
 package com.caobolun.business.core.chunk;
 
 import cn.hutool.core.util.IdUtil;
-import com.caobolun.business.core.chunk.blockaware.BlockAwareChunkerDispatcher;
-import com.caobolun.business.core.chunk.blockaware.BlockChunkConfig;
+import com.caobolun.business.core.chunk.model.Chunk;
+import com.caobolun.business.core.chunk.model.ChunkBudget;
+import com.caobolun.business.core.chunk.model.ChunkMetadata;
 import com.caobolun.business.core.parse.BlockTextRenderer;
 import com.caobolun.business.core.parse.model.Block;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 结构化分块服务（统一分块入口）
@@ -29,7 +29,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class StructuredChunkingService {
 
-    private final BlockAwareChunkerDispatcher blockAwareChunkerDispatcher;
+    private final ChunkingService chunkingService;
     private final ChunkingStrategyFactory chunkingStrategyFactory;
 
     /**
@@ -48,14 +48,6 @@ public class StructuredChunkingService {
      * 表格每 chunk 最大数据行数（硬上限；实际块大小由体量预算驱动）
      */
     private static final int DEFAULT_ROWS_PER_CHUNK = 50;
-    /**
-     * 列表 atomic 阈值默认值
-     */
-    private static final int DEFAULT_MAX_LIST_ITEMS = 15;
-    /**
-     * 长列表每 chunk 项数默认值
-     */
-    private static final int DEFAULT_LIST_ITEMS_PER_CHUNK = 10;
 
     /**
      * 分块：blocks 非空走 block-aware，否则用 fallbackText 走 legacy 文本策略
@@ -74,7 +66,8 @@ public class StructuredChunkingService {
             return wholeDocumentChunk(blocks, fallbackText);
         }
         if (blocks != null && !blocks.isEmpty()) {
-            return blockAwareChunkerDispatcher.dispatch(blocks, toBlockChunkConfig(options, rowsPerChunk));
+            List<Chunk> chunks = chunkingService.chunk(blocks, toBudget(options, rowsPerChunk));
+            return chunks.stream().map(StructuredChunkingService::toVectorChunk).toList();
         }
         if (!StringUtils.hasText(fallbackText)) {
             return List.of();
@@ -111,35 +104,49 @@ public class StructuredChunkingService {
         if (!StringUtils.hasText(whole)) {
             return List.of();
         }
-        List<String> sourceBlockIds = blocks == null ? List.of()
-                : blocks.stream().map(Block::id).filter(Objects::nonNull).toList();
         VectorChunk chunk = VectorChunk.builder()
                 .chunkId(IdUtil.getSnowflakeNextIdStr())
                 .index(0)
                 .content(whole)
                 .embeddingText(whole)
                 .blockType("DOCUMENT")
-                .sourceBlockIds(sourceBlockIds)
                 .build();
         return List.of(chunk);
     }
 
     /**
-     * 从 legacy ChunkingOptions 派生 BlockChunkConfig，使 block-aware 与文本策略共用同一组体量参数
+     * 从 legacy ChunkingOptions 派生 ChunkBudget，使 block-aware 与文本策略共用同一组体量参数
      * <p>
      * maxChars 预算优先取 chunkSize（固定大小）/ targetChars（语义感知）；overlap 同理
      * rowsPerChunk 由调用方透传，缺省取硬上限默认值
      */
-    private BlockChunkConfig toBlockChunkConfig(ChunkingOptions options, Integer rowsPerChunk) {
+    private ChunkBudget toBudget(ChunkingOptions options, Integer rowsPerChunk) {
         Map<String, Integer> cfg = options == null ? Map.of() : options.toConfigMap();
         int maxChars = firstPositive(cfg);
         int overlap = firstNonNegative(cfg);
-        // 防御：overlap 必须 < maxChars，否则 BlockChunkConfig 校验会抛错
+        // 防御：overlap 必须 < maxChars，否则 ChunkBudget 校验会抛错
         if (overlap >= maxChars) {
             overlap = Math.max(0, maxChars - 1);
         }
         int rows = (rowsPerChunk != null && rowsPerChunk > 0) ? rowsPerChunk : DEFAULT_ROWS_PER_CHUNK;
-        return new BlockChunkConfig(maxChars, overlap, rows, DEFAULT_MAX_LIST_ITEMS, DEFAULT_LIST_ITEMS_PER_CHUNK);
+        return new ChunkBudget(maxChars, overlap, rows);
+    }
+
+    /**
+     * 把内核块还原成 {@link VectorChunk}：块元数据序列化到 metadata 扩展位，
+     * 结构字段（章节路径 / 资产）原样搬入 VectorChunk
+     */
+    private static VectorChunk toVectorChunk(Chunk chunk) {
+        ChunkMetadata metadata = chunk.metadata();
+        return VectorChunk.builder()
+                .chunkId(chunk.chunkId())
+                .index(chunk.index())
+                .content(chunk.content())
+                .embeddingText(chunk.embeddingText())
+                .metadata(metadata.toMap())
+                .assets(metadata.assets())
+                .outlinePath(metadata.outlinePath())
+                .build();
     }
 
     /**

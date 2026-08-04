@@ -1,10 +1,13 @@
 package com.caobolun.business.ingestion.vo;
 
+import com.caobolun.business.ingestion.domain.context.NodeLog;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**

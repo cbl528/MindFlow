@@ -75,7 +75,8 @@ public class DocumentParserSelector {
      */
     public DocumentParser selectByMimeType(String mimeType) {
         return strategies.stream()
-                .filter(parser -> parser.supportedMimeTypes(mimeType))
+                .filter(parser -> parser.supportedMimeTypes().values().stream()
+                        .anyMatch(types -> types.contains(mimeType)))
                 .findFirst()
                 .orElse(null);
     }

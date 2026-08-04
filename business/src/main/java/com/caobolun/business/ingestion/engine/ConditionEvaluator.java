@@ -1,9 +1,19 @@
 package com.caobolun.business.ingestion.engine;
 
 
+import com.caobolun.business.ingestion.domain.context.IngestionContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.function.IntPredicate;
 
 /**
  * 条件评估器

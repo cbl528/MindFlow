@@ -91,7 +91,7 @@ public class CsvDocumentParser implements DocumentParser {
         }
 
         Provenance prov = Provenance.ofFile(extractSourceFile(options));
-        TableBlock block = new TableBlock(UUID.randomUUID().toString(), prov, List.of(), headers, rows, null);
+        TableBlock block = new TableBlock(prov, headers, rows);
         return ParsedDocument.of(List.of(block), Map.of(
                 "parser", getParserType(),
                 "mimeType", mimeType == null ? "" : mimeType,

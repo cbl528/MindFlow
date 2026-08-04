@@ -5,6 +5,7 @@ import com.caobolun.business.rag.core.graph.LightRagClient;
 import com.caobolun.business.rag.core.keyword.KeywordIndexService;
 import com.caobolun.business.rag.core.vector.VectorStoreAdmin;
 import com.caobolun.business.rag.service.FileStorageService;
+import com.caobolun.framework.exception.ServiceException;
 import com.caobolun.framework.mq.MessageWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

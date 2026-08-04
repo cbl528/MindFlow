@@ -1,6 +1,7 @@
 package com.caobolun.business.knowledge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.caobolun.business.knowledge.request.KnowledgeDocumentPageRequest;
 import com.caobolun.business.knowledge.request.KnowledgeDocumentUpdateRequest;
 import com.caobolun.business.knowledge.request.KnowledgeDocumentUploadRequest;

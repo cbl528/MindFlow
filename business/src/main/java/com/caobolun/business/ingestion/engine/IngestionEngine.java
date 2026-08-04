@@ -8,6 +8,7 @@ import com.caobolun.business.ingestion.domain.enums.IngestionStatus;
 import com.caobolun.business.ingestion.domain.pipeline.NodeConfig;
 import com.caobolun.business.ingestion.domain.pipeline.PipelineDefinition;
 import com.caobolun.business.ingestion.domain.result.NodeResult;
+import com.caobolun.business.ingestion.node.IngestionNode;
 import com.caobolun.framework.exception.ClientException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

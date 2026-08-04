@@ -1,20 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.caobolun.business.knowledge.service.impl;
 
 
@@ -40,6 +23,7 @@ import com.caobolun.business.core.parse.*;
 import com.caobolun.business.core.parse.model.ParsedDocument;
 import com.caobolun.business.ingestion.domain.context.IngestionContext;
 import com.caobolun.business.ingestion.domain.pipeline.PipelineDefinition;
+import com.caobolun.business.ingestion.engine.IngestionEngine;
 import com.caobolun.business.ingestion.entity.IngestionPipelineDO;
 import com.caobolun.business.ingestion.mapper.IngestionPipelineMapper;
 import com.caobolun.business.ingestion.service.IngestionPipelineService;
@@ -51,6 +35,8 @@ import com.caobolun.business.knowledge.entity.KnowledgeDocumentDO;
 import com.caobolun.business.knowledge.enums.DocumentStatus;
 import com.caobolun.business.knowledge.enums.ProcessMode;
 import com.caobolun.business.knowledge.enums.SourceType;
+import com.caobolun.business.knowledge.handler.RemoteFileFetcher;
+import com.caobolun.business.knowledge.schedule.CronScheduleHelper;
 import com.caobolun.business.knowledge.mapper.KnowledgeBaseMapper;
 import com.caobolun.business.knowledge.mapper.KnowledgeChunkMapper;
 import com.caobolun.business.knowledge.mapper.KnowledgeDocumentChunkLogMapper;
@@ -74,6 +60,7 @@ import com.caobolun.business.rag.service.FileStorageService;
 import com.caobolun.framework.context.UserContext;
 import com.caobolun.framework.exception.ClientException;
 import com.caobolun.framework.mq.producer.MessageQueueProducer;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mzt.logapi.starter.annotation.LogRecord;
 import lombok.RequiredArgsConstructor;

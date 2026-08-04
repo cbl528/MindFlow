@@ -1,6 +1,8 @@
 package com.caobolun.business.rag.core.keyword;
 
 
+import com.caobolun.business.core.chunk.model.EmbeddedChunk;
+
 import java.util.List;
 
 /**

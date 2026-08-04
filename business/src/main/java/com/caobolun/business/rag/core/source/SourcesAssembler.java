@@ -2,15 +2,14 @@ package com.caobolun.business.rag.core.source;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.caobolun.business.knowledge.entity.KnowledgeDocumentDO;
+import com.caobolun.business.knowledge.mapper.KnowledgeDocumentMapper;
 import com.caobolun.framework.convention.RetrievedChunk;
 import com.caobolun.framework.convention.SourceRef;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 回答来源装配器

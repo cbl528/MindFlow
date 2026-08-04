@@ -1,5 +1,6 @@
 package com.caobolun.business.rag.request;
 
+import com.caobolun.business.ingestion.domain.enums.SourceType;
 import lombok.Data;
 
 import java.util.Map;

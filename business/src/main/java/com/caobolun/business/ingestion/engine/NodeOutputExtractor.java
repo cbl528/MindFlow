@@ -1,13 +1,15 @@
 package com.caobolun.business.ingestion.engine;
 
+import com.caobolun.business.core.chunk.model.EmbeddedChunk;
+import com.caobolun.business.core.parse.model.Block;
 import com.caobolun.business.ingestion.domain.context.DocumentSource;
 import com.caobolun.business.ingestion.domain.context.IngestionContext;
 import com.caobolun.business.ingestion.domain.enums.IngestionNodeType;
 import com.caobolun.business.ingestion.domain.pipeline.NodeConfig;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 节点输出提取器：从 {@code IngestionContext} 里取各节点的输出摘要

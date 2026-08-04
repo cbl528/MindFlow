@@ -234,6 +234,10 @@
                     <target>${java.version}</target>
                     <encoding>UTF-8</encoding>
                     <parameters>true</parameters>
+                    <compilerArgs>
+                        <arg>-Xmaxerrs</arg>
+                        <arg>2000</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

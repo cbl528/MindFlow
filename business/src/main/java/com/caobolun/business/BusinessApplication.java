@@ -12,7 +12,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan(basePackages = {
         "com.caobolun.business.rag.mapper",
         "com.caobolun.business.knowledge.mapper",
-        "com.caobolun.business.audit.mapper"
+        "com.caobolun.business.audit.mapper",
+        "com.caobolun.business.ingestion.mapper"
 })
 public class BusinessApplication {
 

@@ -23,12 +23,15 @@ import com.caobolun.business.ingestion.domain.enums.IngestionNodeType;
 import com.caobolun.business.ingestion.domain.pipeline.NodeConfig;
 import com.caobolun.business.ingestion.domain.result.NodeResult;
 import com.caobolun.business.ingestion.domain.settings.EnhancerSettings;
+import com.caobolun.business.ingestion.prompt.EnhancerPromptManager;
 import com.caobolun.business.ingestion.util.JsonResponseParser;
 import com.caobolun.business.ingestion.util.PromptTemplateRenderer;
 import com.caobolun.framework.convention.ChatMessage;
 import com.caobolun.framework.convention.ChatRequest;
 import com.caobolun.infraai.chat.LLMService;
 import com.caobolun.infraai.enums.Tier;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 

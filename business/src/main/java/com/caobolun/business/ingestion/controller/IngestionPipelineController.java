@@ -1,6 +1,11 @@
 package com.caobolun.business.ingestion.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.caobolun.business.ingestion.request.IngestionPipelineCreateRequest;
+import com.caobolun.business.ingestion.request.IngestionPipelineUpdateRequest;
+import com.caobolun.business.ingestion.service.IngestionPipelineService;
+import com.caobolun.business.ingestion.vo.IngestionPipelineVO;
 import com.caobolun.framework.convention.Result;
 import com.caobolun.framework.web.Results;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,10 @@
 package com.caobolun.business.rag.eval;
 
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.caobolun.business.knowledge.entity.KnowledgeChunkDO;
+import com.caobolun.business.knowledge.entity.KnowledgeDocumentDO;
 import com.caobolun.business.knowledge.mapper.KnowledgeChunkMapper;
 import com.caobolun.business.knowledge.mapper.KnowledgeDocumentMapper;
 import com.caobolun.business.rag.core.intent.IntentResolver;
@@ -9,12 +13,17 @@ import com.caobolun.business.rag.core.rewrite.QueryRewriteService;
 import com.caobolun.business.rag.core.rewrite.RewriteResult;
 import com.caobolun.business.rag.dto.RetrievalContext;
 import com.caobolun.business.rag.dto.SubQuestionIntent;
+import com.caobolun.framework.convention.Result;
+import com.caobolun.framework.convention.RetrievedChunk;
 import com.caobolun.framework.web.Results;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 效果评测接口

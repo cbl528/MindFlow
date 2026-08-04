@@ -1,11 +1,24 @@
 package com.caobolun.business.ingestion.node;
 
+import com.caobolun.business.core.chunk.ChunkingService;
+import com.caobolun.business.core.chunk.model.Chunk;
+import com.caobolun.business.core.chunk.model.ChunkBudget;
+import com.caobolun.business.core.chunk.model.EmbeddedChunk;
+import com.caobolun.business.core.ingest.VectorTarget;
 import com.caobolun.business.core.ingest.embed.ChunkEmbeddingService;
+import com.caobolun.business.core.parse.model.Block;
 import com.caobolun.business.ingestion.domain.context.IngestionContext;
 import com.caobolun.business.ingestion.domain.enums.IngestionNodeType;
+import com.caobolun.business.ingestion.domain.pipeline.NodeConfig;
+import com.caobolun.business.ingestion.domain.result.NodeResult;
+import com.caobolun.business.ingestion.domain.settings.ChunkerSettings;
 import com.caobolun.framework.exception.ClientException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * 分块节点：把 Block 列表按预算切块并向量化
