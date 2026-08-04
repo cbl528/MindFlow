@@ -10,7 +10,7 @@ import com.caobolun.business.rag.mapper.ConversationMessageMapper;
 import com.caobolun.business.rag.mapper.MessageFeedbackMapper;
 import com.caobolun.business.rag.mq.MessageFeedbackEvent;
 import com.caobolun.business.rag.request.MessageFeedbackRequest;
-import com.caobolun.business.rag.service.ratelimit.MessageFeedbackService;
+import com.caobolun.business.rag.service.MessageFeedbackService;
 import com.caobolun.framework.context.UserContext;
 import com.caobolun.framework.exception.ClientException;
 import com.caobolun.framework.mq.producer.MessageQueueProducer;

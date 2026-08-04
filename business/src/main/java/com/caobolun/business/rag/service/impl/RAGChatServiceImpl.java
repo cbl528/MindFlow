@@ -8,7 +8,7 @@ import com.caobolun.business.rag.service.handler.StreamTaskManager;
 import com.caobolun.business.rag.service.pipeline.StreamChatContext;
 import com.caobolun.business.rag.service.pipeline.StreamChatPipeline;
 import com.caobolun.business.rag.service.ratelimit.ChatQueueLimiter;
-import com.caobolun.business.rag.service.trace.StreamChatTraceRunner;
+import com.caobolun.business.rag.trace.StreamChatTraceRunner;
 import com.caobolun.framework.context.UserContext;
 import com.caobolun.infraai.chat.StreamCallback;
 import lombok.RequiredArgsConstructor;

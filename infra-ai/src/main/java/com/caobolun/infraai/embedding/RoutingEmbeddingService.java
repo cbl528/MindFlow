@@ -1,5 +1,6 @@
 package com.caobolun.infraai.embedding;
 
+import com.caobolun.framework.exception.RemoteException;
 import com.caobolun.infraai.enums.ModelCapability;
 import com.caobolun.infraai.model.ModelRoutingExecutor;
 import com.caobolun.infraai.model.ModelSelector;
@@ -10,6 +11,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**

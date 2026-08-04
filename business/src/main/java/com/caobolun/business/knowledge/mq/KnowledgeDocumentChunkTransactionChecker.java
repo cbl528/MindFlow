@@ -1,0 +1,49 @@
+package com.caobolun.business.knowledge.mq;
+
+import cn.hutool.json.JSONUtil;
+import com.caobolun.business.knowledge.entity.KnowledgeDocumentDO;
+import com.caobolun.business.knowledge.enums.DocumentStatus;
+import com.caobolun.business.knowledge.mapper.KnowledgeDocumentMapper;
+import com.caobolun.business.knowledge.mq.event.KnowledgeDocumentChunkEvent;
+import com.caobolun.framework.mq.MessageWrapper;
+import com.caobolun.framework.mq.producer.DelegatingTransactionListener;
+import com.caobolun.framework.mq.producer.TransactionChecker;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+/**
+ * 文档分块事务消息回查器
+ * <p>
+ * 按 topic 注册，Broker 回查时可路由到任意实例，通过查询 DB 中文档状态判断本地事务是否已提交
+ */
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class KnowledgeDocumentChunkTransactionChecker implements TransactionChecker {
+
+    private final KnowledgeDocumentMapper documentMapper;
+    private final DelegatingTransactionListener transactionListener;
+
+    @Value("knowledge-document-chunk_topic${unique-name:}")
+    private String chunkTopic;
+
+    @PostConstruct
+    public void init() {
+        transactionListener.registerChecker(chunkTopic, this);
+    }
+
+    @Override
+    public boolean check(MessageWrapper<?> message) {
+        log.info("[事务回查] 文档分块，消息体：{}", JSONUtil.toJsonStr(message));
+
+        KnowledgeDocumentChunkEvent event = (KnowledgeDocumentChunkEvent) message.getBody();
+        String docId = event.getDocId();
+        KnowledgeDocumentDO documentDO = documentMapper.selectById(docId);
+
+        return documentDO != null
+                && DocumentStatus.RUNNING.getCode().equals(documentDO.getStatus());
+    }
+}

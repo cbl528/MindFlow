@@ -29,3 +29,15 @@ ai:
       endpoints:
         chat: /v1/chat/completions
         embedding: /v1/embeddings
+rag:
+  storage:
+    type: s3                      # s3 即 MinIO / rustfs（默认值，可省略）
+    kb-bucket: ragent-sources     # 知识库桶（私有），启动时自动创建
+    asset-bucket: ragent-assets   # 资产桶（公共读），启动时自动创建
+    s3:
+      endpoint: http://localhost:9000     # ← 改成你的 MinIO 端点
+      access-key: <你的MinIO_AccessKey>
+      secret-key: <你的MinIO_SecretKey>
+      region: us-east-1                  # S3 兼容存储任填
+      path-style: true                   # MinIO 必须为 true
+      public-url:                        #浏览器直连资产图用的基址；内外网端点不同时配置，留空回退 endpoint

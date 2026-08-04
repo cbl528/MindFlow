@@ -7,7 +7,7 @@ import com.caobolun.business.rag.mapper.ConversationMapper;
 import com.caobolun.business.rag.mapper.ConversationMessageMapper;
 import com.caobolun.business.rag.mapper.ConversationSummaryMapper;
 import com.caobolun.business.rag.service.ConversationMessageService;
-import com.caobolun.business.rag.service.ratelimit.MessageFeedbackService;
+import com.caobolun.business.rag.service.MessageFeedbackService;
 import com.caobolun.business.rag.vo.ConversationMessageVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

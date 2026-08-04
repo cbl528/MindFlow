@@ -1,6 +1,6 @@
 package com.caobolun.business.rag.mq;
 
-import com.caobolun.business.rag.service.ratelimit.MessageFeedbackService;
+import com.caobolun.business.rag.service.MessageFeedbackService;
 import com.caobolun.framework.mq.MessageWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

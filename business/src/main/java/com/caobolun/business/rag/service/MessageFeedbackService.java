@@ -1,4 +1,4 @@
-package com.caobolun.business.rag.service.ratelimit;
+package com.caobolun.business.rag.service;
 
 import com.caobolun.business.rag.mq.MessageFeedbackEvent;
 import com.caobolun.business.rag.request.MessageFeedbackRequest;

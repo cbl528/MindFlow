@@ -1,4 +1,4 @@
-package com.caobolun.business.rag.service.trace;
+package com.caobolun.business.rag.trace;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
