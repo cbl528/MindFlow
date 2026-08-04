@@ -6,7 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @MapperScan(basePackages = {
-        "com.caobolun.business.rag.mapper"
+        "com.caobolun.business.rag.mapper",
+        "com.caobolun.business.knowledge.mapper"
 })
 public class BusinessApplication {
 

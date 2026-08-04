@@ -5,10 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import com.caobolun.business.rag.config.SearchChannelProperties;
 import com.caobolun.business.rag.core.intent.IntentNode;
 import com.caobolun.business.rag.core.intent.NodeScore;
+import com.caobolun.business.rag.core.intent.NodeScoreFilters;
 import com.caobolun.business.rag.core.mcp.McpExtractionResult;
 import com.caobolun.business.rag.core.mcp.McpParameterExtractor;
 import com.caobolun.business.rag.core.mcp.McpToolExecutor;
 import com.caobolun.business.rag.core.mcp.McpToolRegistry;
+import com.caobolun.business.rag.core.prompt.ContextFormatter;
 import com.caobolun.business.rag.core.prompt.PromptTemplateLoader;
 import com.caobolun.business.rag.dto.KbResult;
 import com.caobolun.business.rag.dto.RetrievalContext;
@@ -17,9 +19,10 @@ import com.caobolun.framework.convention.RetrievedChunk;
 import com.caobolun.framework.trace.RagTraceNode;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
+import io.modelcontextprotocol.spec.McpSchema.TextContent;
+import io.modelcontextprotocol.spec.McpSchema.Tool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.bridge.context.ContextFormatter;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,6 +31,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.caobolun.business.rag.constant.RAGConstant.CONTEXT_FORMAT_PATH;
+import static com.caobolun.business.rag.constant.RAGConstant.MULTI_CHANNEL_KEY;
 
 /**
  * 检索引擎
@@ -90,8 +94,7 @@ public class RetrievalEngine {
                     if (CollUtil.isEmpty(chunks)) {
                         return;
                     }
-                    mergedIntentChunks
-                            .computeIfAbsent(intentId, ignored -> new ArrayList<>())
+                    mergedIntentChunks.computeIfAbsent(intentId, ignored -> new ArrayList<>())
                             .addAll(chunks);
                 });
             }
@@ -223,9 +226,7 @@ public class RetrievalEngine {
                                         .build());
                             }
                         },
-                        mcpBatchExecutor
-                ))
-                .toList();
+                        mcpBatchExecutor)).toList();
 
         return futures.stream()
                 .map(CompletableFuture::join)

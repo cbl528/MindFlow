@@ -9,6 +9,7 @@ import com.caobolun.business.rag.entity.RagTraceRunDO;
 import com.caobolun.business.rag.service.RagTraceRecordService;
 import com.caobolun.framework.context.UserContext;
 import com.caobolun.framework.trace.RagTraceContext;
+import com.caobolun.infraai.chat.ForwardingStreamCallback;
 import com.caobolun.infraai.chat.StreamCallback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
