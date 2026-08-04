@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.caobolun.business.rag.config.RAGDefaultProperties;
 import com.caobolun.business.rag.core.retrieval.RetrieveRequest;
 import com.caobolun.framework.convention.RetrievedChunk;
+import com.caobolun.infraai.embedding.EmbeddingService;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.vector.request.SearchReq;
 import io.milvus.v2.service.vector.request.data.BaseVector;
@@ -69,7 +70,7 @@ public class MilvusVectorRetrieverService implements VectorRetrieverService {
             return null;
         }
         if (collectionNames.size() == 1) {
-            return "collection_name == \"" + escapeFilterValue(collectionNames.get(0)) + "\"";
+            return "collection_name == \"" + escapeFilterValue(collectionNames.getFirst()) + "\"";
         }
         String inList = collectionNames.stream()
                 .map(this::escapeFilterValue)
@@ -112,7 +113,7 @@ public class MilvusVectorRetrieverService implements VectorRetrieverService {
             return List.of();
         }
 
-        return results.get(0).stream()
+        return results.getFirst().stream()
                 .map(r -> RetrievedChunk.builder()
                         .id(Objects.toString(r.getEntity().get("id"), ""))
                         .text(Objects.toString(r.getEntity().get("content"), ""))

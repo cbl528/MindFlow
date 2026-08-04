@@ -15,27 +15,30 @@
  * limitations under the License.
  */
 
-package com.caobolun.business.core.chunk.blockaware;
+package com.caobolun.business.ingestion.util;
 
-import com.caobolun.business.core.chunk.model.ChunkBudget;
-
-import java.util.List;
+import java.util.Map;
 
 /**
- * BlockChunker 调用上下文
- * <p>
- * 由 ChunkerNode 在遍历 Block 列表时构造并传入每个 chunker，承载：
- * <ul>
- *   <li>{@link #outlinePath}：当前 Block 所在的章节路径（由 HeadingHandler 累积）</li>x
+ * 提示词模板渲染器
  */
-public record ChunkContext(List<String> outlinePath, ChunkBudget budget) {
+public final class PromptTemplateRenderer {
 
-    public ChunkContext {
-        outlinePath = outlinePath == null ? List.of() : List.copyOf(outlinePath);
+    private PromptTemplateRenderer() {
     }
 
-    public static ChunkContext of(List<String> outlinePath, ChunkBudget budget) {
-        return new ChunkContext(outlinePath, budget);
+    public static String render(String template, Map<String, Object> variables) {
+        if (template == null || template.isBlank()) {
+            return template;
+        }
+        String out = template;
+        if (variables != null) {
+            for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                String key = "{{" + entry.getKey() + "}}";
+                String value = entry.getValue() == null ? "" : String.valueOf(entry.getValue());
+                out = out.replace(key, value);
+            }
+        }
+        return out;
     }
 }
-

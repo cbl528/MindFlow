@@ -1,6 +1,7 @@
 package com.caobolun.business.rag.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.caobolun.business.knowledge.handler.StringListTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,6 +1,7 @@
 package com.caobolun.business.core.ingest.sink;
 
 import com.caobolun.business.core.chunk.model.EmbeddedChunk;
+import com.caobolun.business.core.ingest.DocumentRef;
 import com.caobolun.business.core.ingest.VectorTarget;
 
 import java.util.List;

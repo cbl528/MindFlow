@@ -4,10 +4,15 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.caobolun.business",
+        "com.caobolun.framework",
+        "com.caobolun.infraai"
+})
 @MapperScan(basePackages = {
         "com.caobolun.business.rag.mapper",
-        "com.caobolun.business.knowledge.mapper"
+        "com.caobolun.business.knowledge.mapper",
+        "com.caobolun.business.audit.mapper"
 })
 public class BusinessApplication {
 

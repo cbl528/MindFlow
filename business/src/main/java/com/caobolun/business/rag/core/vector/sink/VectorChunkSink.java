@@ -1,6 +1,9 @@
 package com.caobolun.business.rag.core.vector.sink;
 
 import com.caobolun.business.core.chunk.model.EmbeddedChunk;
+import com.caobolun.business.core.ingest.DocumentRef;
+import com.caobolun.business.core.ingest.VectorTarget;
+import com.caobolun.business.core.ingest.sink.ChunkSink;
 import com.caobolun.business.rag.core.vector.VectorStoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.Ordered;

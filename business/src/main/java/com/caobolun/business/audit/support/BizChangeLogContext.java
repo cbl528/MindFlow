@@ -1,7 +1,13 @@
 package com.caobolun.business.audit.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mzt.logapi.context.LogRecordContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

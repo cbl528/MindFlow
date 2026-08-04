@@ -1,6 +1,7 @@
 package com.caobolun.business.core.ingest;
 
 import com.caobolun.business.core.chunk.model.ChunkBudget;
+import com.caobolun.business.core.parse.registry.ParseProfile;
 
 /**
  * 文档级摄取配置（L3）：这一篇怎么解析、怎么切，对应 {@code t_knowledge_document.ingestion_spec} 一个 JSONB 列

@@ -7,6 +7,9 @@ import com.caobolun.framework.context.UserContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mzt.logapi.beans.CodeVariableType;
+import com.mzt.logapi.beans.LogRecord;
+import com.mzt.logapi.service.ILogRecordService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +20,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
-import java.util.logging.LogRecord;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor

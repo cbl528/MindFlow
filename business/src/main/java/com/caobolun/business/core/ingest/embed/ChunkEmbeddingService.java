@@ -3,6 +3,7 @@ package com.caobolun.business.core.ingest.embed;
 import com.caobolun.business.core.chunk.model.Chunk;
 import com.caobolun.business.core.chunk.model.EmbeddedChunk;
 import com.caobolun.business.core.ingest.VectorTarget;
+import com.caobolun.infraai.embedding.EmbeddingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,7 @@
 package com.caobolun.business.rag.core.vector;
 
 import cn.hutool.core.lang.Assert;
+import com.caobolun.business.core.chunk.model.EmbeddedChunk;
 import com.caobolun.business.rag.config.RAGDefaultProperties;
 import com.caobolun.framework.exception.ClientException;
 import com.google.gson.Gson;

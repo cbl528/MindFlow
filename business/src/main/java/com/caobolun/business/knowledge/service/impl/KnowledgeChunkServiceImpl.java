@@ -1,37 +1,50 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.caobolun.business.knowledge.service.impl;
 
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.caobolun.business.audit.constant.BizChangeBizType;
+import com.caobolun.business.audit.constant.BizChangeOperationType;
+import com.caobolun.business.audit.support.BizChangeLogContext;
+import com.caobolun.business.core.chunk.VectorChunk;
+import com.caobolun.business.knowledge.entity.KnowledgeBaseDO;
 import com.caobolun.business.knowledge.entity.KnowledgeChunkDO;
 import com.caobolun.business.knowledge.entity.KnowledgeDocumentDO;
+import com.caobolun.business.knowledge.enums.DocumentStatus;
 import com.caobolun.business.knowledge.mapper.KnowledgeBaseMapper;
 import com.caobolun.business.knowledge.mapper.KnowledgeChunkMapper;
 import com.caobolun.business.knowledge.mapper.KnowledgeDocumentMapper;
+import com.caobolun.business.knowledge.request.KnowledgeChunkBatchRequest;
+import com.caobolun.business.knowledge.request.KnowledgeChunkCreateRequest;
 import com.caobolun.business.knowledge.request.KnowledgeChunkPageRequest;
+import com.caobolun.business.knowledge.request.KnowledgeChunkUpdateRequest;
 import com.caobolun.business.knowledge.service.KnowledgeChunkService;
 import com.caobolun.business.knowledge.vo.KnowledgeChunkVO;
+import com.caobolun.business.rag.core.vector.VectorStoreService;
+import com.caobolun.framework.context.UserContext;
+import com.caobolun.framework.exception.ClientException;
+import com.caobolun.framework.exception.ServiceException;
+import com.caobolun.infraai.embedding.EmbeddingService;
+import com.caobolun.infraai.token.TokenCounterService;
+import com.mzt.logapi.starter.annotation.LogRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 知识库 Chunk 服务实现

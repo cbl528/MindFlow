@@ -1,13 +1,12 @@
 package com.caobolun.business.core.chunk.blockaware;
 
 
-import cn.hutool.core.util.IdUtil;
-import com.caobolun.business.core.chunk.VectorChunk;
+import com.caobolun.business.core.chunk.model.ChunkDraft;
+import com.caobolun.business.core.chunk.model.ChunkMetadata;
 import com.caobolun.business.core.parse.model.AssetRef;
 import com.caobolun.business.core.parse.model.ImageBlock;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,39 +19,29 @@ import java.util.List;
 public class ImageChunker implements BlockChunker<ImageBlock> {
 
     @Override
-    public List<VectorChunk> chunk(ImageBlock block, ChunkContext ctx) {
+    public Class<ImageBlock> blockType() {
+        return ImageBlock.class;
+    }
+
+    @Override
+    public List<ChunkDraft> chunk(ImageBlock block, ChunkContext ctx) {
         if (block == null || block.asset() == null) {
             return List.of();
         }
         AssetRef asset = block.asset();
+        String markdown = "![" + pickCaption(block) + "](" + asset.publicUrl() + ")";
 
-        String visible = pickCaption(block);
-        String markdown = "![" + visible + "](" + asset.publicUrl() + ")";
-
-        // content(展示+答题):自包含描述在前 + 图片 markdown 在后;无描述(如 MinerU 抽图)回落为纯链接
         String description = block.description();
         boolean hasDescription = description != null && !description.isBlank();
-        String content = hasDescription
-                ? description.strip() + "\n\n" + markdown
-                : markdown;
+        String content = hasDescription ? description.strip() + "\n\n" + markdown : markdown;
 
-        // embeddingText(只做向量):用描述原文,去掉 ![](url) 那行 URL 噪声;
-        // 无描述则置 null,由 ChunkEmbeddingService 回退 content(MinerU 老行为不变)
-        String embeddingText = hasDescription ? description.strip() : null;
-
-        VectorChunk chunk = VectorChunk.builder()
-                .chunkId(IdUtil.getSnowflakeNextIdStr())
-                .index(ctx.startIndex())
-                .content(content)
-                .embeddingText(embeddingText)
-                .blockType("IMAGE")
-                .outlinePath(new ArrayList<>(ctx.outlinePath()))
-                .sourceBlockIds(List.of(block.id()))
+        ChunkMetadata metadata = ChunkMetadata.builder()
+                .outlinePath(ctx.outlinePath())
                 .assets(List.of(asset))
-                .sectionContext(buildSectionContext(block))
+                .provenance(block.provenance())
                 .build();
 
-        return List.of(chunk);
+        return List.of(ChunkDraft.of(content, hasDescription ? description.strip() : null, metadata));
     }
 
     private String pickCaption(ImageBlock block) {
@@ -63,12 +52,5 @@ public class ImageChunker implements BlockChunker<ImageBlock> {
             return block.altText();
         }
         return "";
-    }
-
-    private String buildSectionContext(ImageBlock block) {
-        if (block.provenance() == null || block.provenance().sheetName() == null) {
-            return null;
-        }
-        return "sheet=" + block.provenance().sheetName();
     }
 }

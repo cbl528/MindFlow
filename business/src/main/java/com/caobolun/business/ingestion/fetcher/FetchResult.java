@@ -15,27 +15,14 @@
  * limitations under the License.
  */
 
-package com.caobolun.business.core.chunk.blockaware;
-
-import com.caobolun.business.core.chunk.model.ChunkBudget;
-
-import java.util.List;
+package com.caobolun.business.ingestion.fetcher;
 
 /**
- * BlockChunker 调用上下文
- * <p>
- * 由 ChunkerNode 在遍历 Block 列表时构造并传入每个 chunker，承载：
- * <ul>
- *   <li>{@link #outlinePath}：当前 Block 所在的章节路径（由 HeadingHandler 累积）</li>x
+ * 抓取结果实体类
+ *
+ * @param content  抓取到的内容字节数组
+ * @param mimeType 内容的 MIME 类型
+ * @param fileName 文件名称
  */
-public record ChunkContext(List<String> outlinePath, ChunkBudget budget) {
-
-    public ChunkContext {
-        outlinePath = outlinePath == null ? List.of() : List.copyOf(outlinePath);
-    }
-
-    public static ChunkContext of(List<String> outlinePath, ChunkBudget budget) {
-        return new ChunkContext(outlinePath, budget);
-    }
+public record FetchResult(byte[] content, String mimeType, String fileName) {
 }
-

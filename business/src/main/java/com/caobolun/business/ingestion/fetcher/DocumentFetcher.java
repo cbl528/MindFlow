@@ -15,27 +15,28 @@
  * limitations under the License.
  */
 
-package com.caobolun.business.core.chunk.blockaware;
+package com.caobolun.business.ingestion.fetcher;
 
-import com.caobolun.business.core.chunk.model.ChunkBudget;
-
-import java.util.List;
+import com.caobolun.business.ingestion.domain.context.DocumentSource;
+import com.caobolun.business.ingestion.domain.enums.SourceType;
 
 /**
- * BlockChunker 调用上下文
- * <p>
- * 由 ChunkerNode 在遍历 Block 列表时构造并传入每个 chunker，承载：
- * <ul>
- *   <li>{@link #outlinePath}：当前 Block 所在的章节路径（由 HeadingHandler 累积）</li>x
+ * 文档提取接口，用于从不同源获取文档数据
  */
-public record ChunkContext(List<String> outlinePath, ChunkBudget budget) {
+public interface DocumentFetcher {
 
-    public ChunkContext {
-        outlinePath = outlinePath == null ? List.of() : List.copyOf(outlinePath);
-    }
+    /**
+     * 获取支持的源类型
+     *
+     * @return 对应的源类型
+     */
+    SourceType supportedType();
 
-    public static ChunkContext of(List<String> outlinePath, ChunkBudget budget) {
-        return new ChunkContext(outlinePath, budget);
-    }
+    /**
+     * 从给定的源中抓取文档
+     *
+     * @param source 文档数据源
+     * @return 抓取结果，包含文档内容及其元数据
+     */
+    FetchResult fetch(DocumentSource source);
 }
-

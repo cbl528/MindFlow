@@ -16,12 +16,12 @@ import org.springframework.context.annotation.Configuration;
 public class DataBaseConfiguration {
 
     /**
-     * MyBatis-Plus PostgreSQL 分页插件
+     * MyBatis-Plus MySQL 分页插件
      */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.POSTGRE_SQL));
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
         return interceptor;
     }
 

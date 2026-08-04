@@ -18,9 +18,15 @@
 package com.caobolun.business.core.chunk.blockaware;
 
 
+import cn.hutool.core.util.IdUtil;
 import com.caobolun.business.core.chunk.VectorChunk;
+import com.caobolun.business.core.parse.model.AssetRef;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -111,7 +117,7 @@ public class ChunkPacker {
             if (next > budget) {
                 break;
             }
-            carry.add(0, buffer.get(i));
+            carry.addFirst(buffer.get(i));
             len = next;
         }
         return carry;
@@ -145,7 +151,7 @@ public class ChunkPacker {
             return;
         }
         if (buffer.size() == 1) {
-            result.add(buffer.get(0));
+            result.add(buffer.getFirst());
             return;
         }
         result.add(merge(buffer));
@@ -163,7 +169,7 @@ public class ChunkPacker {
         String sectionContext = null;
         Set<String> sourceBlockIds = new LinkedHashSet<>();
         List<AssetRef> assets = new ArrayList<>();
-        String blockType = buffer.get(0).getBlockType();
+        String blockType = buffer.getFirst().getBlockType();
         boolean homogeneous = true;
         for (VectorChunk c : buffer) {
             if (!content.isEmpty()) {
@@ -215,7 +221,7 @@ public class ChunkPacker {
      * 多块 outlinePath 的最长公共前缀: 合并块横跨若干小节时, 归属其共同上级章节
      */
     private static List<String> commonPrefix(List<VectorChunk> buffer) {
-        List<String> prefix = new ArrayList<>(safePath(buffer.get(0)));
+        List<String> prefix = new ArrayList<>(safePath(buffer.getFirst()));
         for (int i = 1; i < buffer.size() && !prefix.isEmpty(); i++) {
             List<String> path = safePath(buffer.get(i));
             int keep = 0;

@@ -18,7 +18,7 @@
 package com.caobolun.business.ingestion.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.nageoffer.ai.ragent.knowledge.dao.handler.JsonbTypeHandler;
+import com.caobolun.business.knowledge.handler.JsonbTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

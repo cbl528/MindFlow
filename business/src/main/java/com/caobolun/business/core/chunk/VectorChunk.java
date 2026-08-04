@@ -1,5 +1,7 @@
 package com.caobolun.business.core.chunk;
 
+import com.caobolun.business.core.ingest.embed.ChunkEmbeddingService;
+import com.caobolun.business.core.parse.model.AssetRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

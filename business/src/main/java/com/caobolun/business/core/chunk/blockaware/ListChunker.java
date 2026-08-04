@@ -1,23 +1,8 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.caobolun.business.core.chunk.blockaware;
 
-import com.caobolun.business.core.chunk.VectorChunk;
+import com.caobolun.business.core.chunk.model.ChunkDraft;
+import com.caobolun.business.core.chunk.model.ChunkMetadata;
+import com.caobolun.business.core.parse.model.ListBlock;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -35,56 +20,73 @@ import java.util.List;
 public class ListChunker implements BlockChunker<ListBlock> {
 
     @Override
-    public List<VectorChunk> chunk(ListBlock block, ChunkContext ctx) {
+    public Class<ListBlock> blockType() {
+        return ListBlock.class;
+    }
+
+    @Override
+    public List<ChunkDraft> chunk(ListBlock block, ChunkContext ctx) {
         if (block == null || block.items() == null || block.items().isEmpty()) {
             return List.of();
         }
         List<String> items = block.items();
-        int max = ctx.config().maxListItems();
+        ChunkMetadata metadata = ChunkMetadata.builder()
+                .outlinePath(ctx.outlinePath())
+                .provenance(block.provenance())
+                .build();
 
-        if (items.size() <= max) {
-            // 短列表 atomic
-            return List.of(buildChunk(items, 1, block, ctx, ctx.startIndex()));
+        // 整份清单撑得住容忍上限就不切，切开后「要交哪些材料」这类问题只能召回半份
+        int budget = Math.max(1, renderedLength(block) <= ctx.budget().toleranceChars()
+                ? ctx.budget().toleranceChars()
+                : ctx.budget().maxChars());
+        List<ChunkDraft> result = new ArrayList<>();
+        int start = 0;
+        int cost = 0;
+        for (int i = 0; i < items.size(); i++) {
+            // 加一算项间换行；单项自身超预算时独立成块，硬切只会把词条腰斩
+            int itemCost = renderItem(block, i + 1, items.get(i)).length() + 1;
+            if (i > start && cost + itemCost > budget) {
+                result.add(buildDraft(items.subList(start, i), start + 1, block, metadata));
+                start = i;
+                cost = 0;
+            }
+            cost += itemCost;
         }
-
-        // 长列表按组切
-        int per = ctx.config().listItemsPerChunk();
-        List<VectorChunk> result = new ArrayList<>();
-        int chunkIndex = ctx.startIndex();
-        for (int i = 0; i < items.size(); i += per) {
-            int end = Math.min(i + per, items.size());
-            List<String> group = items.subList(i, end);
-            result.add(buildChunk(group, i + 1, block, ctx, chunkIndex++));
-        }
-        return result;
+        result.add(buildDraft(items.subList(start, items.size()), start + 1, block, metadata));
+        return ChunkDraft.pieces(result);
     }
 
     /**
-     * 构造列表 chunk。{@code startNumber} 仅对有序列表生效，作为本 chunk 起始编号。
+     * {@code startNumber} 仅对有序列表生效，作为本块的起始编号
      */
-    private VectorChunk buildChunk(List<String> items, int startNumber, ListBlock block,
-                                   ChunkContext ctx, int chunkIndex) {
+    private ChunkDraft buildDraft(List<String> items, int startNumber, ListBlock block,
+                                  ChunkMetadata metadata) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < items.size(); i++) {
-            if (block.ordered()) {
-                sb.append(startNumber + i).append(". ");
-            } else {
-                sb.append("- ");
+            if (!sb.isEmpty()) {
+                sb.append('\n');
             }
-            sb.append(items.get(i)).append('\n');
+            sb.append(renderItem(block, startNumber + i, items.get(i)));
         }
-        // 去掉末尾的换行
-        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n') {
-            sb.deleteCharAt(sb.length() - 1);
-        }
+        return ChunkDraft.of(sb.toString(), metadata);
+    }
 
-        return VectorChunk.builder()
-                .chunkId(IdUtil.getSnowflakeNextIdStr())
-                .index(chunkIndex)
-                .content(sb.toString())
-                .blockType("LIST")
-                .outlinePath(new ArrayList<>(ctx.outlinePath()))
-                .sourceBlockIds(List.of(block.id()))
-                .build();
+    /**
+     * 整份清单渲染后的体量，含项间换行，用于判断切不切
+     */
+    private static int renderedLength(ListBlock block) {
+        int total = 0;
+        List<String> items = block.items();
+        for (int i = 0; i < items.size(); i++) {
+            total += renderItem(block, i + 1, items.get(i)).length() + 1;
+        }
+        return total;
+    }
+
+    /**
+     * 单项渲染，同时用作预算切分的体量度量
+     */
+    private static String renderItem(ListBlock block, int number, String item) {
+        return block.ordered() ? number + ". " + item : "- " + item;
     }
 }

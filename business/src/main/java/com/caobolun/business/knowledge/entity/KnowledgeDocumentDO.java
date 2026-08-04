@@ -93,7 +93,7 @@ public class KnowledgeDocumentDO {
      * 分块参数配置（JSON）
      * 仅在 processMode=chunk 时有效
      */
-    @TableField(typeHandler = com.nageoffer.ai.ragent.knowledge.dao.handler.JsonbTypeHandler.class)
+    @TableField(typeHandler = com.caobolun.business.knowledge.handler.JsonbTypeHandler.class)
     private String chunkConfig;
 
     /**
