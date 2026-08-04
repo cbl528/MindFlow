@@ -15,6 +15,7 @@
         <module>business</module>
         <module>framework</module>
         <module>infra-ai</module>
+        <module>mcp-service</module>
     </modules>
 
     <properties>

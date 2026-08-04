@@ -33,6 +33,8 @@ import com.caobolun.business.knowledge.request.KnowledgeBasePageRequest;
 import com.caobolun.business.knowledge.request.KnowledgeBaseUpdateRequest;
 import com.caobolun.business.knowledge.service.KnowledgeBaseService;
 import com.caobolun.business.knowledge.vo.KnowledgeBaseVO;
+import com.caobolun.business.rag.core.vector.VectorStoreAdmin;
+import com.caobolun.business.rag.service.FileStorageService;
 import com.caobolun.framework.context.UserContext;
 import com.caobolun.framework.exception.ClientException;
 import com.caobolun.framework.mq.producer.MessageQueueProducer;

@@ -1,6 +1,10 @@
 package com.caobolun.business.core.chunk;
 
 import cn.hutool.core.util.IdUtil;
+import com.caobolun.business.core.chunk.blockaware.BlockAwareChunkerDispatcher;
+import com.caobolun.business.core.chunk.blockaware.BlockChunkConfig;
+import com.caobolun.business.core.parse.BlockTextRenderer;
+import com.caobolun.business.core.parse.model.Block;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

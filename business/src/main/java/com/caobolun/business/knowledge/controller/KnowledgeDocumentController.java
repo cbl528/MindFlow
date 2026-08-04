@@ -1,34 +1,16 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.caobolun.business.knowledge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.nageoffer.ai.ragent.framework.convention.Result;
-import com.nageoffer.ai.ragent.framework.web.Results;
-import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeDocumentPageRequest;
-import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeDocumentUpdateRequest;
-import com.nageoffer.ai.ragent.knowledge.controller.request.KnowledgeDocumentUploadRequest;
-import com.nageoffer.ai.ragent.knowledge.controller.vo.KnowledgeDocumentChunkLogVO;
-import com.nageoffer.ai.ragent.knowledge.controller.vo.KnowledgeDocumentSearchVO;
-import com.nageoffer.ai.ragent.knowledge.controller.vo.KnowledgeDocumentVO;
-import com.nageoffer.ai.ragent.knowledge.service.KnowledgeDocumentService;
-import com.nageoffer.ai.ragent.rag.service.FileStorageService;
+import com.caobolun.business.knowledge.request.KnowledgeDocumentPageRequest;
+import com.caobolun.business.knowledge.request.KnowledgeDocumentUpdateRequest;
+import com.caobolun.business.knowledge.request.KnowledgeDocumentUploadRequest;
+import com.caobolun.business.knowledge.service.KnowledgeDocumentService;
+import com.caobolun.business.knowledge.vo.KnowledgeDocumentChunkLogVO;
+import com.caobolun.business.knowledge.vo.KnowledgeDocumentSearchVO;
+import com.caobolun.business.knowledge.vo.KnowledgeDocumentVO;
+import com.caobolun.business.rag.service.FileStorageService;
+import com.caobolun.framework.convention.Result;
+import com.caobolun.framework.web.Results;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

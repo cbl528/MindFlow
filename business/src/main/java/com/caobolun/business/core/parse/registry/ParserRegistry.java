@@ -1,6 +1,8 @@
 package com.caobolun.business.core.parse.registry;
 
+import com.caobolun.business.core.parse.DocumentParser;
 import com.caobolun.framework.exception.ClientException;
+import com.caobolun.framework.exception.ServiceException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;

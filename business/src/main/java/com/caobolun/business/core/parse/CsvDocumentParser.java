@@ -21,7 +21,9 @@ package com.caobolun.business.core.parse;
 import com.caobolun.business.core.parse.model.ParsedDocument;
 import com.caobolun.business.core.parse.model.Provenance;
 import com.caobolun.business.core.parse.model.TableBlock;
+import com.caobolun.business.core.parse.registry.ParseProfile;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.detect.AutoDetectReader;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -29,10 +31,7 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * CSV 文档解析器
@@ -63,14 +62,12 @@ public class CsvDocumentParser implements DocumentParser {
     }
 
     @Override
-    public boolean supports(String mimeType) {
-        if (mimeType == null) {
-            return false;
-        }
-        String lower = mimeType.toLowerCase(Locale.ROOT);
-        return lower.equals("text/csv")
-                || lower.equals("application/csv")
-                || lower.equals("text/comma-separated-values");
+    public Map<ParseProfile, Set<String>> supportedMimeTypes() {
+        return Map.of(ParseProfile.FAST, Set.of(
+                "text/csv",
+                "application/csv",
+                "text/comma-separated-values"
+        ));
     }
 
     @Override
@@ -86,7 +83,7 @@ public class CsvDocumentParser implements DocumentParser {
             return ParsedDocument.of(List.of());
         }
 
-        List<String> headers = grid.get(0);
+        List<String> headers = grid.getFirst();
         int width = headers.size();
         List<List<String>> rows = new ArrayList<>(grid.size() - 1);
         for (int i = 1; i < grid.size(); i++) {

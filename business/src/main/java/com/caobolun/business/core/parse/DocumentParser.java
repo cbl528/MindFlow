@@ -19,8 +19,10 @@ package com.caobolun.business.core.parse;
 
 
 import com.caobolun.business.core.parse.model.ParsedDocument;
+import com.caobolun.business.core.parse.registry.ParseProfile;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 文档解析器统一接口
@@ -54,12 +56,11 @@ public interface DocumentParser {
     ParsedDocument parseStructured(byte[] content, String mimeType, Map<String, Object> options);
 
     /**
-     * 检查是否支持指定的 MIME 类型
-     *
-     * @param mimeType MIME 类型
-     * @return 是否支持
+     * 认领清单：档位 → 该档位下认领的 MIME 集合，不得为空
+     * <p>
+     * MIME 一律小写；支持 {@code type/*} 通配，精确键优先于通配键；未在请求档位注册时回落到全局
+     * 兜底档 {@link ParseProfile#FAST}，故只在该档位有专属解析器时才需声明，如 Excel 的 FAST 档
+     * 走 POI 快速 key-val、FIDELITY 档才交给 MinerU 做版面解析
      */
-    default boolean supports(String mimeType) {
-        return true;
-    }
+    Map<ParseProfile, Set<String>> supportedMimeTypes();
 }

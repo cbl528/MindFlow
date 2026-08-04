@@ -18,8 +18,13 @@
 package com.caobolun.business.core.chunk.blockaware;
 
 
+import cn.hutool.core.util.IdUtil;
 import com.caobolun.business.core.chunk.VectorChunk;
+import com.caobolun.business.core.parse.model.ParagraphBlock;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 段落 chunker：按 maxChars 切分文本，相邻 chunk 重叠 overlapChars 字符

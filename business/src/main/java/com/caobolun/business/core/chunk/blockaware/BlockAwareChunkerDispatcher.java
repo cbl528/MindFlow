@@ -19,6 +19,7 @@ package com.caobolun.business.core.chunk.blockaware;
 
 
 import com.caobolun.business.core.chunk.VectorChunk;
+import com.caobolun.business.core.parse.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.javapoet.CodeBlock;
 import org.springframework.stereotype.Component;
