@@ -26,7 +26,7 @@ public class KnowledgeChunkController {
     /**
      * 分页查询 Chunk 列表
      */
-    @GetMapping("/knowledge-base/docs/{doc-id}/chunks")
+    @GetMapping("/mindflow/v1/knowledge-base/docs/{doc-id}/chunks")
     public Result<IPage<KnowledgeChunkVO>> pageQuery(@PathVariable("doc-id") String docId,
                                                      @Validated KnowledgeChunkPageRequest requestParam) {
         return Results.success(knowledgeChunkService.pageQuery(docId, requestParam));
@@ -35,7 +35,7 @@ public class KnowledgeChunkController {
     /**
      * 新增 Chunk
      */
-    @PostMapping("/knowledge-base/docs/{doc-id}/chunks")
+    @PostMapping("/mindflow/v1/knowledge-base/docs/{doc-id}/chunks")
     public Result<KnowledgeChunkVO> create(@PathVariable("doc-id") String docId,
                                            @RequestBody KnowledgeChunkCreateRequest request) {
         return Results.success(knowledgeChunkService.create(docId, request));
@@ -44,7 +44,7 @@ public class KnowledgeChunkController {
     /**
      * 更新 Chunk 内容
      */
-    @PutMapping("/knowledge-base/docs/{doc-id}/chunks/{chunk-id}")
+    @PutMapping("/mindflow/v1/knowledge-base/docs/{doc-id}/chunks/{chunk-id}")
     public Result<Void> update(@PathVariable("doc-id") String docId,
                                @PathVariable("chunk-id") String chunkId,
                                @RequestBody KnowledgeChunkUpdateRequest request) {
@@ -55,7 +55,7 @@ public class KnowledgeChunkController {
     /**
      * 删除 Chunk
      */
-    @DeleteMapping("/knowledge-base/docs/{doc-id}/chunks/{chunk-id}")
+    @DeleteMapping("/mindflow/v1/knowledge-base/docs/{doc-id}/chunks/{chunk-id}")
     public Result<Void> delete(@PathVariable("doc-id") String docId,
                                @PathVariable("chunk-id") String chunkId) {
         knowledgeChunkService.delete(docId, chunkId);
@@ -65,7 +65,7 @@ public class KnowledgeChunkController {
     /**
      * 启用或禁用单条 Chunk
      */
-    @PatchMapping("/knowledge-base/docs/{doc-id}/chunks/{chunk-id}/enable")
+    @PatchMapping("/mindflow/v1/knowledge-base/docs/{doc-id}/chunks/{chunk-id}/enable")
     public Result<Void> enable(@PathVariable("doc-id") String docId,
                                @PathVariable("chunk-id") String chunkId,
                                @RequestParam("value") boolean enabled) {
@@ -76,7 +76,7 @@ public class KnowledgeChunkController {
     /**
      * 批量启用或禁用 Chunk
      */
-    @PatchMapping("/knowledge-base/docs/{doc-id}/chunks/batch-enable")
+    @PatchMapping("/mindflow/v1/knowledge-base/docs/{doc-id}/chunks/batch-enable")
     public Result<Void> batchEnable(@PathVariable("doc-id") String docId,
                                     @RequestParam("value") boolean enabled,
                                     @RequestBody(required = false) KnowledgeChunkBatchRequest request) {

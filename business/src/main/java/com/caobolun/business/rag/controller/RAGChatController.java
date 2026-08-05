@@ -26,7 +26,7 @@ public class RAGChatController {
 //            key = "T(com.nageoffer.ai.ragent.framework.context.UserContext).getUserId()",
 //            message = "当前会话处理中，请稍后再发起新的对话"
 //    )
-    @GetMapping(value = "/mindflow/rag/v1/chat", produces = "text/event-stream;charset=UTF-8")
+    @GetMapping(value = "/mindflow/v1/rag/chat", produces = "text/event-stream;charset=UTF-8")
     public SseEmitter chat(@RequestParam String question,
                            @RequestParam(required = false) String conversationId,
                            @RequestParam(required = false, defaultValue = "false") Boolean deepThinking) {

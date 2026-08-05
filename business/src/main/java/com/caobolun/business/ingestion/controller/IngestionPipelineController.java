@@ -25,7 +25,7 @@ public class IngestionPipelineController {
     /**
      * 创建数据摄入流水线
      */
-    @PostMapping("/ingestion/pipelines")
+    @PostMapping("/mindflow/v1/ingestion/pipelines")
     public Result<IngestionPipelineVO> create(@RequestBody IngestionPipelineCreateRequest request) {
         return Results.success(pipelineService.create(request));
     }
@@ -33,7 +33,7 @@ public class IngestionPipelineController {
     /**
      * 更新数据摄入流水线
      */
-    @PutMapping("/ingestion/pipelines/{id}")
+    @PutMapping("/mindflow/v1/ingestion/pipelines/{id}")
     public Result<IngestionPipelineVO> update(@PathVariable String id,
                                               @RequestBody IngestionPipelineUpdateRequest request) {
         return Results.success(pipelineService.update(id, request));
@@ -42,7 +42,7 @@ public class IngestionPipelineController {
     /**
      * 获取单个数据摄入流水线详情
      */
-    @GetMapping("/ingestion/pipelines/{id}")
+    @GetMapping("/mindflow/v1/ingestion/pipelines/{id}")
     public Result<IngestionPipelineVO> get(@PathVariable String id) {
         return Results.success(pipelineService.get(id));
     }
@@ -50,7 +50,7 @@ public class IngestionPipelineController {
     /**
      * 分页查询数据摄入流水线
      */
-    @GetMapping("/ingestion/pipelines")
+    @GetMapping("/mindflow/v1/ingestion/pipelines")
     public Result<IPage<IngestionPipelineVO>> page(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
                                                    @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
                                                    @RequestParam(value = "keyword", required = false) String keyword) {
@@ -60,7 +60,7 @@ public class IngestionPipelineController {
     /**
      * 删除数据摄入流水线
      */
-    @DeleteMapping("/ingestion/pipelines/{id}")
+    @DeleteMapping("/mindflow/v1/ingestion/pipelines/{id}")
     public Result<Void> delete(@PathVariable String id) {
         pipelineService.delete(id);
         return Results.success();

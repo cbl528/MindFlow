@@ -29,7 +29,7 @@ public class KnowledgeBaseController {
     /**
      * 创建知识库
      */
-    @PostMapping("/knowledge-base")
+    @PostMapping("/mindflow/v1/knowledge-base")
     public Result<String> createKnowledgeBase(@RequestBody KnowledgeBaseCreateRequest requestParam) {
         return Results.success(knowledgeBaseService.create(requestParam));
     }
@@ -37,7 +37,7 @@ public class KnowledgeBaseController {
     /**
      * 重命名知识库
      */
-    @PutMapping("/knowledge-base/{kb-id}")
+    @PutMapping("/mindflow/v1/knowledge-base/{kb-id}")
     public Result<Void> renameKnowledgeBase(@PathVariable("kb-id") String kbId,
                                             @RequestBody KnowledgeBaseUpdateRequest requestParam) {
         knowledgeBaseService.rename(kbId, requestParam);
@@ -47,7 +47,7 @@ public class KnowledgeBaseController {
     /**
      * 删除知识库
      */
-    @DeleteMapping("/knowledge-base/{kb-id}")
+    @DeleteMapping("/mindflow/v1/knowledge-base/{kb-id}")
     public Result<Void> deleteKnowledgeBase(@PathVariable("kb-id") String kbId) {
         knowledgeBaseService.delete(kbId);
         return Results.success();
@@ -56,7 +56,7 @@ public class KnowledgeBaseController {
     /**
      * 查询知识库详情
      */
-    @GetMapping("/knowledge-base/{kb-id}")
+    @GetMapping("/mindflow/v1/knowledge-base/{kb-id}")
     public Result<KnowledgeBaseVO> queryKnowledgeBase(@PathVariable("kb-id") String kbId) {
         return Results.success(knowledgeBaseService.queryById(kbId));
     }
@@ -64,7 +64,7 @@ public class KnowledgeBaseController {
     /**
      * 分页查询知识库列表
      */
-    @GetMapping("/knowledge-base")
+    @GetMapping("/mindflow/v1/knowledge-base")
     public Result<IPage<KnowledgeBaseVO>> pageQuery(KnowledgeBasePageRequest requestParam) {
         return Results.success(knowledgeBaseService.pageQuery(requestParam));
     }
@@ -72,7 +72,7 @@ public class KnowledgeBaseController {
     /**
      * 查询支持的分块策略列表
      */
-    @GetMapping("/knowledge-base/chunk-strategies")
+    @GetMapping("/mindflow/v1/knowledge-base/chunk-strategies")
     public Result<List<ChunkStrategyVO>> listChunkStrategies() {
         List<ChunkStrategyVO> list = Arrays.stream(ChunkingMode.values())
                 .filter(ChunkingMode::isVisible)

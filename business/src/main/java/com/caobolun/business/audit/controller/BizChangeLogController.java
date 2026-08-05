@@ -34,12 +34,12 @@ public class BizChangeLogController {
 
     private final BizChangeLogService bizChangeLogService;
 
-    @GetMapping("/biz-change-logs")
+    @GetMapping("/mindflow/v1/biz-change-logs")
     public Result<IPage<BizChangeLogVO>> page(BizChangeLogPageRequest requestParam) {
         return Results.success(bizChangeLogService.page(requestParam));
     }
 
-    @GetMapping("/biz-change-logs/{id}")
+    @GetMapping("/mindflow/v1/biz-change-logs/{id}")
     public Result<BizChangeLogVO> get(@PathVariable String id) {
         return Results.success(bizChangeLogService.get(id));
     }
