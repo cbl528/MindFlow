@@ -2,6 +2,7 @@ package com.caobolun.business.rag.config;
 
 import com.caobolun.business.rag.core.graph.LightRagClient;
 import com.caobolun.business.rag.core.vector.VectorStoreService;
+import com.caobolun.business.rag.core.vector.decorator.GraphSyncingVectorStoreService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

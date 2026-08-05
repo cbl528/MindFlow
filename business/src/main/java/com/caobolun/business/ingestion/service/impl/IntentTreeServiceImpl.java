@@ -14,6 +14,7 @@ import com.caobolun.business.knowledge.entity.KnowledgeBaseDO;
 import com.caobolun.business.knowledge.mapper.KnowledgeBaseMapper;
 import com.caobolun.business.rag.core.intent.IntentNode;
 import com.caobolun.business.rag.core.intent.IntentTreeCacheManager;
+import com.caobolun.business.rag.core.intent.IntentTreeFactory;
 import com.caobolun.business.rag.entity.IntentNodeDO;
 import com.caobolun.business.rag.enums.IntentKind;
 import com.caobolun.business.rag.enums.IntentLevel;

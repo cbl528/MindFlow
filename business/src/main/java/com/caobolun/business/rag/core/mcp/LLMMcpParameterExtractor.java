@@ -6,12 +6,12 @@ import com.caobolun.business.rag.core.prompt.PromptTemplateLoader;
 import com.caobolun.framework.convention.ChatMessage;
 import com.caobolun.framework.convention.ChatRequest;
 import com.caobolun.infraai.chat.LLMService;
+import com.caobolun.infraai.util.LLMResponseCleaner;
 import com.caobolun.infraai.util.LogSafe;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.modelcontextprotocol.spec.McpSchema.JsonSchema;
 import io.modelcontextprotocol.spec.McpSchema.Tool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class LLMMcpParameterExtractor implements McpParameterExtractor {
 
     @Override
     public McpExtractionResult extractParameters(String userQuestion, Tool tool, String customPromptTemplate) {
-        if (tool == null || tool.inputSchema() == null || CollUtil.isEmpty(tool.inputSchema().properties())) {
+        if (tool == null || tool.inputSchema() == null || CollUtil.isEmpty(schemaProperties(tool))) {
             // 无参工具：直接成功、空参调用
             return McpExtractionResult.success(new HashMap<>());
         }
@@ -129,12 +129,11 @@ public class LLMMcpParameterExtractor implements McpParameterExtractor {
         List<String> failReasons = new ArrayList<>();
         List<String> userMissing = new ArrayList<>();
 
-        JsonSchema schema = tool.inputSchema();
-        Map<String, Object> properties = schema != null ? schema.properties() : null;
+        Map<String, Object> properties = schemaProperties(tool);
         if (properties == null || properties.isEmpty()) {
             return new McpParse(params, failReasons, userMissing);
         }
-        List<String> required = schema.required() != null ? schema.required() : List.of();
+        List<String> required = schemaRequired(tool);
 
         JsonObject obj = parseJsonObject(raw);
 
@@ -180,14 +179,14 @@ public class LLMMcpParameterExtractor implements McpParameterExtractor {
         sb.append("功能描述: ").append(tool.description()).append("\n");
         sb.append("参数列表:\n");
 
-        JsonSchema schema = tool.inputSchema();
-        if (schema == null || schema.properties() == null) {
+        Map<String, Object> properties = schemaProperties(tool);
+        if (properties == null) {
             return sb.toString();
         }
 
-        List<String> requiredList = schema.required() != null ? schema.required() : List.of();
+        List<String> requiredList = schemaRequired(tool);
 
-        for (Map.Entry<String, Object> entry : schema.properties().entrySet()) {
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
             String paramName = entry.getKey();
             Map<String, Object> propDef = (Map<String, Object>) entry.getValue();
 
@@ -213,6 +212,29 @@ public class LLMMcpParameterExtractor implements McpParameterExtractor {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * 提取工具输入 schema 的 properties
+     * <p>
+     * MCP SDK 2.x 起 {@code Tool.inputSchema()} 返回 JSON Schema 的普通 {@code Map}（1.x 为
+     * {@code JsonSchema} 记录），此处按 JSON Schema 结构读取 {@code properties} 字段
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> schemaProperties(Tool tool) {
+        Map<String, Object> schema = tool.inputSchema();
+        Object props = schema != null ? schema.get("properties") : null;
+        return props instanceof Map ? (Map<String, Object>) props : null;
+    }
+
+    /**
+     * 提取工具输入 schema 的 required 列表
+     */
+    @SuppressWarnings("unchecked")
+    private List<String> schemaRequired(Tool tool) {
+        Map<String, Object> schema = tool.inputSchema();
+        Object req = schema != null ? schema.get("required") : null;
+        return req instanceof List ? (List<String>) req : List.of();
     }
 
     /**
@@ -374,11 +396,12 @@ public class LLMMcpParameterExtractor implements McpParameterExtractor {
      */
     @SuppressWarnings("unchecked")
     private void fillDefaults(Map<String, Object> params, Tool tool) {
-        if (tool.inputSchema() == null || tool.inputSchema().properties() == null) {
+        Map<String, Object> properties = schemaProperties(tool);
+        if (properties == null) {
             return;
         }
 
-        for (Map.Entry<String, Object> entry : tool.inputSchema().properties().entrySet()) {
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
             String paramName = entry.getKey();
             Map<String, Object> propDef = (Map<String, Object>) entry.getValue();
             Object defaultValue = propDef.get("default");
