@@ -1,6 +1,12 @@
+# =====================================================================
+# MindFlow · mcp-service —— MCP 工具服务（独立部署，供主 RAG 服务通过 rag.mcp.servers 接入）
+# 参照 RAGent mcp-server/application.yml 整理
+# MCP Server 端点固定为 /mcp（见 config/McpServerConfig.java），HTTP 流式传输
+# =====================================================================
+
 server:
-  port: 8001
+  port: 8001                        # HTTP 端口（参考: 9099；当前工程原值 8001；主服务 rag.mcp.servers.url 需指向此端口）
 
 spring:
   application:
-    name: mindflow  -mcp-server
+    name: mindflow-mcp-server        # 应用名
