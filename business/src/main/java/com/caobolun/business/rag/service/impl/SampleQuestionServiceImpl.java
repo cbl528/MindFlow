@@ -6,6 +6,9 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.caobolun.business.audit.constant.BizChangeBizType;
+import com.caobolun.business.audit.constant.BizChangeOperationType;
+import com.caobolun.business.audit.support.BizChangeLogContext;
 import com.caobolun.business.rag.entity.SampleQuestionDO;
 import com.caobolun.business.rag.mapper.SampleQuestionMapper;
 import com.caobolun.business.rag.request.SampleQuestionCreateRequest;
@@ -14,6 +17,7 @@ import com.caobolun.business.rag.request.SampleQuestionUpdateRequest;
 import com.caobolun.business.rag.service.SampleQuestionService;
 import com.caobolun.business.rag.vo.SampleQuestionVO;
 import com.caobolun.framework.exception.ClientException;
+import com.mzt.logapi.starter.annotation.LogRecord;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,18 +30,18 @@ public class SampleQuestionServiceImpl implements SampleQuestionService {
     private static final int DEFAULT_LIMIT = 3;
 
     private final SampleQuestionMapper sampleQuestionMapper;
-//    private final BizChangeLogContext bizChangeLogContext;
+    private final BizChangeLogContext bizChangeLogContext;
 
     @Override
-//    @LogRecord(
-//            success = "创建示例问题：{{#requestParam.question}}",
-//            fail = "创建示例问题失败：{{#_errorMsg}}",
-//            type = BizChangeBizType.SAMPLE_QUESTION,
-//            subType = BizChangeOperationType.CREATE,
-//            bizNo = BizChangeLogContext.BIZ_ID_EXPRESSION,
-//            extra = BizChangeLogContext.SNAPSHOT_EXPRESSION,
-//            condition = BizChangeLogContext.RECORD_CONDITION
-//    )
+    @LogRecord(
+            success = "创建示例问题：{{#requestParam.question}}",
+            fail = "创建示例问题失败：{{#_errorMsg}}",
+            type = BizChangeBizType.SAMPLE_QUESTION,
+            subType = BizChangeOperationType.CREATE,
+            bizNo = BizChangeLogContext.BIZ_ID_EXPRESSION,
+            extra = BizChangeLogContext.SNAPSHOT_EXPRESSION,
+            condition = BizChangeLogContext.RECORD_CONDITION
+    )
     public String create(SampleQuestionCreateRequest requestParam) {
         Assert.notNull(requestParam, () -> new ClientException("请求不能为空"));
         String question = StrUtil.trimToNull(requestParam.getQuestion());
@@ -49,20 +53,20 @@ public class SampleQuestionServiceImpl implements SampleQuestionService {
                 .question(question)
                 .build();
         sampleQuestionMapper.insert(record);
-//        bizChangeLogContext.put(String.valueOf(record.getId()), null, record);
+        bizChangeLogContext.put(String.valueOf(record.getId()), null, record);
         return String.valueOf(record.getId());
     }
 
     @Override
-//    @LogRecord(
-//            success = "更新示例问题：{{#id}}",
-//            fail = "更新示例问题失败：{{#_errorMsg}}",
-//            type = BizChangeBizType.SAMPLE_QUESTION,
-//            subType = BizChangeOperationType.UPDATE,
-//            bizNo = "{{#id}}",
-//            extra = BizChangeLogContext.SNAPSHOT_EXPRESSION,
-//            condition = BizChangeLogContext.RECORD_CONDITION
-//    )
+    @LogRecord(
+            success = "更新示例问题：{{#id}}",
+            fail = "更新示例问题失败：{{#_errorMsg}}",
+            type = BizChangeBizType.SAMPLE_QUESTION,
+            subType = BizChangeOperationType.UPDATE,
+            bizNo = "{{#id}}",
+            extra = BizChangeLogContext.SNAPSHOT_EXPRESSION,
+            condition = BizChangeLogContext.RECORD_CONDITION
+    )
     public void update(String id, SampleQuestionUpdateRequest requestParam) {
         Assert.notNull(requestParam, () -> new ClientException("请求不能为空"));
         SampleQuestionDO record = loadById(id);
@@ -81,24 +85,24 @@ public class SampleQuestionServiceImpl implements SampleQuestionService {
         }
 
         sampleQuestionMapper.updateById(record);
-//        bizChangeLogContext.put(id, before, sampleQuestionMapper.selectById(id));
+        bizChangeLogContext.put(id, before, sampleQuestionMapper.selectById(id));
     }
 
     @Override
-//    @LogRecord(
-//            success = "删除示例问题：{{#id}}",
-//            fail = "删除示例问题失败：{{#_errorMsg}}",
-//            type = BizChangeBizType.SAMPLE_QUESTION,
-//            subType = BizChangeOperationType.DELETE,
-//            bizNo = "{{#id}}",
-//            extra = BizChangeLogContext.SNAPSHOT_EXPRESSION,
-//            condition = BizChangeLogContext.RECORD_CONDITION
-//    )
+    @LogRecord(
+            success = "删除示例问题：{{#id}}",
+            fail = "删除示例问题失败：{{#_errorMsg}}",
+            type = BizChangeBizType.SAMPLE_QUESTION,
+            subType = BizChangeOperationType.DELETE,
+            bizNo = "{{#id}}",
+            extra = BizChangeLogContext.SNAPSHOT_EXPRESSION,
+            condition = BizChangeLogContext.RECORD_CONDITION
+    )
     public void delete(String id) {
         SampleQuestionDO record = loadById(id);
         SampleQuestionDO before = BeanUtil.copyProperties(record, SampleQuestionDO.class);
         sampleQuestionMapper.deleteById(record.getId());
-//        bizChangeLogContext.put(id, before, null);
+        bizChangeLogContext.put(id, before, null);
     }
 
     @Override

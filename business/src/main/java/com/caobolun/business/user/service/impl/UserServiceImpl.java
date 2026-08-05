@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.caobolun.business.audit.support.BizChangeLogContext;
 import com.caobolun.business.user.entity.UserDO;
 import com.caobolun.business.user.enums.UserRole;
 import com.caobolun.business.user.mapper.UserMapper;
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
-
+    private final BizChangeLogContext bizChangeLogContext;
     private final UserMapper userMapper;
 
     @Override
@@ -67,7 +68,7 @@ public class UserServiceImpl implements UserService {
                 .avatar(StrUtil.trimToNull(requestParam.getAvatar()))
                 .build();
         userMapper.insert(record);
-//        bizChangeLogContext.put(String.valueOf(record.getId()), null, toVO(record));
+        bizChangeLogContext.put(String.valueOf(record.getId()), null, toVO(record));
         return String.valueOf(record.getId());
     }
 
@@ -114,7 +115,7 @@ public class UserServiceImpl implements UserService {
         ensureNotDefaultAdmin(record);
         UserVO before = toVO(record);
         userMapper.deleteById(record.getId());
-//        bizChangeLogContext.put(id, before, null);
+        bizChangeLogContext.put(id, before, null);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class UserServiceImpl implements UserService {
         }
         record.setPassword(next);
         userMapper.updateById(record);
-//        bizChangeLogContext.put(loginUser.getUserId(), before, toVO(userMapper.selectById(loginUser.getUserId())));
+        bizChangeLogContext.put(loginUser.getUserId(), before, toVO(userMapper.selectById(loginUser.getUserId())));
     }
 
     private String normalizeRole(String role) {
