@@ -27,7 +27,7 @@ public class RagTraceController {
     /**
      * 分页查询链路运行记录
      */
-    @GetMapping("/mindflow/v1/rag/traces/runs")
+    @GetMapping("/mindflow/rag/traces/runs")
     public Result<IPage<RagTraceRunVO>> pageRuns(RagTraceRunPageRequest request) {
         return Results.success(ragTraceQueryService.pageRuns(request));
     }
@@ -35,7 +35,7 @@ public class RagTraceController {
     /**
      * 查询链路详情（包含节点）
      */
-    @GetMapping("/mindflow/v1/rag/traces/runs/{traceId}")
+    @GetMapping("/mindflow/rag/traces/runs/{traceId}")
     public Result<RagTraceDetailVO> detail(@PathVariable String traceId) {
         return Results.success(ragTraceQueryService.detail(traceId));
     }
@@ -43,7 +43,7 @@ public class RagTraceController {
     /**
      * 仅查询链路节点
      */
-    @GetMapping("/mindflow/v1/rag/traces/runs/{traceId}/nodes")
+    @GetMapping("/mindflow/rag/traces/runs/{traceId}/nodes")
     public Result<List<RagTraceNodeVO>> nodes(@PathVariable String traceId) {
         return Results.success(ragTraceQueryService.listNodes(traceId));
     }

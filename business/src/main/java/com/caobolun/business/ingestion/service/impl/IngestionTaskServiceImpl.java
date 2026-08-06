@@ -31,14 +31,14 @@ import com.caobolun.business.rag.core.vector.VectorSpaceId;
 import com.caobolun.business.rag.request.DocumentSourceRequest;
 import com.caobolun.framework.context.UserContext;
 import com.caobolun.framework.exception.ClientException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mzt.logapi.starter.annotation.LogRecord;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 

@@ -473,3 +473,92 @@ INSERT INTO `t_user` (`id`, `username`, `password`, `role`, `avatar`, `create_ti
 VALUES ('2001523723396308993', 'admin', 'admin', 'admin',
         'https://static.deepseek.com/user-avatar/G_6cuD8GbD53VwGRwisvCsZ6',
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+
+INSERT INTO `t_intent_node`
+(`id`, `intent_code`, `name`, `level`, `parent_code`, `description`, `examples`,
+ `collection_names`, `top_k`, `mcp_tool_id`, `kind`, `prompt_template`,
+ `param_prompt_template`, `sort_order`, `enabled`, `create_by`, `update_by`, `deleted`)
+VALUES
+    ('group',          'group',          '集团管理',   0, NULL,        NULL, NULL,                    '[]', NULL, NULL, 0, NULL, NULL, 0, 1, 'admin', 'admin', 0),
+    ('group-hr',       'group-hr',       '人事',       1, 'group',     '招聘、入职、转正、考勤、请假、薪资、绩效、离职等人事管理制度问题', '["请假流程是怎样的？","试用期多久转正？","迟到会有什么处罚？","年假有几天？","绩效工资怎么算？","离职需要提前多久申请？"]', '["grp_hr"]', 5, NULL, 0, NULL, NULL, 1, 1, 'admin', 'admin', 0),
+    ('group-finance',  'group-finance',  '财务',       1, 'group',     '报销、发票、付款、预算、成本中心等财务制度问题', '["差旅报销需要哪些资料？","发票抬头有哪些？","报销多久能到账？","采购付款流程是怎样的？"]', '["grp_finance"]', 5, NULL, 0, NULL, NULL, 2, 1, 'admin', 'admin', 0),
+    ('group-admin',    'group-admin',    '行政后勤',   1, 'group',     '办公用品申领、会议室预订、访客接待、公务用车、物业报修等行政后勤问题', '["怎么预订会议室？","办公用品在哪里领？","访客进入园区怎么登记？","办公室报修找谁？"]', '["grp_admin"]', 5, NULL, 0, NULL, NULL, 3, 1, 'admin', 'admin', 0),
+    ('group-security', 'group-security', '信息安全合规', 1, 'group',    '账号密码规范、数据分级与外发审批、钓鱼邮件、安全事件上报、合规审计等信息安全问题', '["数据外发需要审批吗？","强密码要求是什么？","收到钓鱼邮件怎么办？","发现安全事件上报给谁？"]', '["grp_security"]', 5, NULL, 0, NULL, NULL, 4, 1, 'admin', 'admin', 0),
+    ('it',             'it',             '技术支持',   0, NULL,        NULL, NULL,                    '[]', NULL, NULL, 0, NULL, NULL, 5, 1, 'admin', 'admin', 0),
+    ('it-office',      'it-office',      '账号与办公软件', 1, 'it',     '企业账号开通与密码重置、企业邮箱、Office 等办公软件的安装与使用问题', '["邮箱密码忘了怎么重置？","怎么申请安装专业软件？","企业微信登不上怎么办？"]', '["it_support"]', 5, NULL, 0, NULL, NULL, 6, 1, 'admin', 'admin', 0),
+    ('it-network',     'it-network',     '网络与VPN',  1, 'it',         '公司 WiFi、有线网络、VPN 连接、远程办公访问内网等网络问题', '["公司 VPN 连不上怎么办？","出差怎么访问内网？","办公室 WiFi 密码是多少？"]', '["it_support"]', 5, NULL, 0, NULL, NULL, 7, 1, 'admin', 'admin', 0),
+    ('it-hardware',    'it-hardware',    '硬件与设备', 1, 'it',         '办公电脑、打印机、会议设备等硬件设备的领取、驱动安装与故障报修问题', '["打印机怎么连接？","新员工电脑怎么领取？","视频会议设备故障找谁？"]', '["it_support"]', 5, NULL, 0, NULL, NULL, 8, 1, 'admin', 'admin', 0),
+    ('biz',            'biz',            '业务系统',   0, NULL,        NULL, NULL,                    '[]', NULL, NULL, 0, NULL, NULL, 9, 1, 'admin', 'admin', 0),
+    ('biz-oa',         'biz-oa',         'OA系统',     1, 'biz',        'OA 办公协同平台，包含流程审批、待办、公告、文档中心等模块', NULL, '[]', NULL, NULL, 0, NULL, NULL, 10, 1, 'admin', 'admin', 0),
+    ('biz-oa-intro',   'biz-oa-intro',   '系统介绍',   2, 'biz-oa',     'OA 系统整体功能说明、主要模块、典型使用场景', '["OA 系统是做什么的？","OA 系统有哪些模块？"]', '["sys_oa"]', 5, NULL, 0, NULL, NULL, 11, 1, 'admin', 'admin', 0),
+    ('biz-oa-usage',   'biz-oa-usage',   '使用与审批', 2, 'biz-oa',     'OA 系统中审批流程的发起与处理、待办、公告、文档中心等具体操作问题', '["请假审批在 OA 哪里提交？","待办审批怎么转给别人？","公告在哪里查看？"]', '["sys_oa"]', 5, NULL, 0, NULL, NULL, 12, 1, 'admin', 'admin', 0),
+    ('biz-crm',        'biz-crm',        'CRM销售系统', 1, 'biz',       'CRM 客户与销售管理平台，包含客户、商机、订单、报表等模块', NULL, '[]', NULL, NULL, 0, NULL, NULL, 13, 1, 'admin', 'admin', 0),
+    ('biz-crm-intro',  'biz-crm-intro',  '功能介绍',   2, 'biz-crm',    'CRM 系统的功能模块、客户管理、商机与订单管理等功能介绍', '["CRM 系统支持哪些功能？","怎么在 CRM 里创建客户档案？","商机分哪几个阶段？"]', '["sys_crm"]', 5, NULL, 0, NULL, NULL, 14, 1, 'admin', 'admin', 0),
+    ('biz-crm-security', 'biz-crm-security', '数据与权限', 2, 'biz-crm', 'CRM 数据可见范围、客户归属变更、数据导出审批与保密要求', '["CRM 里销售能看到哪些客户？","客户数据可以导出吗？","客户归属怎么变更？"]', '["sys_crm"]', 5, NULL, 0, NULL, NULL, 15, 1, 'admin', 'admin', 0),
+    ('sales',          'sales',          '实时数据',   0, NULL,        NULL, NULL,                    '[]', NULL, NULL, 2, NULL, NULL, 16, 1, 'admin', 'admin', 0),
+    ('sales-data',     'sales-data',     '销售数据统计', 1, 'sales',    '销售总额、销售量、销售占比、销售趋势、销售预测等实时统计数据', '["销售总额是多少？","本月各区域销量排名？","明年的销售预测是多少？"]', '[]', NULL, 'sales_query', 2, 'Hello，你是专业的企业智能数据助手。系统已调用内部工具获取到了最新的【动态数据】（通常为 JSON 格式）。你的任务是将这些结构化数据转化为**商业化、易读的自然语言**回复。
+
+【核心处理规则】
+1. **直接回答**：开门见山地回答用户问题，不要使用"根据数据/JSON显示"这类废话作为开头。
+2. **去技术化**：将字段名转换为业务术语（例如将 `create_time` 转述为"创建时间"，`status: 1` 转述为"状态正常"）。除非用户明确询问，否则隐藏内部 ID（如 UUID）、数据库主键或复杂的错误堆栈信息。
+3. **格式化输出（重要）**：多条数据用 Markdown 表格展示，表头应为中文；单条数据用分点或自然段落；金额、日期、状态等关键信息加粗。
+
+【异常与边界处理】
+1. **数据为空**：如果【动态数据】为 `[]`、`{}` 或 `null`，请直接回答"当前未查询到相关数据记录"。
+2. **报错数据**：如果数据中明显包含 `error`、`code: 500` 或"查询失败"等信息，请用抱歉的口吻告知用户系统暂时无法获取数据，并简述原因（如有）。
+3. **多意图部分匹配**：先回答能回答的部分，再说明无法回答的部分。
+4. **完全不匹配**：仅当【动态数据】与【用户问题】的所有子问题都完全无关时，才回答"当前查询到的数据与您的问题不匹配，无法回答。"
+
+【禁止事项】
+- 严禁根据数据内容臆造不存在的结论。
+- 严禁透漏你正在解析 JSON 数据的过程。
+
+{{INTENT_RULES}}
+
+【动态数据】
+%s
+
+【用户问题】
+%s', 'Hello，你是一个高度专业且严谨的【工具参数提取器】。
+
+你的唯一任务是：严格按照提供的【工具定义】（Tool Definition）和【参数列表】（Parameters）的约束，从【用户问题】（User Query）中提取所有必要的参数，并以 JSON 格式输出。
+
+---
+
+### 核心提取逻辑
+
+1. **数据源限定**：只使用【用户问题】中的信息作为提取来源。
+2. **参数范围限定**：只提取 <parameters> 标签内定义的参数，**禁止**添加任何工具定义中不存在的额外字段。
+3. **必填参数处理（Strict Mode）**：如果参数是 **"required": true** 且在用户问题中无法找到明确值，有默认值则使用默认值，没有则输出为 **null**。
+4. **非必填参数处理**：如果参数是 **"required": false** 且在用户问题中无法找到明确值，有默认值则使用默认值，没有则**忽略该参数，不要包含在最终 JSON 中**。
+
+### 通用数据类型处理规则
+
+1. **枚举/可选值（Enum）**：将用户口语化、同义或模糊的表达，映射到工具定义中提供的 **enum** 列表中的**最接近的规范值**。示例：用户说"本周"或"这星期"，枚举值有 "current_week" → 输出 "current_week"。
+2. **日期/时间（Date/Time）**：相对时间（"今天"、"昨天"、"上个月"、"今年 Q3"）映射为工具所需的**规范化格式**或**枚举值**；如需要 `start_date` 和 `end_date` 范围，从一个表述中提取两个边界值。
+3. **字符串（String）**：原样提取用户问题中提及的实体名称、人名、地名、产品 ID 等，不做转换或缩写。
+4. **数值（Number/Integer）**：将中文数字（"三"、"前五"）转换为阿拉伯数字（3, 5）；如问题包含"top 10"或"前五名"，提取 `10` 或 `5`。
+5. **布尔值（Boolean）**：肯定（"是"、"要"、"开启"）映射为 `true`；否定（"否"、"不"、"关闭"）映射为 `false`。
+
+---
+
+### 输入数据与输出格式
+
+请勿在输出 JSON 对象之外添加任何解释、注释或其他文本。
+
+#### 【工具定义】
+<tool_definition>
+%s
+</tool_definition>
+
+#### 【用户问题】
+<user_query>
+%s
+</user_query>
+
+#### 【输出格式（JSON Object Only）】
+
+{"param_name_1": value_1, "param_name_2": value_2, ...}', 17, 1, 'admin', 'admin', 0),
+    ('sys',            'sys',            '系统交互',   0, NULL,        NULL, NULL,                    '[]', NULL, NULL, 1, NULL, NULL, 18, 1, 'admin', 'admin', 0),
+    ('sys-welcome',    'sys-welcome',    '欢迎与问候', 1, 'sys',        '用户与助手打招呼，如：你好、早上好、hi、在吗 等', '["你好","hello","早上好","在吗","嗨"]', '[]', NULL, NULL, 1, NULL, NULL, 19, 1, 'admin', 'admin', 0),
+    ('sys-about-bot',  'sys-about-bot',  '关于助手',   1, 'sys',        '询问助手是做什么的、是谁、能做什么等', '["你是谁","你是做什么的","你能帮我做什么","你是什么AI"]', '[]', NULL, NULL, 1, NULL, NULL, 20, 1, 'admin', 'admin', 0);

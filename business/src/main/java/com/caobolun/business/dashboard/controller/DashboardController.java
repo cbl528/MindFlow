@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("mindflow/v1/dashboard")
+@RequestMapping("mindflow/dashboard")
 public class DashboardController {
 
     private final DashboardService dashboardService;

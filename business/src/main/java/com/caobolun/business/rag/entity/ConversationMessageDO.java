@@ -1,6 +1,9 @@
 package com.caobolun.business.rag.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.caobolun.business.knowledge.handler.GroundingChunkListTypeHandler;
+import com.caobolun.business.knowledge.handler.SourceRefListTypeHandler;
+import com.caobolun.business.knowledge.handler.StringListTypeHandler;
 import com.caobolun.framework.convention.GroundingChunk;
 import com.caobolun.framework.convention.SourceRef;
 import lombok.AllArgsConstructor;
@@ -63,19 +66,19 @@ public class ConversationMessageDO {
     /**
      * 回答来源，文档级来源列表（jsonb 存储，仅 assistant 消息可能有）
      */
-//    @TableField(typeHandler = SourceRefListTypeHandler.class)
+    @TableField(typeHandler = SourceRefListTypeHandler.class)
     private List<SourceRef> sources;
 
     /**
      * 推荐问题 grounding 片段（jsonb 存储，仅 assistant 消息可能有；随消息落库供推荐追问生成 grounding，不参与模型上下文）
      */
-//    @TableField(typeHandler = GroundingChunkListTypeHandler.class)
+    @TableField(typeHandler = GroundingChunkListTypeHandler.class)
     private List<GroundingChunk> retrievedChunks;
 
     /**
      * 推荐追问问题，答案后懒加载生成（jsonb 存储，仅 assistant 消息可能有；不参与模型上下文）
      */
-//    @TableField(typeHandler = StringListTypeHandler.class)
+    @TableField(typeHandler = StringListTypeHandler.class)
     private List<String> recommendedQuestions;
 
     /**

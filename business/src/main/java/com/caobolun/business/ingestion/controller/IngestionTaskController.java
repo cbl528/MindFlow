@@ -31,7 +31,7 @@ public class IngestionTaskController {
     /**
      * 创建并执行采集任务
      */
-    @PostMapping("/mindflow/v1/ingestion/tasks")
+    @PostMapping("/mindflow/ingestion/tasks")
     public Result<IngestionResult> create(@RequestBody IngestionTaskCreateRequest request) {
         return Results.success(taskService.execute(request));
     }
@@ -40,7 +40,7 @@ public class IngestionTaskController {
      * 上传文件并触发采集任务
      */
     @SneakyThrows
-    @PostMapping(value = "/mindflow/v1/ingestion/tasks/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/mindflow/ingestion/tasks/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<IngestionResult> upload(@RequestParam(value = "pipelineId") String pipelineId,
                                           @RequestPart("file") MultipartFile file) {
         return Results.success(taskService.upload(pipelineId, file));
@@ -49,7 +49,7 @@ public class IngestionTaskController {
     /**
      * 根据任务 ID 获取任务详情
      */
-    @GetMapping("/mindflow/v1/ingestion/tasks/{id}")
+    @GetMapping("/mindflow/ingestion/tasks/{id}")
     public Result<IngestionTaskVO> get(@PathVariable String id) {
         return Results.success(taskService.get(id));
     }
@@ -57,7 +57,7 @@ public class IngestionTaskController {
     /**
      * 根据任务 ID 获取任务节点运行记录
      */
-    @GetMapping("/mindflow/v1/ingestion/tasks/{id}/nodes")
+    @GetMapping("/mindflow/ingestion/tasks/{id}/nodes")
     public Result<List<IngestionTaskNodeVO>> nodes(@PathVariable String id) {
         return Results.success(taskService.listNodes(id));
     }
@@ -65,7 +65,7 @@ public class IngestionTaskController {
     /**
      * 分页查询采集任务
      */
-    @GetMapping("/mindflow/v1/ingestion/tasks")
+    @GetMapping("/mindflow/ingestion/tasks")
     public Result<IPage<IngestionTaskVO>> page(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
                                                @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
                                                @RequestParam(value = "status", required = false) String status) {

@@ -2,11 +2,13 @@ package com.caobolun.business.audit.request;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class BizChangeLogPageRequest extends Page {
 
     private String bizType;

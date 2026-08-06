@@ -1,0 +1,168 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   MindFlow 设计系统 —— 仿 DeepSeek 网页版
+   主色 #4D6BFE（DeepSeek 品牌蓝紫）
+   明亮简洁 + 深色模式
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* 主色与文字 */
+    --background: 0 0% 100%;
+    --foreground: 216 14% 14%; /* #1f2329 */
+    --card: 0 0% 100%;
+    --card-foreground: 216 14% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 216 14% 14%;
+
+    --primary: 229 99% 65%; /* #4D6BFE */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 13% 96%; /* #f5f6f7 */
+    --secondary-foreground: 216 14% 20%;
+    --muted: 220 13% 95%; /* #f2f3f5 */
+    --muted-foreground: 224 8% 57%; /* #8a8f99 */
+    --accent: 230 100% 97%; /* #eef1ff 淡蓝 */
+    --accent-foreground: 229 99% 55%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%; /* #e5e6eb */
+    --input: 220 13% 88%;
+    --ring: 229 99% 65%;
+
+    /* 对话专用 */
+    --user-bubble: 230 100% 97%; /* #eef1ff */
+    --chat-hover: 220 14% 96%; /* #f5f5f7 */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 216 14% 14%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 12%; /* #1f1f1f */
+    --foreground: 0 0% 91%; /* #e8e8e8 */
+    --card: 0 0% 16%;
+    --card-foreground: 0 0% 91%;
+    --popover: 0 0% 16%;
+    --popover-foreground: 0 0% 91%;
+
+    --primary: 229 99% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 88%;
+    --muted: 0 0% 17%;
+    --muted-foreground: 0 0% 56%;
+    --accent: 229 45% 26%;
+    --accent-foreground: 229 90% 75%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 24%;
+    --input: 0 0% 28%;
+    --ring: 229 99% 67%;
+
+    --user-bubble: 229 30% 22%;
+    --chat-hover: 0 0% 15%;
+    --sidebar: 0 0% 12%;
+    --sidebar-foreground: 0 0% 88%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* 细滚动条，悬停时出现 */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  *:hover {
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  /* 通用表单样式（仿 DeepSeek 圆角输入） */
+  .ds-input {
+    @apply w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring;
+  }
+
+  /* 次级按钮：白底描边，hover 变灰 */
+  .ds-btn-secondary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  /* 主按钮：DeepSeek 蓝 */
+  .ds-btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm text-primary-foreground transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-40;
+  }
+
+  /* 会话列表项激活态 */
+  .ds-session-active {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+
+  /* 流式光标 */
+  .stream-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1.2em;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    border-radius: 1px;
+    background: hsl(var(--primary));
+    animation: blink 1s step-end infinite;
+  }
+}
+
+/* ============================================================
+   聊天 Markdown 排版（基于 @tailwindcss/typography 微调）
+   ============================================================ */
+.prose-chat {
+  @apply prose prose-sm prose-neutral max-w-none dark:prose-invert prose-headings:font-semibold prose-p:leading-7 prose-pre:bg-[#f6f7f9] prose-pre:text-foreground dark:prose-pre:bg-[#262626] prose-code:before:content-none prose-code:after:content-none prose-a:text-primary;
+}
+
+.prose-chat :where(code):not(:where(pre code)) {
+  @apply rounded bg-muted px-1 py-0.5 text-[0.9em] font-mono;
+}
+
+/* 来源角标 [N] */
+.citation-ref {
+  @apply mx-0.5 inline-flex min-w-[1.35rem] items-center justify-center rounded-full bg-primary/10 px-1 text-[0.72rem] font-medium leading-[1.35rem] text-primary no-underline align-super;
+}
+.citation-ref:hover {
+  @apply bg-primary text-primary-foreground;
+}
+
+/* 思考块 */
+.thinking-toggle {
+  @apply inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground;
+}

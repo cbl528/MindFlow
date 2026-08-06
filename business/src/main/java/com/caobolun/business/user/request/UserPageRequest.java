@@ -2,11 +2,13 @@ package com.caobolun.business.user.request;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 用户分页查询请求
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class UserPageRequest extends Page {
 
     /**

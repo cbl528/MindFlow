@@ -8,6 +8,7 @@ public class McpServiceApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(McpServiceApplication.class, args);
+        System.out.println("MCP服务启动成功");
     }
 
 }

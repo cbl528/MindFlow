@@ -25,7 +25,7 @@ public class SampleQuestionController {
     /**
      * 随机获取示例问题列表
      */
-    @GetMapping("/mindflow/v1/rag/sample-questions")
+    @GetMapping("/mindflow/rag/sample-questions")
     public Result<List<SampleQuestionVO>> listSampleQuestions() {
         return Results.success(sampleQuestionService.listRandomQuestions());
     }
@@ -33,7 +33,7 @@ public class SampleQuestionController {
     /**
      * 分页查询示例问题列表
      */
-    @GetMapping("/mindflow/v1/rag/sample-questions")
+    @GetMapping("/mindflow/rag/sample-questions/list")
     public Result<IPage<SampleQuestionVO>> pageQuery(SampleQuestionPageRequest requestParam) {
         return Results.success(sampleQuestionService.pageQuery(requestParam));
     }
@@ -41,7 +41,7 @@ public class SampleQuestionController {
     /**
      * 查询示例问题详情
      */
-    @GetMapping("/mindflow/v1/rag/sample-questions/{id}")
+    @GetMapping("/mindflow/rag/sample-questions/{id}")
     public Result<SampleQuestionVO> queryById(@PathVariable String id) {
         return Results.success(sampleQuestionService.queryById(id));
     }
@@ -49,7 +49,7 @@ public class SampleQuestionController {
     /**
      * 创建示例问题
      */
-    @PostMapping("/mindflow/v1/rag/sample-questions")
+    @PostMapping("/mindflow/rag/sample-questions")
     public Result<String> create(@RequestBody SampleQuestionCreateRequest requestParam) {
         return Results.success(sampleQuestionService.create(requestParam));
     }
@@ -57,7 +57,7 @@ public class SampleQuestionController {
     /**
      * 更新示例问题
      */
-    @PutMapping("/mindflow/v1/rag/sample-questions/{id}")
+    @PutMapping("/mindflow/rag/sample-questions/{id}")
     public Result<Void> update(@PathVariable String id, @RequestBody SampleQuestionUpdateRequest requestParam) {
         sampleQuestionService.update(id, requestParam);
         return Results.success();
@@ -66,7 +66,7 @@ public class SampleQuestionController {
     /**
      * 删除示例问题
      */
-    @DeleteMapping("/mindflow/v1/rag/sample-questions/{id}")
+    @DeleteMapping("/mindflow/rag/sample-questions/{id}")
     public Result<Void> delete(@PathVariable String id) {
         sampleQuestionService.delete(id);
         return Results.success();

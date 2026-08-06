@@ -4,6 +4,7 @@ package com.caobolun.business.rag.controller;
 import com.caobolun.business.rag.config.RAGDefaultProperties;
 import com.caobolun.business.rag.service.RAGChatService;
 import com.caobolun.framework.convention.Result;
+import com.caobolun.framework.idempotent.IdempotentSubmit;
 import com.caobolun.framework.web.Results;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,11 +23,11 @@ public class RAGChatController {
     /**
      * 发起 SSE 流式对话
      */
-//    @IdempotentSubmit(
-//            key = "T(com.nageoffer.ai.ragent.framework.context.UserContext).getUserId()",
-//            message = "当前会话处理中，请稍后再发起新的对话"
-//    )
-    @GetMapping(value = "/mindflow/v1/rag/chat", produces = "text/event-stream;charset=UTF-8")
+    @IdempotentSubmit(
+            key = "T(com.nageoffer.ai.ragent.framework.context.UserContext).getUserId()",
+            message = "当前会话处理中，请稍后再发起新的对话"
+    )
+    @GetMapping(value = "/mindflow/rag/chat", produces = "text/event-stream;charset=UTF-8")
     public SseEmitter chat(@RequestParam String question,
                            @RequestParam(required = false) String conversationId,
                            @RequestParam(required = false, defaultValue = "false") Boolean deepThinking) {
@@ -38,7 +39,7 @@ public class RAGChatController {
     /**
      * 停止指定任务
      */
-//    @IdempotentSubmit
+    @IdempotentSubmit
     @PostMapping(value = "/mindflow/rag/v1/stop")
     public Result<Void> stop(@RequestParam String taskId) {
         ragChatService.stopTask(taskId);

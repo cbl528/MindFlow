@@ -55,7 +55,7 @@ public class KnowledgeDocumentController {
     /**
      * 上传文档：入库记录 + 文件落盘，返回文档ID
      */
-    @PostMapping(value = "/mindflow/v1/knowledge-base/{kb-id}/docs/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/mindflow/knowledge-base/{kb-id}/docs/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<KnowledgeDocumentVO> upload(@PathVariable("kb-id") String kbId,
                                               @RequestPart(value = "file", required = false) MultipartFile file,
                                               @ModelAttribute KnowledgeDocumentUploadRequest requestParam) {
@@ -65,7 +65,7 @@ public class KnowledgeDocumentController {
     /**
      * 开始分块：抽取文本 -> 分块 -> 嵌入并写入向量库
      */
-    @PostMapping("/mindflow/v1/knowledge-base/docs/{doc-id}/chunk")
+    @PostMapping("/mindflow/knowledge-base/docs/{doc-id}/chunk")
     public Result<Void> startChunk(@PathVariable(value = "doc-id") String docId) {
         documentService.startChunk(docId);
         return Results.success();
@@ -74,7 +74,7 @@ public class KnowledgeDocumentController {
     /**
      * 删除文档：逻辑删除。可选同时删除向量库中该文档的所有 chunk
      */
-    @DeleteMapping("/mindflow/v1/knowledge-base/docs/{doc-id}")
+    @DeleteMapping("/mindflow/knowledge-base/docs/{doc-id}")
     public Result<Void> delete(@PathVariable(value = "doc-id") String docId) {
         documentService.delete(docId);
         return Results.success();
@@ -83,7 +83,7 @@ public class KnowledgeDocumentController {
     /**
      * 查询文档详情
      */
-    @GetMapping("/mindflow/v1/knowledge-base/docs/{docId}")
+    @GetMapping("/mindflow/knowledge-base/docs/{docId}")
     public Result<KnowledgeDocumentVO> get(@PathVariable String docId) {
         return Results.success(documentService.get(docId));
     }
@@ -91,7 +91,7 @@ public class KnowledgeDocumentController {
     /**
      * 更新文档信息
      */
-    @PutMapping("/mindflow/v1/knowledge-base/docs/{docId}")
+    @PutMapping("/mindflow/knowledge-base/docs/{docId}")
     public Result<Void> update(@PathVariable String docId,
                                @RequestBody KnowledgeDocumentUpdateRequest requestParam) {
         documentService.update(docId, requestParam);
@@ -101,7 +101,7 @@ public class KnowledgeDocumentController {
     /**
      * 分页查询文档列表（支持状态/关键字过滤）
      */
-    @GetMapping("/mindflow/v1/knowledge-base/{kb-id}/docs")
+    @GetMapping("/mindflow/knowledge-base/{kb-id}/docs")
     public Result<IPage<KnowledgeDocumentVO>> page(@PathVariable(value = "kb-id") String kbId,
                                                    KnowledgeDocumentPageRequest requestParam) {
         return Results.success(documentService.page(kbId, requestParam));
@@ -110,7 +110,7 @@ public class KnowledgeDocumentController {
     /**
      * 搜索文档（全局检索建议）
      */
-    @GetMapping("/mindflow/v1/knowledge-base/docs/search")
+    @GetMapping("/mindflow/knowledge-base/docs/search")
     public Result<List<KnowledgeDocumentSearchVO>> search(@RequestParam(value = "keyword", required = false) String keyword,
                                                           @RequestParam(value = "limit", defaultValue = "8") int limit) {
         return Results.success(documentService.search(keyword, limit));
@@ -119,7 +119,7 @@ public class KnowledgeDocumentController {
     /**
      * 启用/禁用文档
      */
-    @PatchMapping("/mindflow/v1/knowledge-base/docs/{docId}/enable")
+    @PatchMapping("/mindflow/knowledge-base/docs/{docId}/enable")
     public Result<Void> enable(@PathVariable String docId,
                                @RequestParam("value") boolean enabled) {
         documentService.enable(docId, enabled);
@@ -129,7 +129,7 @@ public class KnowledgeDocumentController {
     /**
      * 查询文档分块日志列表
      */
-    @GetMapping("/mindflow/v1/knowledge-base/docs/{docId}/chunk-logs")
+    @GetMapping("/mindflow/knowledge-base/docs/{docId}/chunk-logs")
     public Result<IPage<KnowledgeDocumentChunkLogVO>> getChunkLogs(@PathVariable String docId,
                                                                    Page<KnowledgeDocumentChunkLogVO> page) {
         return Results.success(documentService.getChunkLogs(docId, page));
@@ -138,7 +138,7 @@ public class KnowledgeDocumentController {
     /**
      * 预览 markdown 文档内容
      */
-    @GetMapping("/mindflow/v1/knowledge-base/docs/{docId}/preview")
+    @GetMapping("/mindflow/knowledge-base/docs/{docId}/preview")
     public Result<String> preview(@PathVariable String docId) {
         return Results.success(documentService.preview(docId));
     }
@@ -146,7 +146,7 @@ public class KnowledgeDocumentController {
     /**
      * 获取文档源文件（用于 PDF/图片等浏览器原生支持的格式直接渲染）
      */
-    @GetMapping("/mindflow/v1/knowledge-base/docs/{docId}/file")
+    @GetMapping("/mindflow/knowledge-base/docs/{docId}/file")
     public void file(@PathVariable String docId, HttpServletResponse response) throws Exception {
         var doc = documentService.get(docId);
         String fileType = doc.getFileType() != null ? doc.getFileType().toLowerCase() : "";

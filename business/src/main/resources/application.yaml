@@ -24,7 +24,7 @@ spring:
   datasource:                        # MyBatis-Plus 数据源（MySQL 8.x + HikariCP）
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/mindflow?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://124.221.110.104:3306/mindflow?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: mysql200528
     hikari:                          # HikariCP 连接池
@@ -37,8 +37,8 @@ spring:
 
   data:
     redis:                           # Redis（StringRedisTemplate / Redisson / sa-token-redis 共用同一连接）
-      host: localhost                # Redis 主机（参考: 127.0.0.1）
-      port: 6379                     # Redis 端口（参考: 6379）
+      host: 124.221.110.104          # Redis 主机（参考: 127.0.0.1）
+      port: 6739                     # Redis 端口（参考: 6379）
       password: redis200528          # Redis 密码；无密码留空
       database: 0                    # 库号（参考: 0）
 
@@ -99,17 +99,22 @@ ai:
     default-tier: standard           # 默认档位名（请求未指定 tier 时的兜底档）
     deep-thinking-tier: deep         # 用户开启「深度思考」时的目标档位
     candidates:                      # 物理模型注册表：只登记 id→provider/model，档位排序由下方 tiers 定义
-      # 硅基流动（SiliconFlow）chat 模型，优先级按下述顺序：① → ④
-      - id: qwen-2.5-7b              # ① 通义千问 2.5-7B，中文优秀，32K 上下文，学习首选
+      # 硅基流动（SiliconFlow）chat 模型，优先级按下述顺序：① → ⑤
+      - id: deepseek-r1-7b           # ① 深度思考模型：DeepSeek-R1-Distill-Qwen-7B，推理链路强，thinking 请求主力
+        provider: siliconflow
+        model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+        supports-thinking: true      # 声明支持思考链，thinking 请求才可路由到它
+      - id: qwen-2.5-7b              # ② 通义千问 2.5-7B，中文优秀，32K 上下文，学习首选
         provider: siliconflow
         model: Qwen/Qwen2.5-7B-Instruct
-      - id: qwen3-8b                 # ② Qwen3 8B，更新版本，综合更强
+      - id: qwen3-8b                 # ③ Qwen3 8B，更新版本，综合更强，支持思考模式（enable_thinking 开关）
         provider: siliconflow
         model: Qwen/Qwen3-8B-Instruct
-      - id: glm-4-9b                 # ③ GLM4-9B，中文表现好
+        supports-thinking: true      # Qwen3 原生思考模式，作为 deep 档兜底
+      - id: glm-4-9b                 # ④ GLM4-9B，中文表现好
         provider: siliconflow
         model: THUDM/glm-4-9b-chat
-      - id: internlm2.5-7b           # ④ 书生 2.5-7B
+      - id: internlm2.5-7b           # ⑤ 书生 2.5-7B
         provider: siliconflow
         model: internlm/internlm2_5-7b-chat
     tiers:
@@ -119,9 +124,9 @@ ai:
       standard:                      # 默认档：质量 / 成本平衡（请求未指定 tier 时走这里）
         candidates: [ qwen-2.5-7b, qwen3-8b, glm-4-9b, internlm2.5-7b ]
         timeout-ms: 30000
-      deep:                          # 深度思考档：本组均为非 thinking 模型，仅延长超时走同一链路
-        candidates: [ qwen-2.5-7b, qwen3-8b, glm-4-9b, internlm2.5-7b ]
-        timeout-ms: 120000
+      deep:                          # 深度思考档：推理模型优先（R1 主力 + Qwen3 兜底），非思考模型在 thinking 请求时会被过滤
+        candidates: [ deepseek-r1-7b, qwen3-8b, qwen-2.5-7b, glm-4-9b, internlm2.5-7b ]
+        timeout-ms: 180000            # 推理模型思考链耗时长，超时预算放宽到 3 分钟
 
   # ---------- 向量嵌入模型 ----------
   embedding:
@@ -166,7 +171,7 @@ rag:
     kb-bucket: mindflow-sources        # 知识库桶（私有）：所有知识库文档共用，按 collectionName 目录隔离
     asset-bucket: mindflow-assets      # 多模态资产桶（公共读）：PDF 图片等供浏览器直连预览
     s3:                              # type=s3 时生效（本机 MinIO）
-      endpoint: http://localhost:9000   # MinIO 端点（9000 端口）
+      endpoint: http://124.221.110.104:9000   # MinIO 端点（9000 端口）
       access-key: minioadmin         # MinIO 根账号的用户名即 AccessKey（默认 minioadmin）
       secret-key: minioadmin         # MinIO 根账号的密码即 SecretKey（默认 minioadmin；自定义过就填你自己的）
       region: us-east-1              # S3 兼容存储区域通常任填
@@ -326,7 +331,7 @@ rag:
 # Milvus 连接（rag.vector.type=milvus 时必需）
 # =====================================================================
 milvus:
-  uri: http://localhost:19530        # Milvus 服务地址（本地默认端口）
+  uri: http://124.221.110.104:19530        # Milvus 服务地址（本地默认端口）
   token:                             # 鉴权 Token；未开启鉴权留空
 
 # =====================================================================
