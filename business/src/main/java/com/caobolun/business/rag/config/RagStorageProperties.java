@@ -28,12 +28,12 @@ public class RagStorageProperties {
      * <p>
      * 私有桶，文档仅服务端 openStream 读取，不对外直连；OSS 桶名全局唯一，生产需按部署覆盖
      */
-    private String kbBucket = "ragent-sources";
+    private String kbBucket = "mindflow-sources";
 
     /**
      * 多模态资产桶：PDF 抽出的图片等，公共读，供浏览器匿名直连预览
      */
-    private String assetBucket = "ragent-assets";
+    private String assetBucket = "mindflow-assets";
 
     /**
      * S3 兼容存储配置（type=s3 生效）
@@ -110,7 +110,7 @@ public class RagStorageProperties {
         private String region;
 
         /**
-         * 资产公开访问基址（虚拟主机式，已含 bucket 子域），如 <a href="https://ragent-assets.oss-cn-hangzhou.aliyuncs.com">...</a>
+         * 资产公开访问基址（虚拟主机式，已含 bucket 子域）
          */
         private String publicUrl;
     }

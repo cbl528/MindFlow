@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpen, Plus, Search, Trash2 } from 'lucide-react'
+import { BookOpen, Boxes, Clock, MoreHorizontal, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { knowledgeBaseService } from '@/services/knowledgeService'
 import { Button } from '@/components/ui/button'
@@ -25,23 +25,85 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Pagination } from '@/components/shared/Pagination'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { formatDateTime } from '@/lib/time'
 import type { KnowledgeBaseVO } from '@/types'
 
+/** 卡片右上角「⋯」悬浮菜单（重命名 / 删除） */
+function CardActions({
+  kb,
+  onRename,
+  onDelete,
+}: {
+  kb: KnowledgeBaseVO
+  onRename: () => void
+  onDelete: () => void
+}) {
+  const [open, setOpen] = useState(false)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const enter = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    setOpen(true)
+  }, [])
+
+  const leave = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    closeTimer.current = setTimeout(() => setOpen(false), 120)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current)
+    }
+  }, [])
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger
+        asChild
+        onClick={(e) => e.stopPropagation()}
+        onMouseEnter={enter}
+        onMouseLeave={leave}
+      >
+        <button
+          type="button"
+          aria-label={`${kb.name} 操作`}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground opacity-70 transition-opacity hover:bg-muted hover:opacity-100"
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" sideOffset={6} onMouseEnter={enter} onMouseLeave={leave}>
+        <DropdownMenuItem
+          onSelect={onRename}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Pencil />
+          重命名
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={onDelete}
+          onClick={(e) => e.stopPropagation()}
+          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+        >
+          <Trash2 />
+          删除
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 export default function KnowledgeListPage() {
   const navigate = useNavigate()
   const [list, setList] = useState<KnowledgeBaseVO[]>([])
-  const [total, setTotal] = useState(0)
-  const [pageNo, setPageNo] = useState(1)
   const [keyword, setKeyword] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -56,15 +118,14 @@ export default function KnowledgeListPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await knowledgeBaseService.list({ pageNo, pageSize: 10, name: keyword || undefined })
-      setList(res.records)
-      setTotal(res.total)
+      const res = await knowledgeBaseService.list(keyword || undefined)
+      setList(res)
     } catch {
       /* 拦截器已提示 */
     } finally {
       setLoading(false)
     }
-  }, [pageNo, keyword])
+  }, [keyword])
 
   useEffect(() => {
     load()
@@ -85,7 +146,6 @@ export default function KnowledgeListPage() {
       toast.success('知识库创建成功')
       setCreateOpen(false)
       setCreateForm({ name: '', embeddingModel: '', collectionName: '' })
-      setPageNo(1)
       load()
       navigate(`/admin/knowledge/${id}`)
     } catch {
@@ -121,15 +181,9 @@ export default function KnowledgeListPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">知识库管理</h1>
-          <p className="text-sm text-muted-foreground">创建与管理知识库，为 RAG 提供检索源</p>
-        </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus />
-          新建知识库
-        </Button>
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">知识库管理</h1>
+        <p className="text-sm text-muted-foreground">创建与管理知识库，为 RAG 提供检索源</p>
       </div>
 
       <div className="flex items-center gap-2">
@@ -139,89 +193,88 @@ export default function KnowledgeListPage() {
             placeholder="搜索知识库"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && setPageNo(1)}
+            onKeyDown={(e) => e.key === 'Enter' && load()}
             className="pl-8"
           />
         </div>
-        <Button variant="secondary" onClick={() => setPageNo(1)}>
+        <Button variant="secondary" onClick={load}>
           搜索
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-background">
-        {!loading && list.length === 0 ? (
-          <EmptyState
-            icon={BookOpen}
-            title="暂无知识库"
-            description="点击右上角「新建知识库」开始创建"
-          />
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>名称</TableHead>
-                <TableHead>Embedding 模型</TableHead>
-                <TableHead>向量集合</TableHead>
-                <TableHead>文档数</TableHead>
-                <TableHead>创建时间</TableHead>
-                <TableHead className="text-right">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {list.map((kb) => (
-                <TableRow key={kb.id}>
-                  <TableCell>
-                    <button
-                      className="font-medium text-foreground hover:text-primary"
-                      onClick={() => navigate(`/admin/knowledge/${kb.id}`)}
-                    >
-                      {kb.name}
-                    </button>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{kb.embeddingModel || '—'}</TableCell>
-                  <TableCell className="text-muted-foreground">{kb.collectionName || '—'}</TableCell>
-                  <TableCell>{kb.documentCount ?? 0}</TableCell>
-                  <TableCell className="text-muted-foreground">{formatDateTime(kb.createTime)}</TableCell>
-                  <TableCell>
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate(`/admin/knowledge/${kb.id}`)}
-                      >
-                        管理
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setRenameTarget(kb)
-                          setRenameValue(kb.name)
-                        }}
-                      >
-                        重命名
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => setDeleteTarget(kb)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-        {list.length > 0 && (
-          <div className="flex justify-end border-t border-border p-3">
-            <Pagination pageNo={pageNo} pageSize={10} total={total} onChange={setPageNo} />
-          </div>
-        )}
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-border bg-background p-4">
+              <div className="flex items-start justify-between">
+                <Skeleton className="h-9 w-9 rounded-lg" />
+                <Skeleton className="h-7 w-7 rounded-md" />
+              </div>
+              <Skeleton className="mt-3 h-4 w-3/4" />
+              <Skeleton className="mt-4 h-3 w-full" />
+              <Skeleton className="mt-2 h-3 w-1/2" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {/* 新增卡片 */}
+          <button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            className="group flex min-h-[176px] flex-col items-center justify-center gap-2.5 rounded-xl border border-dashed border-border bg-background text-muted-foreground transition-colors hover:border-primary/50 hover:bg-accent/40 hover:text-primary"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted transition-colors group-hover:bg-primary/10">
+              <Plus className="h-5 w-5" />
+            </span>
+            <span className="text-sm font-medium">新增知识库</span>
+          </button>
+
+          {/* 知识库卡片 */}
+          {list.map((kb) => (
+            <div
+              key={kb.id}
+              onClick={() => navigate(`/admin/knowledge/${kb.id}`)}
+              className="group flex min-h-[176px] cursor-pointer flex-col rounded-xl border border-border bg-background p-4 transition-colors hover:border-primary/40 hover:bg-accent/40"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                </span>
+                <CardActions
+                  kb={kb}
+                  onRename={() => {
+                    setRenameTarget(kb)
+                    setRenameValue(kb.name)
+                  }}
+                  onDelete={() => setDeleteTarget(kb)}
+                />
+              </div>
+              <h3 className="mt-3 line-clamp-1 font-medium text-foreground">{kb.name}</h3>
+              <div className="mt-auto space-y-1.5 pt-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <Boxes className="h-3.5 w-3.5 shrink-0" />
+                  <span className="line-clamp-1" title={kb.embeddingModel}>
+                    {kb.embeddingModel || '—'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formatDateTime(kb.createTime)}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!loading && list.length === 0 && (
+        <EmptyState
+          icon={BookOpen}
+          title="暂无知识库"
+          description="点击上方「新增知识库」卡片开始创建"
+        />
+      )}
 
       {/* 新建知识库 */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>

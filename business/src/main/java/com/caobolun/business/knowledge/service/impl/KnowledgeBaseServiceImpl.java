@@ -315,4 +315,16 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             return vo;
         });
     }
+
+    @Override
+    public List<KnowledgeBaseVO> list() {
+        LambdaQueryWrapper<KnowledgeBaseDO> wrappers = Wrappers.lambdaQuery(KnowledgeBaseDO.class)
+                .eq(KnowledgeBaseDO::getDeleted, 0)
+                .orderByDesc(KnowledgeBaseDO::getCreateTime);
+        List<KnowledgeBaseDO> knowledgeBaseDOS = knowledgeBaseMapper.selectList(wrappers);
+
+        return knowledgeBaseDOS.stream()
+                .map(each -> BeanUtil.toBean(each, KnowledgeBaseVO.class))
+                .collect(Collectors.toList());
+    }
 }

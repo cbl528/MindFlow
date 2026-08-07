@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultFileStorageService implements FileStorageService {
 
     private static final Tika TIKA = new Tika();
-    private static final String LOCK_KEY_PREFIX = "ragent:kb:space:init:";
+    private static final String LOCK_KEY_PREFIX = "mindflow:kb:space:init:";
     private static final long LOCK_WAIT_SECONDS = 30;
 
     private final ObjectStorageClient objectStorageClient;

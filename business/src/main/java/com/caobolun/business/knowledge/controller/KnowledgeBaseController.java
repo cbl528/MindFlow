@@ -70,6 +70,14 @@ public class KnowledgeBaseController {
     }
 
     /**
+     * 查询知识库列表
+     */
+    @GetMapping("/mindflow/knowledge-base/list")
+    public Result<List<KnowledgeBaseVO>> list() {
+        return Results.success(knowledgeBaseService.list());
+    }
+
+    /**
      * 查询支持的分块策略列表
      */
     @GetMapping("/mindflow/knowledge-base/chunk-strategies")

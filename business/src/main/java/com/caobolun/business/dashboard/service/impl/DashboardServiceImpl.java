@@ -334,7 +334,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDate, Long> countConversationsByDay(LocalDate start, LocalDate endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD') as d", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d') as d", "count(*) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .groupBy("d");
@@ -343,7 +343,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDate, Long> countMessagesByDay(LocalDate start, LocalDate endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationMessageDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD') as d", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d') as d", "count(*) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .groupBy("d");
@@ -352,7 +352,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDate, Long> countAssistantMessagesByDay(LocalDate start, LocalDate endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationMessageDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD') as d", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d') as d", "count(*) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .eq("role", ROLE_ASSISTANT)
@@ -362,7 +362,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDate, Long> countNoDocMessagesByDay(LocalDate start, LocalDate endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationMessageDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD') as d", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d') as d", "count(*) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .eq("role", ROLE_ASSISTANT)
@@ -373,7 +373,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDate, Long> countActiveUsersByDay(LocalDate start, LocalDate endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationMessageDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD') as d", "count(distinct user_id) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d') as d", "count(distinct user_id) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .groupBy("d");
@@ -382,7 +382,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDate, Double> averageLatencyByDay(LocalDate start, LocalDate endExclusive, ZoneId zoneId) {
         QueryWrapper<RagTraceRunDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(start_time,'YYYY-MM-DD') as d", "avg(duration_ms) as avg")
+        wrapper.select("DATE_FORMAT(start_time,'%Y-%m-%d') as d", "avg(duration_ms) as avg")
                 .ge("start_time", toDate(start, zoneId))
                 .lt("start_time", toDate(endExclusive, zoneId))
                 .eq("status", STATUS_SUCCESS)
@@ -406,7 +406,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDate, Long> countTraceRunsByDay(LocalDate start, LocalDate endExclusive, ZoneId zoneId, String status) {
         QueryWrapper<RagTraceRunDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(start_time,'YYYY-MM-DD') as d", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(start_time,'%Y-%m-%d') as d", "count(*) as cnt")
                 .ge("start_time", toDate(start, zoneId))
                 .lt("start_time", toDate(endExclusive, zoneId));
         if (status != null) {
@@ -418,7 +418,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDateTime, Long> countConversationsByHour(LocalDateTime start, LocalDateTime endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD HH24:00:00') as h", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d %H:00:00') as h", "count(*) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .groupBy("h");
@@ -427,7 +427,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDateTime, Long> countMessagesByHour(LocalDateTime start, LocalDateTime endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationMessageDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD HH24:00:00') as h", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d %H:00:00') as h", "count(*) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .groupBy("h");
@@ -436,7 +436,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDateTime, Long> countAssistantMessagesByHour(LocalDateTime start, LocalDateTime endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationMessageDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD HH24:00:00') as h", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d %H:00:00') as h", "count(*) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .eq("role", ROLE_ASSISTANT)
@@ -446,7 +446,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDateTime, Long> countNoDocMessagesByHour(LocalDateTime start, LocalDateTime endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationMessageDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD HH24:00:00') as h", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d %H:00:00') as h", "count(*) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .eq("role", ROLE_ASSISTANT)
@@ -457,7 +457,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDateTime, Long> countActiveUsersByHour(LocalDateTime start, LocalDateTime endExclusive, ZoneId zoneId) {
         QueryWrapper<ConversationMessageDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(create_time,'YYYY-MM-DD HH24:00:00') as h", "count(distinct user_id) as cnt")
+        wrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d %H:00:00') as h", "count(distinct user_id) as cnt")
                 .ge("create_time", toDate(start, zoneId))
                 .lt("create_time", toDate(endExclusive, zoneId))
                 .groupBy("h");
@@ -466,7 +466,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDateTime, Double> averageLatencyByHour(LocalDateTime start, LocalDateTime endExclusive, ZoneId zoneId) {
         QueryWrapper<RagTraceRunDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(start_time,'YYYY-MM-DD HH24:00:00') as h", "avg(duration_ms) as avg")
+        wrapper.select("DATE_FORMAT(start_time,'%Y-%m-%d %H:00:00') as h", "avg(duration_ms) as avg")
                 .ge("start_time", toDate(start, zoneId))
                 .lt("start_time", toDate(endExclusive, zoneId))
                 .eq("status", STATUS_SUCCESS)
@@ -476,7 +476,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private Map<LocalDateTime, Long> countTraceRunsByHour(LocalDateTime start, LocalDateTime endExclusive, ZoneId zoneId, String status) {
         QueryWrapper<RagTraceRunDO> wrapper = new QueryWrapper<>();
-        wrapper.select("to_char(start_time,'YYYY-MM-DD HH24:00:00') as h", "count(*) as cnt")
+        wrapper.select("DATE_FORMAT(start_time,'%Y-%m-%d %H:00:00') as h", "count(*) as cnt")
                 .ge("start_time", toDate(start, zoneId))
                 .lt("start_time", toDate(endExclusive, zoneId));
         if (status != null) {

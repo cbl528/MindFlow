@@ -15,15 +15,16 @@ import type {
 // ---------- 知识库 ----------
 
 export const knowledgeBaseService = {
-  async list(params: { pageNo: number; pageSize: number; name?: string }) {
+  /** 列表：对接后端 /mindflow/knowledge-base/list，全量返回后按名称在前端过滤 */
+  async list(name?: string) {
     if (!USE_BACKEND) {
       await delay(300)
-      return pageOf<KnowledgeBaseVO>(seed.knowledgeBases, params, (kb, p) => {
-        const name = (p.name as string)?.toLowerCase()
-        return !name || kb.name.toLowerCase().includes(name)
-      })
+      const kw = (name ?? '').trim().toLowerCase()
+      return seed.knowledgeBases.filter((kb) => !kw || kb.name.toLowerCase().includes(kw))
     }
-    return paginate<PageResult<KnowledgeBaseVO>>({ url: '/mindflow/knowledge-base', method: 'get' }, params, 'current')
+    const list = await request<KnowledgeBaseVO[]>({ url: '/mindflow/knowledge-base/list', method: 'get' })
+    const kw = (name ?? '').trim().toLowerCase()
+    return kw ? list.filter((kb) => kb.name?.toLowerCase().includes(kw)) : list
   },
   async get(id: string) {
     if (!USE_BACKEND) {

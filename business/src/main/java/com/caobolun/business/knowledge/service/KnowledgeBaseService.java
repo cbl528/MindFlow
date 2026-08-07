@@ -23,6 +23,8 @@ import com.caobolun.business.knowledge.request.KnowledgeBasePageRequest;
 import com.caobolun.business.knowledge.request.KnowledgeBaseUpdateRequest;
 import com.caobolun.business.knowledge.vo.KnowledgeBaseVO;
 
+import java.util.List;
+
 
 /**
  * 知识库服务接口
@@ -74,4 +76,10 @@ public interface KnowledgeBaseService {
      * @return 知识库分页结果
      */
     IPage<KnowledgeBaseVO> pageQuery(KnowledgeBasePageRequest requestParam);
+
+    /**
+     * 查询知识库列表
+     * @return 知识库列表
+     */
+    List<KnowledgeBaseVO> list();
 }
