@@ -7,6 +7,8 @@ import com.caobolun.business.user.request.UserPageRequest;
 import com.caobolun.business.user.request.UserUpdateRequest;
 import com.caobolun.business.user.vo.UserVO;
 
+import java.util.List;
+
 public interface UserService {
 
     /**
@@ -28,6 +30,11 @@ public interface UserService {
      * 删除用户
      */
     void delete(String id);
+
+    /**
+     * 批量删除用户
+     */
+    void batchDelete(List<String> ids);
 
     /**
      * 修改当前用户密码

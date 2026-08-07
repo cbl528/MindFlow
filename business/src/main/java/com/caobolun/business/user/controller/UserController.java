@@ -3,6 +3,7 @@ package com.caobolun.business.user.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.caobolun.business.user.request.ChangePasswordRequest;
+import com.caobolun.business.user.request.UserBatchRequest;
 import com.caobolun.business.user.request.UserCreateRequest;
 import com.caobolun.business.user.request.UserPageRequest;
 import com.caobolun.business.user.request.UserUpdateRequest;
@@ -75,6 +76,16 @@ public class UserController {
     public Result<Void> delete(@PathVariable String id) {
         StpUtil.checkRole("admin");
         userService.delete(id);
+        return Results.success();
+    }
+
+    /**
+     * 批量删除用户
+     */
+    @PostMapping("/mindflow/v1/user/batch-delete")
+    public Result<Void> batchDelete(@RequestBody UserBatchRequest requestParam) {
+        StpUtil.checkRole("admin");
+        userService.batchDelete(requestParam.getIds());
         return Results.success();
     }
 

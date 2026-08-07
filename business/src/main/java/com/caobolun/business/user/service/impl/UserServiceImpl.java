@@ -21,6 +21,8 @@ import com.caobolun.framework.exception.ClientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -113,9 +115,17 @@ public class UserServiceImpl implements UserService {
     public void delete(String id) {
         UserDO record = loadById(id);
         ensureNotDefaultAdmin(record);
+        ensureNotAdmin(record);
         UserVO before = toVO(record);
         userMapper.deleteById(record.getId());
         bizChangeLogContext.put(id, before, null);
+    }
+
+    @Override
+    public void batchDelete(List<String> ids) {
+        Assert.notEmpty(ids, () -> new ClientException("请选择要删除的用户"));
+        // 逐个复用 delete()：内含默认管理员保护与变更审计
+        ids.forEach(this::delete);
     }
 
     @Override
@@ -169,6 +179,12 @@ public class UserServiceImpl implements UserService {
     private void ensureNotDefaultAdmin(UserDO record) {
         if (record != null && DEFAULT_ADMIN_USERNAME.equalsIgnoreCase(record.getUsername())) {
             throw new ClientException("默认管理员不允许修改或删除");
+        }
+    }
+
+    private void ensureNotAdmin(UserDO record) {
+        if (record != null && UserRole.ADMIN.getCode().equalsIgnoreCase(record.getRole())) {
+            throw new ClientException("管理员不允许删除");
         }
     }
 

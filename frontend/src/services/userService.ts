@@ -35,6 +35,13 @@ export const userService = {
     }
     return request<void>({ url: `/mindflow/v1/user/${id}`, method: 'delete' })
   },
+  async batchRemove(ids: string[]) {
+    if (!USE_BACKEND) {
+      await delay(300)
+      return undefined
+    }
+    return request<void>({ url: '/mindflow/v1/user/batch-delete', method: 'post', data: { ids } })
+  },
   async changePassword(data: { oldPassword: string; newPassword: string }) {
     if (!USE_BACKEND) {
       await delay(300)

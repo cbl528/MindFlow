@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Pencil, Plus, Search, Trash2, Users } from 'lucide-react'
+import { Plus, Search, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { userService } from '@/services/userService'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Select,
   SelectContent,
@@ -51,11 +53,15 @@ export default function UserListPage() {
   const [keyword, setKeyword] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+
   const [formOpen, setFormOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ username: '', password: '', role: 'user' })
   const [deleteTarget, setDeleteTarget] = useState<UserVO | null>(null)
+  const [batchDeleteOpen, setBatchDeleteOpen] = useState(false)
+  const [batchDeleting, setBatchDeleting] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -73,6 +79,33 @@ export default function UserListPage() {
   useEffect(() => {
     load()
   }, [load])
+
+  function toggleSelect(id: string, checked: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (checked) next.add(id)
+      else next.delete(id)
+      return next
+    })
+  }
+
+  // 管理员行不可勾选，全选与选中态均只统计非管理员行
+  const selectable = list.filter((u) => u.role !== 'admin')
+
+  function toggleSelectAll(checked: boolean | 'indeterminate') {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (checked === true) {
+        selectable.forEach((u) => next.add(u.id))
+      } else {
+        list.forEach((u) => next.delete(u.id))
+      }
+      return next
+    })
+  }
+
+  const allSelected = selectable.length > 0 && selectable.every((u) => selected.has(u.id))
+  const someSelected = selectable.some((u) => selected.has(u.id))
 
   function openCreate() {
     setEditId(null)
@@ -120,6 +153,11 @@ export default function UserListPage() {
     try {
       await userService.remove(deleteTarget.id)
       toast.success('已删除')
+      setSelected((prev) => {
+        const next = new Set(prev)
+        next.delete(deleteTarget.id)
+        return next
+      })
       setDeleteTarget(null)
       load()
     } catch {
@@ -127,33 +165,59 @@ export default function UserListPage() {
     }
   }
 
+  async function handleBatchDelete() {
+    const ids = Array.from(selected)
+    if (ids.length === 0) return
+    setBatchDeleting(true)
+    try {
+      await userService.batchRemove(ids)
+      toast.success(`已删除 ${ids.length} 个用户`)
+      setBatchDeleteOpen(false)
+      setSelected(new Set())
+      load()
+    } catch {
+      /* 已提示 */
+    } finally {
+      setBatchDeleting(false)
+    }
+  }
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">用户管理</h1>
-          <p className="text-sm text-muted-foreground">管理登录用户与角色</p>
-        </div>
-        <Button onClick={openCreate}>
-          <Plus />
-          新增用户
-        </Button>
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">用户管理</h1>
+        <p className="text-sm text-muted-foreground">管理登录用户与角色</p>
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="relative w-64">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="搜索用户名"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && setPageNo(1)}
-            className="pl-8"
-          />
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <div className="relative w-64">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="搜索用户名"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && setPageNo(1)}
+              className="pl-8"
+            />
+          </div>
+          <Button variant="secondary" onClick={() => setPageNo(1)}>
+            搜索
+          </Button>
         </div>
-        <Button variant="secondary" onClick={() => setPageNo(1)}>
-          搜索
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="destructive"
+            disabled={selected.size === 0}
+            onClick={() => setBatchDeleteOpen(true)}
+          >
+            批量删除{selected.size > 0 ? ` (${selected.size})` : ''}
+          </Button>
+          <Button onClick={openCreate}>
+            <Plus />
+            新增用户
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-border bg-background">
@@ -163,8 +227,16 @@ export default function UserListPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="全选本页用户"
+                  />
+                </TableHead>
+                <TableHead>头像</TableHead>
                 <TableHead>用户名</TableHead>
-                <TableHead>角色</TableHead>
+                <TableHead>身份</TableHead>
                 <TableHead>创建时间</TableHead>
                 <TableHead>更新时间</TableHead>
                 <TableHead className="text-right">操作</TableHead>
@@ -172,7 +244,21 @@ export default function UserListPage() {
             </TableHeader>
             <TableBody>
               {list.map((u) => (
-                <TableRow key={u.id}>
+                <TableRow key={u.id} data-state={selected.has(u.id) ? 'selected' : undefined}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selected.has(u.id)}
+                      onCheckedChange={(v) => toggleSelect(u.id, v === true)}
+                      disabled={u.role === 'admin'}
+                      aria-label={`选择用户${u.username}`}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Avatar className="h-8 w-8">
+                      {u.avatar ? <AvatarImage src={u.avatar} alt={u.username} /> : null}
+                      <AvatarFallback>{u.username?.[0]?.toUpperCase() ?? 'U'}</AvatarFallback>
+                    </Avatar>
+                  </TableCell>
                   <TableCell className="font-medium">{u.username}</TableCell>
                   <TableCell>
                     <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
@@ -183,16 +269,22 @@ export default function UserListPage() {
                   <TableCell className="text-muted-foreground">{formatDateTime(u.updateTime)}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => openEdit(u)}>
-                        <Pencil className="h-3.5 w-3.5" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-primary hover:bg-accent hover:text-primary"
+                        onClick={() => openEdit(u)}
+                      >
+                        编辑
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-destructive hover:text-destructive"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        disabled={u.role === 'admin'}
                         onClick={() => setDeleteTarget(u)}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        删除
                       </Button>
                     </div>
                   </TableCell>
@@ -265,6 +357,23 @@ export default function UserListPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete}>删除</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={batchDeleteOpen} onOpenChange={setBatchDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>批量删除用户</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定删除选中的 {selected.size} 个用户吗？删除后不可恢复。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBatchDelete} disabled={batchDeleting}>
+              {batchDeleting ? '删除中…' : '删除'}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

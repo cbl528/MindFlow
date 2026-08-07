@@ -50,12 +50,12 @@ export const seed = {
   } as CurrentUserVO,
 
   users: [
-    { id: 'u1', username: 'admin', role: 'admin', createTime: '2026-07-01 10:00:00', updateTime: '2026-07-20 09:30:00' },
-    { id: 'u2', username: 'zhangwei', role: 'user', createTime: '2026-07-03 14:20:00', updateTime: '2026-07-18 11:05:00' },
-    { id: 'u3', username: 'liuyang', role: 'user', createTime: '2026-07-05 09:15:00', updateTime: '2026-07-22 16:40:00' },
-    { id: 'u4', username: 'wangfang', role: 'user', createTime: '2026-07-08 18:45:00', updateTime: '2026-07-25 10:12:00' },
-    { id: 'u5', username: 'chenjing', role: 'user', createTime: '2026-07-12 08:30:00', updateTime: '2026-07-26 14:55:00' },
-    { id: 'u6', username: 'zhaolei', role: 'user', createTime: '2026-07-15 13:00:00', updateTime: '2026-07-28 09:20:00' },
+    { id: 'u1', username: 'admin', role: 'admin', avatar: 'https://static.deepseek.com/user-avatar/G_6cuD8GbD53VwGRwisvCsZ6', createTime: '2026-07-01 10:00:00', updateTime: '2026-07-20 09:30:00' },
+    { id: 'u2', username: 'zhangwei', role: 'user', avatar: 'https://static.deepseek.com/user-avatar/9c3b3c0b0d3e4f0d9d4b6e5f1a0f5f3e', createTime: '2026-07-03 14:20:00', updateTime: '2026-07-18 11:05:00' },
+    { id: 'u3', username: 'liuyang', role: 'user', avatar: 'https://static.deepseek.com/user-avatar/5d2a8f2c6b7a4e9f8c1d3b2a9e0f7c5d', createTime: '2026-07-05 09:15:00', updateTime: '2026-07-22 16:40:00' },
+    { id: 'u4', username: 'wangfang', role: 'user', avatar: 'https://static.deepseek.com/user-avatar/7e4f1c9a3d5b8f2e6a0c4d8b1e7f2a3c', createTime: '2026-07-08 18:45:00', updateTime: '2026-07-25 10:12:00' },
+    { id: 'u5', username: 'chenjing', role: 'user', avatar: 'https://static.deepseek.com/user-avatar/2b6d9e0f4a8c3d7e5f1b0a9c6d2e8f4a', createTime: '2026-07-12 08:30:00', updateTime: '2026-07-26 14:55:00' },
+    { id: 'u6', username: 'zhaolei', role: 'user', avatar: 'https://static.deepseek.com/user-avatar/8c1a5e2f7b3d9c0a4e6f8b1d2c5a9e3b', createTime: '2026-07-15 13:00:00', updateTime: '2026-07-28 09:20:00' },
   ] as UserVO[],
 
   knowledgeBases: [
