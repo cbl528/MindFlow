@@ -46,7 +46,7 @@ public class ChunkingService {
             return List.of();
         }
         ChunkMetadata metadata = ChunkMetadata.builder()
-                .provenance(blocks.get(0).provenance())
+                .provenance(blocks.getFirst().provenance())
                 .build();
         return List.of(ChunkAssembler.assemble(0, ChunkDraft.of(whole, metadata)));
     }

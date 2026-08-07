@@ -59,7 +59,6 @@ import com.caobolun.framework.context.UserContext;
 import com.caobolun.framework.exception.ClientException;
 import com.caobolun.framework.exception.ServiceException;
 import com.caobolun.framework.mq.producer.MessageQueueProducer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mzt.logapi.starter.annotation.LogRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,7 +87,6 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
     private final FileStorageService fileStorageService;
     private final VectorStoreService vectorStoreService;
     private final KnowledgeChunkService knowledgeChunkService;
-    private final ObjectMapper objectMapper;
     private final KnowledgeDocumentScheduleService scheduleService;
     private final IngestionPipelineService ingestionPipelineService;
     private final IngestionPipelineMapper ingestionPipelineMapper;
@@ -119,7 +117,12 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         KnowledgeBaseDO kbDO = knowledgeBaseMapper.selectById(kbId);
         Assert.notNull(kbDO, () -> new ClientException("知识库不存在"));
 
+        // file/locationfile/localtion_file 转为FILE，空值或者其他值均抛出异常
         SourceType sourceType = SourceType.normalize(requestParam.getSourceType());
+        // URL 必须有来源地址：SourceType.URL 且 sourceLocation 为空 → 抛"来源地址不能为空"。FILE 来源不需要 sourceLocation。
+        // 定时调度校验：只有当 URL 且 scheduleEnabled=true（isScheduleEnabled，751 行）才继续：
+        // scheduleCron 为空 → 抛"定时表达式不能为空"
+        // 用 CronScheduleHelper.isIntervalLessThan 校验周期不能短于 scheduleProperties.getMinIntervalSeconds()，非法 cron 抛"定时表达式不合法"
         validateSourceAndSchedule(sourceType, requestParam);
         // 摄取配置的校验排在存文件之前：它只看请求参数，而一旦落了对象再抛异常，
         // 存储里就留下一个没有文档指向它的孤儿。纯校验一律前置到第一个副作用之前
@@ -169,10 +172,12 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
             condition = BizChangeLogContext.RECORD_CONDITION
     )
     public void startChunk(String docId) {
+        // 获取文档
         KnowledgeDocumentDO beforeDO = documentMapper.selectById(docId);
         Assert.notNull(beforeDO, () -> new ClientException("文档不存在"));
         bizChangeLogContext.putName(beforeDO.getDocName());
         KnowledgeDocumentDO before = BeanUtil.copyProperties(beforeDO, KnowledgeDocumentDO.class);
+        // 构建队列事件
         KnowledgeDocumentChunkEvent event = KnowledgeDocumentChunkEvent.builder()
                 .docId(docId)
                 .operator(UserContext.getUsername())
@@ -213,16 +218,19 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
             log.warn("文档不存在，跳过分块任务, docId={}", docId);
             return;
         }
-
         runChunkTask(documentDO);
     }
 
     private void runChunkTask(KnowledgeDocumentDO documentDO) {
         String docId = documentDO.getId();
         ProcessMode processMode = ProcessMode.normalize(documentDO.getProcessMode());
+        // 查询知识库
         KnowledgeBaseDO kbDO = knowledgeBaseMapper.selectById(documentDO.getKbId());
+        // 获取向量落点身份
         VectorTarget target = vectorTargetResolver.resolve(kbDO);
+        // 文档级摄取配置
         IngestionSpec spec = ingestionSpecCodec.read(documentDO.getIngestionSpec());
+        // 获取文档身份
         DocumentRef doc = documentRef(documentDO);
 
         KnowledgeDocumentChunkLogDO chunkLog = KnowledgeDocumentChunkLogDO.builder()
@@ -585,7 +593,7 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         QueryWrapper<KnowledgeChunkDO> wrapper = new QueryWrapper<>();
         wrapper.select("DISTINCT doc_id")
                 .in("doc_id", docIds)
-                .apply("update_time > create_time + INTERVAL '1 second'");
+                .apply("update_time > create_time + INTERVAL 1 SECOND");
         return chunkMapper.selectObjs(wrapper).stream()
                 .map(String::valueOf)
                 .collect(Collectors.toSet());

@@ -114,6 +114,41 @@ CREATE TABLE `t_sample_question` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='示例问题表';
 
 -- ============================================================================
+-- 智能体配置表
+-- ============================================================================
+
+CREATE TABLE `t_agent_profile` (
+    `id`          varchar(20)  NOT NULL COMMENT '主键ID（雪花ID）',
+    `name`        varchar(128) NOT NULL COMMENT '展示名称，全局唯一',
+    `description` text         DEFAULT NULL COMMENT '描述',
+    `avatar`      varchar(128) DEFAULT NULL COMMENT '头像预设标识，取值由前端预设表定义',
+    `builtin`     tinyint(1)   NOT NULL DEFAULT 0 COMMENT '是否内置：1-内置智能体（不可编辑删除），所有空槽位的回落终点',
+    `active`      tinyint(1)   NOT NULL DEFAULT 0 COMMENT '是否激活：全局仅允许一条为1（唯一性由应用层保证）',
+    `create_by`   varchar(20)  DEFAULT NULL COMMENT '创建人',
+    `update_by`   varchar(20)  DEFAULT NULL COMMENT '修改人',
+    `create_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted`     tinyint(1)   NOT NULL DEFAULT 0 COMMENT '是否删除 0：正常 1：删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_agent_profile_name` (`name`, `deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='智能体配置表';
+
+CREATE TABLE `t_agent_prompt` (
+    `id`          varchar(20) NOT NULL COMMENT '主键ID（雪花ID）',
+    `agent_id`    varchar(20) NOT NULL COMMENT '智能体ID（关联 t_agent_profile.id）',
+    `slot_key`    varchar(32) NOT NULL COMMENT '槽位标识（AgentPromptSlot 枚举名，如 KB_ANSWER/RECOMMENDED_QUESTIONS）',
+    `content`     text        DEFAULT NULL COMMENT '提示词全文，空白视为未配置并回落内置智能体',
+    `create_by`   varchar(20) DEFAULT NULL COMMENT '创建人',
+    `update_by`   varchar(20) DEFAULT NULL COMMENT '修改人',
+    `create_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted`     tinyint(1)  NOT NULL DEFAULT 0 COMMENT '是否删除 0：正常 1：删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_agent_prompt_slot` (`agent_id`, `slot_key`, `deleted`),
+    KEY `idx_agent_prompt_agent` (`agent_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='智能体提示词配置表';
+
+-- ============================================================================
 -- 业务变更审计表
 -- ============================================================================
 
@@ -169,6 +204,7 @@ CREATE TABLE `t_knowledge_document` (
     `chunk_count`      int           DEFAULT 0 COMMENT '分块数量',
     `file_url`         varchar(1024) NOT NULL COMMENT '文件存储路径',
     `file_type`        varchar(16)   NOT NULL COMMENT '文件类型',
+    `mime_type`        varchar(128)  DEFAULT NULL COMMENT '真实MIME类型（字节探测得出，服务解析路由）',
     `file_size`        bigint        DEFAULT NULL COMMENT '文件大小（字节）',
     `process_mode`     varchar(16)   DEFAULT 'chunk' COMMENT '处理模式：chunk/pipeline',
     `status`           varchar(16)   NOT NULL DEFAULT 'pending' COMMENT '状态：pending/running/success/failed',
@@ -176,8 +212,7 @@ CREATE TABLE `t_knowledge_document` (
     `source_location`  varchar(1024) DEFAULT NULL COMMENT '来源地址',
     `schedule_enabled` tinyint(1)    DEFAULT NULL COMMENT '是否启用定时刷新',
     `schedule_cron`    varchar(64)   DEFAULT NULL COMMENT '定时表达式',
-    `chunk_strategy`   varchar(32)   DEFAULT NULL COMMENT '分块策略',
-    `chunk_config`     json          DEFAULT NULL COMMENT '分块配置JSON',
+    `ingestion_spec`   json          DEFAULT NULL COMMENT '文档级摄取配置JSON（解析档位+分块预算）',
     `pipeline_id`      varchar(20)   DEFAULT NULL COMMENT 'Pipeline ID',
     `created_by`       varchar(20)   NOT NULL COMMENT '创建人',
     `updated_by`       varchar(20)   DEFAULT NULL COMMENT '修改人',
@@ -196,8 +231,9 @@ CREATE TABLE `t_knowledge_chunk` (
     `content`      longtext    NOT NULL COMMENT '分块内容',
     `content_hash` varchar(64) DEFAULT NULL COMMENT '内容哈希（幂等/去重）',
     `char_count`   int         DEFAULT NULL COMMENT '字符数',
-    `token_count`  int         DEFAULT NULL COMMENT 'Token数',
-    `enabled`      tinyint(1)  NOT NULL DEFAULT 1 COMMENT '是否启用 0：禁用 1：启用',
+    `token_count`   int         DEFAULT NULL COMMENT 'Token数',
+    `embedding_text` longtext   DEFAULT NULL COMMENT '向量文本：章节路径+正文（重建向量的唯一正确来源）',
+    `enabled`       tinyint(1)  NOT NULL DEFAULT 1 COMMENT '是否启用 0：禁用 1：启用',
     `created_by`   varchar(20) NOT NULL COMMENT '创建人',
     `updated_by`   varchar(20) DEFAULT NULL COMMENT '修改人',
     `create_time`  datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -212,7 +248,7 @@ CREATE TABLE `t_knowledge_document_chunk_log` (
     `doc_id`           varchar(20) NOT NULL COMMENT '文档ID',
     `status`           varchar(16) NOT NULL COMMENT '状态',
     `process_mode`     varchar(16) DEFAULT NULL COMMENT '处理模式',
-    `chunk_strategy`   varchar(16) DEFAULT NULL COMMENT '分块策略',
+    `parse_profile`    varchar(16) DEFAULT NULL COMMENT '解析档位（fast/fidelity，仅chunk模式）',
     `pipeline_id`      varchar(20) DEFAULT NULL COMMENT 'Pipeline ID',
     `extract_duration` bigint      DEFAULT NULL COMMENT '文本提取耗时（毫秒）',
     `chunk_duration`   bigint      DEFAULT NULL COMMENT '分块耗时（毫秒）',
@@ -318,7 +354,6 @@ CREATE TABLE `t_query_term_mapping` (
     `update_by`   varchar(20) DEFAULT NULL COMMENT '修改人',
     `create_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-    `deleted`     tinyint(1)  NOT NULL DEFAULT 0 COMMENT '是否删除 0：正常 1：删除',
     PRIMARY KEY (`id`),
     KEY `idx_domain` (`domain`),
     KEY `idx_source` (`source_term`)

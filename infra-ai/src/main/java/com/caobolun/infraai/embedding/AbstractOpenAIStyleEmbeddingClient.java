@@ -73,6 +73,17 @@ public abstract class AbstractOpenAIStyleEmbeddingClient implements EmbeddingCli
         return 0;
     }
 
+    /**
+     * 是否在请求体中携带 {@code dimensions} 参数，默认 false（不发）
+     * <p>
+     * OpenAI 原生支持截断向量维度的 Matryoshka 模型才发；多数供应商的兼容接口（如 SiliconFlow 的
+     * bge 系列）收到该字段直接 400「参数无效」，而维度约束本就由下游 {@code ChunkEmbeddingService}
+     * 按落点校验兜底，不发反而最稳。需要截断的提供商自行覆写
+     */
+    protected boolean supportsDimensions() {
+        return false;
+    }
+
     // ==================== 接口实现 ====================
 
     @Override
@@ -123,7 +134,12 @@ public abstract class AbstractOpenAIStyleEmbeddingClient implements EmbeddingCli
             inputArray.add(text);
         }
         body.add("input", inputArray);
-        body.addProperty("dimensions", target.candidate().getDimension());
+        if (supportsDimensions()) {
+            Integer dimension = target.candidate().getDimension();
+            if (dimension != null && dimension > 0) {
+                body.addProperty("dimensions", dimension);
+            }
+        }
         customizeRequestBody(body, target);
 
         Request.Builder requestBuilder = new Request.Builder()

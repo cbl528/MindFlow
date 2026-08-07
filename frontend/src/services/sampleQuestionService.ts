@@ -7,7 +7,7 @@ export const sampleQuestionService = {
   async random() {
     if (!USE_BACKEND) {
       await delay(300)
-      return seed.sampleQuestions.slice(0, 4)
+      return seed.sampleQuestions.slice(0, 5)
     }
     return request<SampleQuestionVO[]>({ url: '/mindflow/rag/sample-questions', method: 'get' })
   },
