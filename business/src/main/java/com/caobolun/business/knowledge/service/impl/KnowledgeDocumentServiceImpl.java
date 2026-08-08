@@ -221,33 +221,55 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         runChunkTask(documentDO);
     }
 
+    /**
+     * 执行一次文档分块任务：从对象存储读取文档字节，走摄取内核
+     * 「解析 → 分块 → 向量化 → 落库」五步，全程登记分块日志（状态/块数/各阶段耗时）并同步文档状态。
+     * <p>
+     * 本方法是文档分块的主执行入口，由两条路径到达：
+     * <ul>
+     *   <li>{@link #executeChunk}：被 MQ 消费者 / 定时调度触发（收到 {@code docId} 后再查库）</li>
+     *   <li>{@link #chunkDocument}：供内部逻辑直接以已加载的实体调用</li>
+     * </ul>
+     * 设计要点：
+     * <ol>
+     *   <li><b>日志先行</b>：进入即先插一条 RUNNING 日志，成功/失败都在同一条日志上收口；</li>
+     *   <li><b>异常兜底</b>：任何异常统一在 catch 里把文档置为 FAILED 并回写错误信息，方法自身不向上抛；</li>
+     *   <li><b>耗时拆分</b>：解析/分块/嵌入/持久化各阶段独立计时，便于从日志定位瓶颈。</li>
+     * </ol>
+     *
+     * @param documentDO 文档实体，调用方须保证非空且已存在；
+     *                   使用到的字段：id（docId）、kbId、processMode、ingestionSpec、pipelineId、fileUrl
+     */
     private void runChunkTask(KnowledgeDocumentDO documentDO) {
         String docId = documentDO.getId();
+        // 处理模式：chunk（直接分块）/ pipeline（管道）。空值或非法值在此直接抛异常
         ProcessMode processMode = ProcessMode.normalize(documentDO.getProcessMode());
-        // 查询知识库
+        // 所属知识库：决定向量落点（逻辑分区/嵌入模型/维度）
         KnowledgeBaseDO kbDO = knowledgeBaseMapper.selectById(documentDO.getKbId());
-        // 获取向量落点身份
+        // 向量落点身份：由知识库配置（L2）+ 部署配置（L1）合成，缺配置直接失败，不回落系统默认
         VectorTarget target = vectorTargetResolver.resolve(kbDO);
-        // 文档级摄取配置
+        // 文档级摄取配置（L3）：从 ingestion_spec 的 JSONB 反序列化出 解析档位 + 分块预算
         IngestionSpec spec = ingestionSpecCodec.read(documentDO.getIngestionSpec());
-        // 获取文档身份
+        // 文档身份：docId 决定资产归属，kbId 决定落库归属，是摄取内核的入参
         DocumentRef doc = documentRef(documentDO);
 
+        // 先写一条 RUNNING 分块日志，任务成功/失败都在这条日志上收口
         KnowledgeDocumentChunkLogDO chunkLog = KnowledgeDocumentChunkLogDO.builder()
                 .docId(docId)
                 .status(DocumentStatus.RUNNING.getCode())
                 .processMode(processMode.getValue())
-                .parseProfile(spec.parseProfile().getCode())
-                .pipelineId(documentDO.getPipelineId())
+                .parseProfile(spec.parseProfile().getCode()) // 仅 chunk 模式有值，排障时确认走的解析档位
+                .pipelineId(documentDO.getPipelineId())      // 仅 pipeline 模式有值
                 .startTime(new Date())
                 .build();
         chunkLogMapper.insert(chunkLog);
 
+        // 各阶段耗时默认 0：失败路径上已计时的阶段保留真实值，未走到的一律 0
         long totalStartTime = System.currentTimeMillis();
-        long extractDuration = 0;
-        long chunkDuration = 0;
-        long embedDuration = 0;
-        long persistDuration = 0;
+        long extractDuration = 0;   // 文本提取（解析）耗时
+        long chunkDuration = 0;     // 分块耗时
+        long embedDuration = 0;     // 嵌入 API 耗时
+        long persistDuration = 0;   // DB 持久化耗时
 
         try {
             // 管道模式暂停服务：管道将按自定义代码 / 动态脚本重新设计，届时分块沿用同一内核，
@@ -264,21 +286,25 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
                 throw new ClientException("管道模式重构中，暂不可用，请改用直接分块：docId=" + docId);
             }
 
+            // 核心摄取：① 读字节 → ② 解析（含类型识别）→ ③ 分块 → ④ 向量化 → ⑤ 各索引后端落库
             IngestionOutcome outcome = ingestionKernel.run(doc, readFileBytes(documentDO), spec, target);
-            extractDuration = outcome.timings().parseMillis();
-            chunkDuration = outcome.timings().chunkMillis();
-            embedDuration = outcome.timings().embedMillis();
-            persistDuration = outcome.timings().indexMillis();
-            int savedCount = outcome.chunkCount();
+            extractDuration = outcome.timings().parseMillis(); // 解析阶段耗时（含 MIME 类型识别）
+            chunkDuration = outcome.timings().chunkMillis();   // 分块阶段耗时（含 Block/Chunk 两层插槽加工）
+            embedDuration = outcome.timings().embedMillis();   // 向量化阶段耗时（嵌入 API 往返）
+            persistDuration = outcome.timings().indexMillis(); // 索引落库阶段耗时
+            int savedCount = outcome.chunkCount();             // 最终落库的块数
+
             // 回填字节探测出的真实 MIME；展示用的 file_type 仍由扩展名决定，两者互不导出
             refreshMimeType(docId, outcome.mimeType());
 
+            // 成功收口：文档置为 SUCCESS 并回写块数，分块日志记成功
             markChunkSucceeded(docId, savedCount);
             long totalDuration = System.currentTimeMillis() - totalStartTime;
             updateChunkLog(chunkLog.getId(), DocumentStatus.SUCCESS.getCode(), savedCount,
                     extractDuration, chunkDuration, embedDuration, persistDuration, totalDuration, null);
         } catch (Exception e) {
             log.error("文档分块任务执行失败：docId={}", docId, e);
+            // 失败收口：文档置为 FAILED（事务内执行），分块日志记失败并回写错误信息
             markChunkFailed(documentDO.getId());
             long totalDuration = System.currentTimeMillis() - totalStartTime;
             updateChunkLog(chunkLog.getId(), DocumentStatus.FAILED.getCode(), 0,
@@ -286,10 +312,22 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         }
     }
 
+    /**
+     * 构造文档身份（{@link DocumentRef}）：docId 决定资产归属与落库归属，kbId 决定关系库归属，filename 供类型识别
+     *
+     * @param documentDO 文档实体，使用其 id / kbId / docName 字段
+     * @return 摄取内核所需的文档身份
+     */
     private DocumentRef documentRef(KnowledgeDocumentDO documentDO) {
         return new DocumentRef(documentDO.getId(), documentDO.getKbId(), documentDO.getDocName());
     }
 
+    /**
+     * 标记文档分块成功：把文档状态置为 SUCCESS，并回写本次最终落库的块数到 chunk_count
+     *
+     * @param docId      文档 ID
+     * @param chunkCount 最终落库的块数，用于刷新文档的块数统计
+     */
     private void markChunkSucceeded(String docId, int chunkCount) {
         documentMapper.updateById(KnowledgeDocumentDO.builder()
                 .id(docId)
@@ -299,6 +337,13 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
                 .build());
     }
 
+    /**
+     * 回填真实 MIME：解析阶段通过字节探测出的 MIME 可能与上传时按扩展名判定的不一致，
+     * 这里只更新 mime_type 列；展示用的 file_type 仍由扩展名决定，两者互不影响
+     *
+     * @param docId    文档 ID
+     * @param mimeType 字节探测出的真实 MIME，为空（未识别出）则跳过更新
+     */
     private void refreshMimeType(String docId, String mimeType) {
         if (!StringUtils.hasText(mimeType)) {
             return;
@@ -306,6 +351,13 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         documentMapper.updateById(KnowledgeDocumentDO.builder().id(docId).mimeType(mimeType).build());
     }
 
+    /**
+     * 读取文档的原始字节：按 fileUrl 从对象存储拉取并全部读入内存，交给摄取内核做解析
+     *
+     * @param documentDO 文档实体，使用其 fileUrl 字段
+     * @return 文件完整字节
+     * @throws ServiceException 读取失败时抛出，由 runChunkTask 的 catch 统一收口
+     */
     private byte[] readFileBytes(KnowledgeDocumentDO documentDO) {
         try (InputStream is = fileStorageService.openStream(documentDO.getFileUrl())) {
             return is.readAllBytes();
@@ -314,6 +366,19 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         }
     }
 
+    /**
+     * 更新分块日志：在成功/失败两条收口路径上统一回写最终状态、块数与各阶段耗时
+     *
+     * @param logId           分块日志 ID
+     * @param status          最终状态（success / failed）
+     * @param chunkCount      落库块数，失败路径为 0
+     * @param extractDuration 文本提取（解析）耗时（毫秒）
+     * @param chunkDuration   分块耗时（毫秒）
+     * @param embedDuration   嵌入 API 耗时（毫秒）
+     * @param persistDuration DB 持久化耗时（毫秒）
+     * @param totalDuration   总耗时（毫秒）
+     * @param errorMessage    错误信息，成功路径为 null
+     */
     private void updateChunkLog(String logId, String status, int chunkCount, long extractDuration,
                                 long chunkDuration, long embedDuration, long persistDuration,
                                 long totalDuration, String errorMessage) {
@@ -384,6 +449,11 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
         runChunkTask(documentDO);
     }
 
+    /**
+     * 标记文档分块失败：在事务内把文档状态置为 FAILED，避免与并发读取产生中间态
+     *
+     * @param docId 文档 ID
+     */
     private void markChunkFailed(String docId) {
         transactionOperations.executeWithoutResult(status -> {
             KnowledgeDocumentDO update = new KnowledgeDocumentDO();

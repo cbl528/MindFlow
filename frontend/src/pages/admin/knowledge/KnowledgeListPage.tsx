@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpen, Boxes, Clock, MoreHorizontal, Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { BookOpen, Boxes, Clock, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { knowledgeBaseService } from '@/services/knowledgeService'
 import { Button } from '@/components/ui/button'
@@ -181,25 +181,35 @@ export default function KnowledgeListPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">知识库管理</h1>
-        <p className="text-sm text-muted-foreground">创建与管理知识库，为 RAG 提供检索源</p>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="relative w-72">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="搜索知识库"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && load()}
-            className="pl-8"
-          />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">知识库管理</h1>
+          <p className="text-sm text-muted-foreground">创建与管理知识库，为 RAG 提供检索源</p>
         </div>
-        <Button variant="secondary" onClick={load}>
-          搜索
-        </Button>
+
+        <div className="flex items-center gap-2">
+          <div className="relative w-64">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="搜索知识库"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && load()}
+              className="pl-8"
+            />
+          </div>
+          <Button variant="secondary" onClick={load}>
+            搜索
+          </Button>
+          <Button variant="secondary" onClick={load} title="刷新列表">
+            <RefreshCw />
+            刷新
+          </Button>
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus />
+            新增知识库
+          </Button>
+        </div>
       </div>
 
       {loading ? (

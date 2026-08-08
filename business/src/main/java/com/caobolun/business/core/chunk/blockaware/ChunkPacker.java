@@ -54,6 +54,15 @@ public class ChunkPacker {
      *
      * @param drafts 切分产出的有序草稿
      * @param budget 分块预算，合并上限取 {@link ChunkBudget#maxChars()}
+     *
+     *   ├─ ① 节 > 容忍(3072)     → 节内划分（packWithin），携带缓冲区一起分，残留留缓存区 ✓你的第2条
+     *   ├─ ② 节 ≤ 容忍，进入缓冲区路径：
+     *   │     ├─ 缓冲区 ≥ minChars 且 缓冲+节 > 理想体积(1024) → 先 flush 缓冲区
+     *   │     ├─ 缓冲区 < minChars 且 缓冲+节 ≤ 容忍        → 不 flush，照并（超预算也认）
+     *   │     ├─ 缓冲区 < minChars 且 缓冲+节 > 容忍        → 必须 flush（碎块靠向后合并兜底）
+     *   │     ├─ 整节并进缓冲区
+     *   │     └─ 并完缓冲 > 理想体积 → 立即 flush
+     *   └─ 收尾 flush 一次
      */
     public List<ChunkDraft> pack(List<ChunkDraft> drafts, ChunkBudget budget) {
         if (drafts == null || drafts.size() <= 1) {

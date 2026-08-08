@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { FileText, Link2, Loader2, Trash2, Upload } from 'lucide-react'
+import { FileText, Loader2, Trash2, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   knowledgeBaseService,
@@ -270,17 +270,21 @@ export default function KnowledgeDocumentsPage() {
                 <TableHead className="w-8">
                   <Checkbox checked={selected.length > 0 && selected.length === list.length} onCheckedChange={toggleAll} />
                 </TableHead>
+                <TableHead className="w-12">序号</TableHead>
                 <TableHead>文档名</TableHead>
                 <TableHead>来源</TableHead>
+                <TableHead>分块模式</TableHead>
+                <TableHead>文件类型</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead>分块</TableHead>
                 <TableHead>大小</TableHead>
+                <TableHead>上传时间</TableHead>
                 <TableHead>启用</TableHead>
-                <TableHead className="text-right">操作</TableHead>
+                <TableHead>操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {list.map((doc) => (
+              {list.map((doc, index) => (
                 <TableRow key={doc.id}>
                   <TableCell>
                     <Checkbox
@@ -292,16 +296,14 @@ export default function KnowledgeDocumentsPage() {
                       }
                     />
                   </TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground tabular-nums">
+                    {(pageNo - 1) * 10 + index + 1}
+                  </TableCell>
                   <TableCell className="max-w-[220px]">
                     <button
                       className="flex items-center gap-1.5 font-medium hover:text-primary"
                       onClick={() => window.open(`/preview/doc/${doc.id}`, '_blank')}
                     >
-                      {doc.sourceType === 'url' ? (
-                        <Link2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      ) : (
-                        <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      )}
                       <span className="truncate">{doc.docName}</span>
                     </button>
                   </TableCell>
@@ -311,10 +313,23 @@ export default function KnowledgeDocumentsPage() {
                     </span>
                   </TableCell>
                   <TableCell>
+                    <span className="text-xs text-muted-foreground">
+                      {doc.processMode === 'pipeline' ? '摄入流水线' : '直接分块'}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-xs text-muted-foreground">
+                      {doc.fileType || '—'}
+                    </span>
+                  </TableCell>
+                  <TableCell>
                     <StatusBadge status={doc.status} />
                   </TableCell>
                   <TableCell>{doc.chunkCount ?? 0}</TableCell>
                   <TableCell className="text-muted-foreground">{formatBytes(doc.fileSize ?? 0)}</TableCell>
+                  <TableCell className="text-muted-foreground whitespace-nowrap">
+                    {formatDateTime(doc.createTime)}
+                  </TableCell>
                   <TableCell>
                     <Switch
                       checked={doc.enabled}
@@ -322,7 +337,7 @@ export default function KnowledgeDocumentsPage() {
                     />
                   </TableCell>
                   <TableCell>
-                    <div className="flex justify-end gap-1">
+                    <div className="flex gap-1">
                       <Button variant="ghost" size="sm" onClick={() => loadLogs(doc)}>
                         日志
                       </Button>
