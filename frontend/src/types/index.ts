@@ -396,7 +396,30 @@ export interface RecommendedQuestionsPayload {
   questions: string[]
 }
 
-// 前端本地会话/消息模型（后端未提供会话历史接口）
+// ---------- 会话列表 / 消息历史（后端） ----------
+
+export interface ConversationVO {
+  conversationId: string
+  title?: string
+  /** 最后活动时间（Date 序列化：时间戳或 ISO 字符串） */
+  lastTime?: string | number
+}
+
+export interface ConversationMessageVO {
+  id: string
+  conversationId: string
+  role: 'user' | 'assistant'
+  content: string
+  thinkingContent?: string
+  thinkingDuration?: number
+  vote?: 1 | -1
+  sources?: SourceRef[]
+  recommendedQuestions?: string[]
+  messageStatus?: 'NORMAL' | 'INTERRUPTED' | 'REJECTED'
+  createTime?: string
+}
+
+// 前端本地会话/消息模型
 export type ChatMessageStatus = 'streaming' | 'thinking' | 'complete' | 'error' | 'interrupted'
 
 export interface ChatMessage {
@@ -416,7 +439,7 @@ export interface ChatMessage {
 }
 
 export interface ChatSession {
-  /** 本地会话唯一 id（路由键，稳定） */
+  /** 会话唯一 id（路由键，稳定） */
   id: string
   /** 服务端会话 id（SSE meta 事件下发，追问时回传） */
   conversationId?: string
@@ -424,4 +447,12 @@ export interface ChatSession {
   createdAt: number
   updatedAt: number
   messages: ChatMessage[]
+  /**
+   * 后端消息加载状态：
+   * - undefined：本地会话/演示模式，消息由前端自己维护
+   * - idle/loading：后端会话待加载/加载中
+   * - loaded：已从后端拉取
+   * - error：加载失败
+   */
+  messagesStatus?: 'idle' | 'loading' | 'loaded' | 'error'
 }

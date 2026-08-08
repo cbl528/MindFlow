@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Menu } from 'lucide-react'
+import { Download, Menu } from 'lucide-react'
 import { useChatStore } from '@/stores/chatStore'
+import { Button } from '@/components/ui/button'
 import { SessionSidebar } from '@/components/chat/SessionSidebar'
 import { MessageList } from '@/components/chat/MessageList'
 import { ChatInput } from '@/components/chat/ChatInput'
 import { WelcomeScreen } from '@/components/chat/WelcomeScreen'
+import { Loading } from '@/components/shared/Loading'
 
 export default function ChatPage() {
   const { sessionId } = useParams()
@@ -36,6 +38,14 @@ export default function ChatPage() {
     () => sessions.find((s) => s.id === activeId) ?? null,
     [sessions, activeId],
   )
+
+  // 安全网：init 异步加载会话列表期间若已选中会话（刷新/深链接），
+  // 会话出现后补触发消息加载；loadConversationMessages 内部有幂等保护
+  useEffect(() => {
+    if (activeId && activeSession?.id === activeId && activeSession.messagesStatus === 'idle') {
+      void useChatStore.getState().loadConversationMessages(activeId)
+    }
+  }, [activeId, activeSession?.id, activeSession?.messagesStatus])
 
   function handleNew() {
     const id = useChatStore.getState().newSession()
@@ -79,7 +89,11 @@ export default function ChatPage() {
     void handleSend(question)
   }
 
-  const showWelcome = !activeSession || activeSession.messages.length === 0
+  // 后端会话消息尚未加载完成时，显示加载态，避免闪现欢迎页
+  const sessionIsLoading =
+    !!activeSession && (activeSession.messagesStatus === 'idle' || activeSession.messagesStatus === 'loading')
+  const showWelcome =
+    !activeSession || (!sessionIsLoading && activeSession.messages.length === 0)
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -97,21 +111,30 @@ export default function ChatPage() {
       />
 
       <main className="flex min-w-0 flex-1 flex-col">
-        {/* 顶部栏 */}
-        <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-4 lg:hidden">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted"
-            aria-label="打开会话列表"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-          <span className="truncate text-sm font-medium">{activeSession?.title ?? '新对话'}</span>
-        </header>
+        {/* 顶部导航栏：仅在选择对话后显示 */}
+        {!showWelcome && (
+          <header className="flex h-12 shrink-0 items-center gap-2 px-4">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted lg:hidden"
+              aria-label="打开会话列表"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <span className="truncate text-sm font-medium">{activeSession?.title}</span>
+            <div className="ml-auto flex items-center">
+              <Button variant="ghost" size="icon" aria-label="导出对话">
+                <Download className="h-4 w-4" />
+              </Button>
+            </div>
+          </header>
+        )}
 
         {/* 中间区域 */}
         <div className="flex-1 overflow-hidden">
-          {showWelcome ? (
+          {sessionIsLoading ? (
+            <Loading label="加载对话记录…" className="h-full" />
+          ) : showWelcome ? (
             <WelcomeScreen onAsk={handleAsk} />
           ) : (
             <MessageList

@@ -18,13 +18,12 @@ import {
 import { useAuthStore } from '@/stores/authStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { Logo } from '@/components/shared/Logo'
+import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
@@ -164,13 +163,12 @@ export default function AdminLayout() {
           </div>
 
           <div className="flex items-center gap-1">
-            <Link
-              to="/chat"
-              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted"
-              title="返回对话"
-            >
-              <MessageSquare className="h-4 w-4" />
-            </Link>
+            <Button asChild variant="secondary" className="gap-1.5">
+              <Link to="/chat" title="回到对话">
+                <MessageSquare className="h-4 w-4 shrink-0" />
+                <span>回到对话</span>
+              </Link>
+            </Button>
             <button
               onClick={toggleTheme}
               className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted"
@@ -188,16 +186,8 @@ export default function AdminLayout() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuLabel>
-                  {user?.username}
-                  <span className="ml-1 text-xs text-muted-foreground">
-                    {user?.role === 'admin' ? '管理员' : '用户'}
-                  </span>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/chat')}>
-                  <MessageSquare />
-                  返回对话
+                  回到对话
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                   退出登录

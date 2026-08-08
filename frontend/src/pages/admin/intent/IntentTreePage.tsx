@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronDown, ChevronRight, GitBranch, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, GitBranch, Plus, Pencil, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { intentService } from '@/services/intentService'
 import { Button } from '@/components/ui/button'
@@ -63,6 +63,22 @@ function emptyForm(): NodeForm {
   }
 }
 
+/**
+ * examples 兼容两种形态：后端可能返回 string[]，也可能返回 JSON 数组字符串
+ */
+function examplesToList(examples?: string[] | string): string[] {
+  if (Array.isArray(examples)) return examples
+  if (typeof examples === 'string') {
+    try {
+      const parsed = JSON.parse(examples)
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+  return []
+}
+
 function formFromNode(node: IntentNodeTreeVO): NodeForm {
   return {
     name: node.name,
@@ -71,7 +87,7 @@ function formFromNode(node: IntentNodeTreeVO): NodeForm {
     level: node.level ?? 0,
     parentCode: node.parentCode ?? undefined,
     description: node.description ?? '',
-    examples: (node.examples ?? []).join('\n'),
+    examples: examplesToList(node.examples).join('\n'),
     topK: node.topK ?? 8,
     enabled: node.enabled ?? true,
     promptSnippet: node.promptSnippet ?? '',
@@ -93,8 +109,9 @@ export default function IntentTreePage() {
   const [loading, setLoading] = useState(true)
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
 
-  // 选中节点 + 右侧详情编辑
+  // 选中节点 + 编辑弹窗
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [editOpen, setEditOpen] = useState(false)
   const [editForm, setEditForm] = useState<NodeForm>(emptyForm())
   const [saving, setSaving] = useState(false)
 
@@ -124,7 +141,6 @@ export default function IntentTreePage() {
 
   function selectNode(node: IntentNodeTreeVO) {
     setSelectedId(node.id)
-    setEditForm(formFromNode(node))
   }
 
   function toggleCollapse(id: string) {
@@ -136,10 +152,16 @@ export default function IntentTreePage() {
     })
   }
 
-  // ---------- 右侧详情：保存 / 新增子节点 / 删除 ----------
+  // ---------- 编辑弹窗 ----------
 
-  async function handleSaveSelected() {
-    if (!selectedId || !selectedNode) return
+  function openEdit() {
+    if (!selectedNode) return
+    setEditForm(formFromNode(selectedNode))
+    setEditOpen(true)
+  }
+
+  async function handleSaveEdit() {
+    if (!selectedId) return
     if (!editForm.name.trim()) {
       toast.error('请输入节点名称')
       return
@@ -163,6 +185,7 @@ export default function IntentTreePage() {
         promptTemplate: editForm.promptTemplate || undefined,
       })
       toast.success('节点已更新')
+      setEditOpen(false)
       load()
     } catch {
       /* 已提示 */
@@ -170,6 +193,8 @@ export default function IntentTreePage() {
       setSaving(false)
     }
   }
+
+  // ---------- 新建节点 ----------
 
   function openCreateChild() {
     if (!selectedNode) return
@@ -217,6 +242,8 @@ export default function IntentTreePage() {
     }
   }
 
+  // ---------- 删除 ----------
+
   async function handleDelete() {
     if (!deleteTarget) return
     try {
@@ -225,7 +252,6 @@ export default function IntentTreePage() {
       setDeleteTarget(null)
       if (selectedId === deleteTarget.id) {
         setSelectedId(null)
-        setEditForm(emptyForm())
       }
       load()
     } catch {
@@ -261,9 +287,7 @@ export default function IntentTreePage() {
           >
             {isCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
-          <span
-            className={cn('flex-1 truncate text-sm', !node.enabled && 'text-muted-foreground line-through')}
-          >
+          <span className={cn('flex-1 truncate text-sm', !node.enabled && 'text-muted-foreground line-through')}>
             {node.name}
           </span>
           <Badge variant={KIND_COLOR[node.kind ?? 0]}>
@@ -278,6 +302,8 @@ export default function IntentTreePage() {
       </div>
     )
   }
+
+  const examples = selectedNode ? examplesToList(selectedNode.examples) : []
 
   return (
     <div className="space-y-5">
@@ -315,7 +341,7 @@ export default function IntentTreePage() {
           </div>
         </div>
 
-        {/* 右侧：节点详情 + 编辑 */}
+        {/* 右侧：节点详情（只读）+ 操作 */}
         <div className="lg:col-span-3">
           <div className="rounded-xl border border-border bg-background p-5">
             {!selectedNode ? (
@@ -341,6 +367,10 @@ export default function IntentTreePage() {
                       <Plus className="h-4 w-4" />
                       添加子节点
                     </Button>
+                    <Button size="sm" variant="outline" onClick={openEdit}>
+                      <Pencil className="h-4 w-4" />
+                      编辑
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
@@ -354,113 +384,165 @@ export default function IntentTreePage() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label>名称 *</Label>
-                      <Input
-                        value={editForm.name}
-                        onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
-                      />
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+                    <Detail label="类型" value={KIND_LABEL[selectedNode.kind ?? 0]} />
+                    <Detail label="意图编码" value={selectedNode.intentCode} />
+                    <Detail label="父节点" value={selectedNode.parentCode} />
+                    <Detail label="层级" value={selectedNode.level ?? 0} />
+                    <Detail label="TopK 检索条数" value={selectedNode.topK ?? '全局默认'} />
+                    <Detail label="状态" value={selectedNode.enabled ? '已启用' : '已停用'} />
+                  </div>
+
+                  {selectedNode.collectionNames && selectedNode.collectionNames.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground">关联知识库</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedNode.collectionNames.map((name) => (
+                          <Badge key={name} variant="outline">
+                            {name}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label>意图编码</Label>
-                      <Input
-                        value={editForm.intentCode}
-                        onChange={(e) => setEditForm((f) => ({ ...f, intentCode: e.target.value }))}
-                        placeholder="如 DOMAIN_HELLO"
-                      />
+                  )}
+
+                  <Detail label="描述" value={selectedNode.description} />
+
+                  {examples.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground">示例</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {examples.map((ex) => (
+                          <Badge key={ex} variant="secondary">
+                            {ex}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="space-y-1.5">
-                    <Label>类型</Label>
-                    <div className="flex gap-2">
-                      {KIND_LABEL.map((label, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setEditForm((f) => ({ ...f, kind: i }))}
-                          className={cn(
-                            'flex-1 rounded-lg border px-3 py-1.5 text-sm transition-colors',
-                            editForm.kind === i
-                              ? 'border-primary bg-accent font-medium text-primary'
-                              : 'border-border text-muted-foreground hover:bg-muted',
-                          )}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label>描述</Label>
-                    <Textarea
-                      value={editForm.description}
-                      onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
-                      rows={2}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label>示例（每行一个，用于意图识别 Few-shot）</Label>
-                    <Textarea
-                      value={editForm.examples}
-                      onChange={(e) => setEditForm((f) => ({ ...f, examples: e.target.value }))}
-                      rows={3}
-                      placeholder={'你好\n嗨，在吗'}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 items-center gap-3">
-                    <div className="space-y-1.5">
-                      <Label>TopK 检索条数</Label>
-                      <Input
-                        type="number"
-                        value={editForm.topK}
-                        onChange={(e) => setEditForm((f) => ({ ...f, topK: Number(e.target.value) || 0 }))}
-                      />
-                    </div>
-                    <div className="flex items-center gap-2 pt-5">
-                      <Switch
-                        checked={editForm.enabled}
-                        onCheckedChange={(v) => setEditForm((f) => ({ ...f, enabled: v }))}
-                      />
-                      <span className="text-sm">启用</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label>提示词片段（promptSnippet）</Label>
-                    <Textarea
-                      value={editForm.promptSnippet}
-                      onChange={(e) => setEditForm((f) => ({ ...f, promptSnippet: e.target.value }))}
-                      rows={2}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label>提示词模板（promptTemplate）</Label>
-                    <Textarea
-                      value={editForm.promptTemplate}
-                      onChange={(e) => setEditForm((f) => ({ ...f, promptTemplate: e.target.value }))}
-                      rows={3}
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-5 flex justify-end gap-2 border-t border-border pt-4">
-                  <Button variant="outline" onClick={() => setEditForm(formFromNode(selectedNode))}>
-                    重置
-                  </Button>
-                  <Button onClick={handleSaveSelected} disabled={saving}>
-                    {saving ? '保存中…' : '保存修改'}
-                  </Button>
+                  <Detail label="提示词片段" value={selectedNode.promptSnippet} code />
+                  <Detail label="提示词模板" value={selectedNode.promptTemplate} code />
                 </div>
               </>
             )}
           </div>
         </div>
       </div>
+
+      {/* 编辑节点 */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>编辑节点</DialogTitle>
+            <DialogDescription>
+              {editForm.parentCode ? `父节点：${editForm.parentCode}` : '根节点（level 0）'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>名称 *</Label>
+                <Input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>意图编码</Label>
+                <Input
+                  value={editForm.intentCode}
+                  onChange={(e) => setEditForm((f) => ({ ...f, intentCode: e.target.value }))}
+                  placeholder="如 DOMAIN_HELLO"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>类型</Label>
+              <div className="flex gap-2">
+                {KIND_LABEL.map((label, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setEditForm((f) => ({ ...f, kind: i }))}
+                    className={cn(
+                      'flex-1 rounded-lg border px-3 py-1.5 text-sm transition-colors',
+                      editForm.kind === i
+                        ? 'border-primary bg-accent font-medium text-primary'
+                        : 'border-border text-muted-foreground hover:bg-muted',
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>描述</Label>
+              <Textarea
+                value={editForm.description}
+                onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>示例（每行一个，用于意图识别 Few-shot）</Label>
+              <Textarea
+                value={editForm.examples}
+                onChange={(e) => setEditForm((f) => ({ ...f, examples: e.target.value }))}
+                rows={3}
+                placeholder={'你好\n嗨，在吗'}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 items-center gap-3">
+              <div className="space-y-1.5">
+                <Label>TopK 检索条数</Label>
+                <Input
+                  type="number"
+                  value={editForm.topK}
+                  onChange={(e) => setEditForm((f) => ({ ...f, topK: Number(e.target.value) || 0 }))}
+                />
+              </div>
+              <div className="flex items-center gap-2 pt-5">
+                <Switch
+                  checked={editForm.enabled}
+                  onCheckedChange={(v) => setEditForm((f) => ({ ...f, enabled: v }))}
+                />
+                <span className="text-sm">启用</span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>提示词片段（promptSnippet）</Label>
+              <Textarea
+                value={editForm.promptSnippet}
+                onChange={(e) => setEditForm((f) => ({ ...f, promptSnippet: e.target.value }))}
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>提示词模板（promptTemplate）</Label>
+              <Textarea
+                value={editForm.promptTemplate}
+                onChange={(e) => setEditForm((f) => ({ ...f, promptTemplate: e.target.value }))}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditForm(formFromNode(selectedNode!))}>
+              重置
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={saving}>
+              {saving ? '保存中…' : '保存'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* 新建节点（根节点 / 子节点） */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
@@ -573,6 +655,40 @@ export default function IntentTreePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  )
+}
+
+function Detail({
+  label,
+  value,
+  code,
+}: {
+  label: string
+  value?: React.ReactNode
+  code?: boolean
+}) {
+  const blank = value === undefined || value === null || value === ''
+  if (blank) {
+    // 代码块（提示词）留空时整块隐藏
+    if (code) return null
+    return (
+      <div className="space-y-1">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="text-sm text-muted-foreground">—</p>
+      </div>
+    )
+  }
+  return (
+    <div className="space-y-1">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      {code ? (
+        <pre className="whitespace-pre-wrap rounded-lg bg-muted p-3 font-mono text-xs leading-relaxed">
+          {value}
+        </pre>
+      ) : (
+        <p className="text-sm">{value}</p>
+      )}
     </div>
   )
 }

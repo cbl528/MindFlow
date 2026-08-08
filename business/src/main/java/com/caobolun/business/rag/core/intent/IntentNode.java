@@ -3,6 +3,7 @@ package com.caobolun.business.rag.core.intent;
 import cn.hutool.core.util.StrUtil;
 import com.caobolun.business.rag.enums.IntentKind;
 import com.caobolun.business.rag.enums.IntentLevel;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -149,7 +150,11 @@ public class IntentNode {
     /**
      * 返回当前意图实际参与检索的 Collection
      * 新字段优先，旧的单 Collection 字段仅作平滑升级兜底
+     * <p>
+     * 计算属性，只允许序列化输出，反序列化时跳过（由 collectionNames/collectionName 重新计算），
+     * 避免 Jackson 无 setter 时向不可变列表 add 导致 UnsupportedOperationException
      */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public List<String> getEffectiveCollectionNames() {
         LinkedHashSet<String> normalized = new LinkedHashSet<>();
         if (collectionNames != null) {

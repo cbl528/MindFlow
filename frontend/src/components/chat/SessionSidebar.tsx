@@ -203,7 +203,7 @@ export function SessionSidebar({
       </div>
 
       {/* 底部：用户 */}
-      <div className="border-t border-border p-3">
+      <div className="p-3">
         <div className="flex items-center gap-2">
           <Avatar className="h-8 w-8">
             <AvatarFallback>{user?.username?.[0]?.toUpperCase() ?? 'U'}</AvatarFallback>
@@ -280,7 +280,7 @@ export function SessionSidebar({
       {/* 桌面端 */}
       <aside
         className={cn(
-          'hidden shrink-0 flex-col border-r border-border transition-all duration-200 lg:flex',
+          'hidden shrink-0 flex-col transition-all duration-200 lg:flex',
           collapsed ? 'w-[60px]' : 'w-[264px]',
         )}
       >

@@ -8,17 +8,17 @@ spring:
     name: mindflow-business                     # 应用名（源项目: ragent-service；也用作日志 / 监控标识）
 
   servlet:
-    multipart:                       # 上传体积上限（RemoteFileFetcher 远程抓取时也引用此项作单文件上限）
+    multipart: # 上传体积上限（RemoteFileFetcher 远程抓取时也引用此项作单文件上限）
       max-file-size: 50MB            # 单文件上限
       max-request-size: 100MB        # 单次请求总体积上限
 
-  datasource:                        # MyBatis-Plus 数据源（MySQL 8.x + HikariCP）
+  datasource: # MyBatis-Plus 数据源（MySQL 8.x + HikariCP）
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://124.221.110.104:3306/mindflow?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: mysql200528
-    hikari:                          # HikariCP 连接池
+    hikari: # HikariCP 连接池
       connection-timeout: 5000       # 获取连接超时(ms)
       idle-timeout: 600000           # 空闲连接最长存活(ms)
       max-lifetime: 1800000          # 连接最长存活(ms)，略小于数据库 wait_timeout
@@ -27,13 +27,13 @@ spring:
       pool-name: MindFlowHikariPool               # 连接池名（参考: RagentHikariPool）
 
   data:
-    redis:                           # Redis（StringRedisTemplate / Redisson / sa-token-redis 共用同一连接）
+    redis: # Redis（StringRedisTemplate / Redisson / sa-token-redis 共用同一连接）
       host: 124.221.110.104          # Redis 主机（参考: 127.0.0.1）
       port: 6739                     # Redis 端口（参考: 6379）
       password: redis200528          # Redis 密码；无密码留空
       database: 0                    # 库号（参考: 0）
 
-rocketmq:                            # RocketMQ（rocketmq-spring-boot-starter）
+rocketmq: # RocketMQ（rocketmq-spring-boot-starter）
   name-server: common-rocketmq-dev.magestack.cn:9876 # NameServer 地址
   producer:
     group: mindflow-producer         # 默认生产者组
@@ -52,33 +52,33 @@ framework:
 # AI 供应商与模型（对应 infra-ai 模块 AIModelProperties，prefix = ai）
 # =====================================================================
 ai:
-  providers:                         # 供应商连接配置，key 被下方候选模型通过 provider 字段引用
-    ollama:                          # 本地 Ollama
+  providers: # 供应商连接配置，key 被下方候选模型通过 provider 字段引用
+    ollama: # 本地 Ollama
       url: http://localhost:11434    # 服务地址
       api-key:                       # 本地一般无需鉴权，留空
       endpoints:
         chat: /v1/chat/completions
         embedding: /v1/embeddings
-    bailian:                         # 阿里云百炼（DashScope）
+    bailian: # 阿里云百炼（DashScope）
       url: https://dashscope.aliyuncs.com
       api-key: sk-ws-H.ELXHPLD.lnkI.MEQCIFZd7x803z5YWGuI1iIllSP6YVss3X0hFm5h8f7q64puAiBXwNTxX5MaYhNSKA8LPaCFPsq3a4YU51dYT8AuxAT3Jg                 # 或环境变量 BAILIAN_API_KEY
       endpoints:
         chat: /compatible-mode/v1/chat/completions
         rerank: /api/v1/services/rerank/text-rerank/text-rerank
-    siliconflow:                     # 硅基流动
+    siliconflow: # 硅基流动
       url: https://api.siliconflow.cn
       api-key: sk-akheortxihrvmkcljxvmgjfmflinpmqjoebeknrlaqzwywzy                 # 或环境变量 SILICONFLOW_API_KEY
       endpoints:
         chat: /v1/chat/completions
         embedding: /v1/embeddings
-    aihubmix:                        # AI Hub Mix（OpenAI 风格聚合网关）
+    aihubmix: # AI Hub Mix（OpenAI 风格聚合网关）
       url: https://aihubmix.com
       api-key:                  # 或环境变量 AIHUBMIX_API_KEY
       endpoints:
         chat: /v1/chat/completions
         embedding: /v1/embeddings
 
-  selection:                         # 模型故障转移 / 熔断策略（按 tier 候选依次尝试）
+  selection: # 模型故障转移 / 熔断策略（按 tier 候选依次尝试）
     failure-threshold: 2             # 连续失败次数阈值，超过即熔断该候选
     open-duration-ms: 30000          # 熔断打开时长(ms)，到期进入半开探测恢复
 
@@ -89,35 +89,32 @@ ai:
   chat:
     default-tier: standard           # 默认档位名（请求未指定 tier 时的兜底档）
     deep-thinking-tier: deep         # 用户开启「深度思考」时的目标档位
-    candidates:                      # 物理模型注册表：只登记 id→provider/model，档位排序由下方 tiers 定义
-      # 硅基流动（SiliconFlow）chat 模型，优先级按下述顺序：① → ⑤
-      - id: deepseek-r1-7b           # ① 深度思考模型：DeepSeek-R1-Distill-Qwen-7B，推理链路强，thinking 请求主力
+    candidates: # 物理模型注册表：只登记 id→provider/model，档位排序由下方 tiers 定义
+      # 硅基流动（SiliconFlow）chat 模型：前三个免费，deepseek-r1 收费
+      - id: deepseek-r1-0528-Qwen3-8B  # 免费 深度思考模型（R1 蒸馏版），推理强；fast/standard 兜底 + deep 第②选
         provider: siliconflow
-        model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+        model: deepseek-ai/DeepSeek-R1-0528-Qwen3-8B
         supports-thinking: true      # 声明支持思考链，thinking 请求才可路由到它
-      - id: qwen-2.5-7b              # ② 通义千问 2.5-7B，中文优秀，32K 上下文，学习首选
+      - id: glm-z1-9b-0414           # 免费 GLM-Z1-9B，中文表现好
+        provider: siliconflow
+        model: THUDM/GLM-Z1-9B-0414
+      - id: qwen-2.5-7b              # 免费 通义千问 2.5-7B，中文优秀，32K 上下文，fast/standard 主力
         provider: siliconflow
         model: Qwen/Qwen2.5-7B-Instruct
-      - id: qwen3-8b                 # ③ Qwen3 8B，更新版本，综合更强，支持思考模式（enable_thinking 开关）
+      - id: deepseek-r1              # 收费 DeepSeek-R1 正式版，深度思考最强；仅作 deep 档首选
         provider: siliconflow
-        model: Qwen/Qwen3-8B-Instruct
-        supports-thinking: true      # Qwen3 原生思考模式，作为 deep 档兜底
-      - id: glm-4-9b                 # ④ GLM4-9B，中文表现好
-        provider: siliconflow
-        model: THUDM/glm-4-9b-chat
-      - id: internlm2.5-7b           # ⑤ 书生 2.5-7B
-        provider: siliconflow
-        model: internlm/internlm2_5-7b-chat
+        model: deepseek-ai/DeepSeek-R1
+        supports-thinking: true
     tiers:
-      fast:                          # 低延迟档：标题 / 摘要 / 查询改写等轻任务（四个均为 ~7-9B 小模型，均可胜任）
-        candidates: [ qwen-2.5-7b, qwen3-8b, glm-4-9b, internlm2.5-7b ]  # 候选顺序即故障转移优先级
-        timeout-ms: 5000             # 该档位调用超时预算(ms)
-      standard:                      # 默认档：质量 / 成本平衡（请求未指定 tier 时走这里）
-        candidates: [ qwen-2.5-7b, qwen3-8b, glm-4-9b, internlm2.5-7b ]
-        timeout-ms: 30000
-      deep:                          # 深度思考档：推理模型优先（R1 主力 + Qwen3 兜底），非思考模型在 thinking 请求时会被过滤
-        candidates: [ deepseek-r1-7b, qwen3-8b, qwen-2.5-7b, glm-4-9b, internlm2.5-7b ]
-        timeout-ms: 180000            # 推理模型思考链耗时长，超时预算放宽到 3 分钟
+      fast: # 低延迟档：标题 / 摘要 / 查询改写等轻任务（免费模型，R1-0528 推理模型为首，速度主要受首包时间影响）
+        candidates: [ deepseek-r1-0528-Qwen3-8B, qwen-2.5-7b, glm-z1-9b-0414 ]  # 候选顺序即故障转移优先级
+        timeout-ms: 60000            # 该档位调用超时预算(ms)；弱模型首包耗时长，从 30s 放宽到 60s（改写/意图/标题等同步预置步骤走此档，避免 30s 频繁触发换模型级联等待）
+      standard: # 默认档：质量 / 成本平衡（请求未指定 tier 时走这里，仅免费模型）
+        candidates: [ deepseek-r1-0528-Qwen3-8B, qwen-2.5-7b, glm-z1-9b-0414 ]
+        timeout-ms: 120000           # 推理模型首包 / 同步整段生成都可能超过 30s，放宽到 2 分钟
+      deep: # 深度思考档：收费 R1 首选 → 免费 R1-0528-Qwen3-8B 兜底 → 免费小模型收尾（thinking 请求自动过滤非思考模型）
+        candidates: [ deepseek-r1, deepseek-r1-0528-Qwen3-8B, qwen-2.5-7b, glm-z1-9b-0414 ]
+        timeout-ms: 480000           # 深度思考链最耗时，放宽到 8 分钟（流式场景仅作"首包预算"，须低于 rag.default.sse-timeout-ms 的 10 分钟总上限）
 
   # ---------- 向量嵌入模型 ----------
   embedding:
@@ -161,14 +158,14 @@ rag:
     type: s3                         # 存储后端：s3（MinIO / rustfs）/ oss（阿里云）
     kb-bucket: mindflow-sources        # 知识库桶（私有）：所有知识库文档共用，按 collectionName 目录隔离
     asset-bucket: mindflow-assets      # 多模态资产桶（公共读）：PDF 图片等供浏览器直连预览
-    s3:                              # type=s3 时生效（本机 MinIO）
+    s3: # type=s3 时生效（本机 MinIO）
       endpoint: http://124.221.110.104:9000   # MinIO 端点（9000 端口）
       access-key: minioadmin         # MinIO 根账号的用户名即 AccessKey（默认 minioadmin）
       secret-key: minioadmin         # MinIO 根账号的密码即 SecretKey（默认 minioadmin；自定义过就填你自己的）
       region: us-east-1              # S3 兼容存储区域通常任填
       path-style: true               # MinIO / rustfs 必须为 true（false 走虚拟主机式寻址会 404）
       public-url:                    # 浏览器直连资产的公开基址；内外网端点不同时配置，留空回退 endpoint
-    oss:                             # 未使用（type=oss 时才生效）
+    oss: # 未使用（type=oss 时才生效）
       endpoint: https://oss-cn-hangzhou.aliyuncs.com
       access-key: <填写>
       secret-key: <填写>
@@ -182,7 +179,7 @@ rag:
   # ---------- 关键词检索 ----------
   keyword:
     type: none                       # 关键词后端：none（关闭，默认）/ es（Elasticsearch）
-    es:                              # 未使用（type=es 时才生效）
+    es: # 未使用（type=es 时才生效）
       uris: http://127.0.0.1:9200
       index: rag_keyword_store       # 全库共享索引，按 collection_name 字段区分知识库
       analyzer: ik_max_word          # 写入分词器
@@ -191,13 +188,13 @@ rag:
   # ---------- 知识图谱 ----------
   graph:
     type: none                       # 图谱后端：none（关闭，默认）/ lightrag
-    lightrag:                        # 未使用（type=lightrag 时才生效）
+    lightrag: # 未使用（type=lightrag 时才生效）
       base-url: http://127.0.0.1:9621
       api-key:                       # 对应 X-API-Key 头；本地部署留空
       query-mode: mix                # 查询模式：naive / local / global / hybrid / mix
       timeout-ms: 30000              # 请求超时(ms)
     embedding-model: qwen-emb-8b     # 图谱侧 embedding 模型标识（未启用图谱时用不上）
-    ingestion:                       # 向量写 → 图谱写同步开关（未启用图谱时用不上）
+    ingestion: # 向量写 → 图谱写同步开关（未启用图谱时用不上）
       enabled: false                 # false=冻结图谱写入；true=随向量写重建图谱
       async: true                    # 标脏入队 + 后台防抖重建，不阻塞主写链路
       global-workspace: false        # 是否额外写全局图 workspace
@@ -207,7 +204,7 @@ rag:
     collection-name: rag_default_store   # 默认向量集合名
     dimension: 1024                   # 向量维度，须与 embedding 模型输出维度一致（bge-m3 / bge-large-zh-v1.5 均为 1024）
     metric-type: COSINE              # 向量度量：COSINE / L2 / IP
-    sse-timeout-ms: 300000           # SSE 全局超时(ms)，防连接泄漏（默认 5 分钟）
+    sse-timeout-ms: 600000           # SSE 全局超时(ms)：整个流式会话（思考+生成）的总时长硬顶，超时强制关闭连接，兜底防泄漏（10 分钟，弱模型长答案可放宽）
 
   # ---------- 功能开关（RAGConfigProperties，@Value 读取） ----------
   query-rewrite:
@@ -260,7 +257,7 @@ rag:
 
   # ---------- 分布式信号量（Redisson 限流） ----------
   semaphore:
-    document-upload:                 # 文档上传并发许可
+    document-upload: # 文档上传并发许可
       name: rag:document:upload      # Redisson 信号量名
       max-concurrent: 10             # 最大并发
       max-wait-seconds: 5            # 获取许可最大等待(秒)
@@ -277,11 +274,11 @@ rag:
     default-top-k: 10                # ③ 最终进 LLM 的条数（产品语义 topK）
     recall-budget: 20                # ① 每通道召回条数，须 ≥ default-top-k（<=0 回退 default-top-k）
     channels:
-      vector:                        # 一条向量通道，按 KB 意图置信度内部二选一作用域
+      vector: # 一条向量通道，按 KB 意图置信度内部二选一作用域
         enabled: true                # 向量通道总开关
-        intent-directed:             # 有足够置信的 KB 意图时，收窄到命中库检索
+        intent-directed: # 有足够置信的 KB 意图时，收窄到命中库检索
           min-intent-score: 0.4      # 低于此分数的意图节点被过滤
-        global:                      # 无 / 低置信 KB 意图时，退化为全库检索兜底
+        global: # 无 / 低置信 KB 意图时，退化为全库检索兜底
           confidence-threshold: 0.6          # KB 意图最高分低于此值 → 走全局
           single-intent-supplement-threshold: 0.8  # 仅单个 KB 意图且分数低于此值 → 全局兜底
           candidate-budget: 0        # 全局取数上限；<=0 跟随 rerank-candidate-limit
@@ -295,11 +292,11 @@ rag:
         timeout-seconds: 10          # 请求超时(秒)
         api-key:                     # You.com Search Key；留空回退环境变量 YDC_API_KEY
         api-url: https://ydc-index.io/v1/search
-    fusion:                          # 多通道结果融合（后处理链首段）
+    fusion: # 多通道结果融合（后处理链首段）
       strategy: rrf                  # rrf（倒数名次融合，当前唯一实现）/ off
       rrf-k: 20                      # RRF 平滑常数 k，值越大越弱化高名次优势（候选池 20~40 条时用 20 区分度更好）
       rerank-candidate-limit: 40     # ② RRF 融合后送入 Rerank 的候选池上限；<=0 不截断
-      channel-weights:               # 各通道 RRF 贡献权重（RRF 只用名次，加权控制通道话语权）
+      channel-weights: # 各通道 RRF 贡献权重（RRF 只用名次，加权控制通道话语权）
         vector: 1.0                  # 向量最可信
         keyword: 1.0
         graph: 0.5                   # 图谱新通道降权

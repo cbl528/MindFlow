@@ -19,7 +19,10 @@ public class IntentNodeTreeVO {
     private Integer level;
     private String parentCode;
     private String description;
-    private String examples;
+    /**
+     * 示例问题：JSON 数组字符串，构建树时解析为 List
+     */
+    private List<String> examples;
     private String collectionName;
     private List<String> collectionNames;
     private Integer topK;

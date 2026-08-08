@@ -26,6 +26,7 @@ import com.caobolun.framework.context.UserContext;
 import com.caobolun.framework.exception.ClientException;
 import com.caobolun.framework.exception.ServiceException;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mzt.logapi.starter.annotation.LogRecord;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -70,7 +71,8 @@ public class IntentTreeServiceImpl extends ServiceImpl<IntentNodeMapper, IntentN
 
     private IntentNodeTreeVO buildTree(IntentNodeDO current,
                                        Map<String, List<IntentNodeDO>> parentMap) {
-        IntentNodeTreeVO result = BeanUtil.toBean(current, IntentNodeTreeVO.class);
+        IntentNodeTreeVO result = BeanUtil.copyProperties(current, IntentNodeTreeVO.class, "examples");
+        result.setExamples(parseExamples(current.getExamples()));
         result.setCollectionNames(effectiveCollectionNames(current));
         List<IntentNodeDO> children = parentMap.getOrDefault(current.getIntentCode(), Collections.emptyList());
 
@@ -517,6 +519,21 @@ public class IntentTreeServiceImpl extends ServiceImpl<IntentNodeMapper, IntentN
                 collectionNames,
                 byCollectionName.get(collectionNames.get(0)).getId()
         );
+    }
+
+    /**
+     * 将数据库中的 JSON 数组字符串解析为 List<String>，解析失败返回 null
+     */
+    private List<String> parseExamples(String examples) {
+        if (StrUtil.isBlank(examples)) {
+            return null;
+        }
+        try {
+            return GSON.fromJson(examples, new TypeToken<List<String>>() {
+            }.getType());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private List<String> normalizeCollectionNames(List<String> collectionNames) {

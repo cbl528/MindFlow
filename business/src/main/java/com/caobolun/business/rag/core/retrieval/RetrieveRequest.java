@@ -1,5 +1,6 @@
 package com.caobolun.business.rag.core.retrieval;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -58,7 +59,10 @@ public class RetrieveRequest {
 
     /**
      * 新的多 Collection 参数优先，旧的单 Collection 参数用于兼容已有调用方
+     * <p>
+     * 计算属性，只允许序列化输出，反序列化时跳过（由 collectionNames/collectionName 重新计算）
      */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public List<String> getEffectiveCollectionNames() {
         LinkedHashSet<String> normalized = new LinkedHashSet<>();
         if (collectionNames != null) {

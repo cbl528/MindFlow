@@ -20,7 +20,7 @@ public class HttpClientConfig {
     @Primary
     public OkHttpClient streamingHttpClient() {
         return new OkHttpClient.Builder()
-                .connectTimeout(Duration.ofSeconds(30))
+                .connectTimeout(Duration.ofSeconds(60))
                 .writeTimeout(Duration.ofSeconds(60))
                 .readTimeout(Duration.ZERO)
                 .callTimeout(Duration.ZERO)
@@ -34,10 +34,10 @@ public class HttpClientConfig {
     @Bean
     public OkHttpClient syncHttpClient() {
         return new OkHttpClient.Builder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .writeTimeout(Duration.ofSeconds(30))
-                .readTimeout(Duration.ofSeconds(30))
-                .callTimeout(Duration.ofSeconds(45))
+                .connectTimeout(Duration.ofSeconds(30))
+                .writeTimeout(Duration.ofSeconds(60))
+                .readTimeout(Duration.ofSeconds(120))
+                .callTimeout(Duration.ofSeconds(180))
                 .retryOnConnectionFailure(true)
                 .build();
     }

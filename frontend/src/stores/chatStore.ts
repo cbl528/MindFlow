@@ -1,7 +1,14 @@
 import { create } from 'zustand'
 import { recommendedQuestions, stopChat, streamChat } from '@/services/chatStream'
+import {
+  deleteConversation,
+  listConversationMessages,
+  listConversations,
+  renameConversation,
+} from '@/services/conversationService'
+import { USE_BACKEND } from '@/config'
 import { uid } from '@/lib/utils'
-import type { ChatMessage, ChatSession } from '@/types'
+import type { ChatMessage, ChatMessageStatus, ChatSession, ConversationMessageVO } from '@/types'
 
 const STORAGE_KEY = 'mf_sessions_v1'
 const ACTIVE_KEY = 'mf_active_session'
@@ -16,13 +23,15 @@ interface ChatState {
   controller: AbortController | null
   deepThinking: boolean
 
-  init: () => void
+  init: () => Promise<void>
   toggleDeepThinking: () => void
   newSession: () => string
   deleteSession: (id: string) => void
   renameSession: (id: string, title: string) => void
   clearSessions: () => void
   setActive: (id: string | null) => void
+  /** 从后端懒加载指定会话的消息历史 */
+  loadConversationMessages: (sessionId: string) => Promise<void>
   sendMessage: (text: string) => Promise<void>
   regenerate: () => Promise<void>
   stopStreaming: () => void
@@ -55,6 +64,30 @@ function appendMessages(sessionId: string, messages: ChatMessage[]) {
         : x,
     ),
   }))
+}
+
+/** 后端消息 VO → 前端消息模型 */
+function toChatMessage(vo: ConversationMessageVO): ChatMessage {
+  const status: ChatMessageStatus =
+    vo.messageStatus === 'INTERRUPTED'
+      ? 'interrupted'
+      : vo.messageStatus === 'REJECTED'
+        ? 'error'
+        : 'complete'
+  return {
+    id: vo.id,
+    messageId: vo.id,
+    role: vo.role,
+    content: vo.content,
+    thinkingContent: vo.thinkingContent,
+    thinkingDuration: vo.thinkingDuration,
+    vote: vo.vote,
+    sources: vo.sources ?? [],
+    recommendedQuestions: vo.recommendedQuestions ?? null,
+    recStatus: vo.recommendedQuestions && vo.recommendedQuestions.length > 0 ? 'ready' : 'idle',
+    status,
+    createTime: vo.createTime,
+  }
 }
 
 export const useChatStore = create<ChatState>((set, get) => {
@@ -166,14 +199,44 @@ export const useChatStore = create<ChatState>((set, get) => {
     controller: null,
     deepThinking: false,
 
-    init: () => {
+    init: async () => {
+      if (!USE_BACKEND) {
+        // 演示模式：从本地存储恢复
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY)
+          const sessions = raw ? (JSON.parse(raw) as ChatSession[]) : []
+          const activeId = localStorage.getItem(ACTIVE_KEY)
+          set({ sessions, activeId })
+        } catch {
+          set({ sessions: [], activeId: null })
+        }
+        return
+      }
+      // 真实模式：会话列表以后端为准，消息按需懒加载
       try {
-        const raw = localStorage.getItem(STORAGE_KEY)
-        const sessions = raw ? (JSON.parse(raw) as ChatSession[]) : []
-        const activeId = localStorage.getItem(ACTIVE_KEY)
-        set({ sessions, activeId })
+        const list = await listConversations()
+        const sessions: ChatSession[] = list.map((c) => {
+          const lastTime = c.lastTime ? new Date(c.lastTime).getTime() : null
+          return {
+            id: c.conversationId,
+            conversationId: c.conversationId,
+            title: c.title || '新对话',
+            createdAt: lastTime ?? Date.now(),
+            updatedAt: lastTime ?? Date.now(),
+            messages: [],
+            messagesStatus: 'idle',
+          }
+        })
+        set({ sessions, activeId: null })
       } catch {
-        set({ sessions: [], activeId: null })
+        // 后端不可达时回退到本地缓存，保证页面可用
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY)
+          const sessions = raw ? (JSON.parse(raw) as ChatSession[]) : []
+          set({ sessions, activeId: null })
+        } catch {
+          set({ sessions: [], activeId: null })
+        }
       }
     },
 
@@ -194,6 +257,10 @@ export const useChatStore = create<ChatState>((set, get) => {
 
     deleteSession: (id) => {
       if (get().isStreaming && get().activeId === id) get().stopStreaming()
+      const session = get().sessions.find((s) => s.id === id)
+      if (USE_BACKEND && session?.conversationId) {
+        deleteConversation(session.conversationId).catch(() => undefined)
+      }
       set((s) => {
         const sessions = s.sessions.filter((x) => x.id !== id)
         const activeId = s.activeId === id ? null : s.activeId
@@ -202,7 +269,15 @@ export const useChatStore = create<ChatState>((set, get) => {
       get()._persist()
     },
 
-    renameSession: (id, title) => {
+    renameSession: async (id, title) => {
+      const session = get().sessions.find((s) => s.id === id)
+      if (USE_BACKEND && session?.conversationId) {
+        try {
+          await renameConversation(session.conversationId, title)
+        } catch {
+          return // 后端失败则不同步本地
+        }
+      }
       set((s) => ({
         sessions: s.sessions.map((x) => (x.id === id ? { ...x, title, updatedAt: Date.now() } : x)),
       }))
@@ -218,6 +293,42 @@ export const useChatStore = create<ChatState>((set, get) => {
     setActive: (id) => {
       set({ activeId: id })
       persist(get().sessions, id)
+      if (id) void get().loadConversationMessages(id)
+    },
+
+    loadConversationMessages: async (sessionId) => {
+      if (!USE_BACKEND) return
+      const session = get().sessions.find((s) => s.id === sessionId)
+      if (!session?.conversationId) return
+      if (session.messagesStatus === 'loaded' || session.messagesStatus === 'loading') return
+      set((s) => ({
+        sessions: s.sessions.map((x) =>
+          x.id === sessionId ? { ...x, messagesStatus: 'loading' } : x,
+        ),
+      }))
+      try {
+        const list = await listConversationMessages(session.conversationId!)
+        set((s) => ({
+          sessions: s.sessions.map((x) => {
+            if (x.id !== sessionId) return x
+            const backendMsgs = list.map(toChatMessage)
+            // 加载期间若用户已抢先发送新消息，保留本地追加的部分，避免被覆盖
+            const localTail = x.messages.length > 0 ? x.messages : []
+            return {
+              ...x,
+              messages: localTail.length > 0 ? [...backendMsgs, ...localTail] : backendMsgs,
+              messagesStatus: 'loaded',
+            }
+          }),
+        }))
+        get()._persist()
+      } catch {
+        set((s) => ({
+          sessions: s.sessions.map((x) =>
+            x.id === sessionId ? { ...x, messagesStatus: 'error' } : x,
+          ),
+        }))
+      }
     },
 
     sendMessage: async (raw) => {
