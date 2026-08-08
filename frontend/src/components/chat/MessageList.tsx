@@ -28,7 +28,7 @@ export function MessageList({ messages, sessionId, onAskQuestion }: MessageListP
       followOutput={isStreaming ? 'smooth' : 'auto'}
       initialTopMostItemIndex={messages.length > 0 ? messages.length - 1 : 0}
       itemContent={(_, message) => (
-        <div className="mx-auto w-full max-w-[780px] px-4 md:px-6">
+        <div className="mx-auto w-full max-w-[860px] px-4 md:px-6">
           <MessageItem message={message} sessionId={sessionId} onAskQuestion={onAskQuestion} />
         </div>
       )}

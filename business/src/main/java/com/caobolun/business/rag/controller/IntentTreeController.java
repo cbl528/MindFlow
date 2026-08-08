@@ -25,7 +25,7 @@ public class IntentTreeController {
     /**
      * 获取完整的意图节点树
      */
-    @GetMapping("/intent-tree/trees")
+    @GetMapping("/mindflow/intent-tree/trees")
     public Result<List<IntentNodeTreeVO>> tree() {
         return Results.success(intentTreeService.getFullTree());
     }
@@ -33,7 +33,7 @@ public class IntentTreeController {
     /**
      * 创建意图节点
      */
-    @PostMapping("/intent-tree")
+    @PostMapping("/mindflow/intent-tree")
     public Result<String> createNode(@RequestBody IntentNodeCreateRequest requestParam) {
         return Results.success(intentTreeService.createNode(requestParam));
     }

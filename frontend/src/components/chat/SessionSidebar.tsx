@@ -87,7 +87,7 @@ export function SessionSidebar({
   const content = (
     <>
       {/* 顶栏：品牌 + 主题 + 收起侧栏 */}
-      <div className="flex h-12 items-center justify-between gap-2 px-3">
+      <div className="flex h-14 items-center justify-between gap-2 px-4 pb-1">
         <div className="flex min-w-0 items-center gap-2">
           <Logo size={28} />
           <span className="truncate text-sm font-semibold tracking-tight">MindFlow</span>
@@ -111,20 +111,20 @@ export function SessionSidebar({
       </div>
 
       {/* 搜索 */}
-      <div className="px-3 pb-2">
+      <div className="px-4 pb-3">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="搜索对话"
-            className="h-8 w-full rounded-lg border border-transparent bg-muted pl-8 pr-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/30 focus:bg-background"
+            className="h-9 w-full rounded-lg border border-transparent bg-muted pl-8 pr-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/30 focus:bg-background"
           />
         </div>
       </div>
 
       {/* 新对话：胶囊按钮 */}
-      <div className="px-3 pb-2">
+      <div className="px-4 pb-4">
         <button
           onClick={() => {
             onNew()
@@ -138,16 +138,16 @@ export function SessionSidebar({
       </div>
 
       {/* 会话列表 */}
-      <div className="flex-1 overflow-y-auto px-3 pb-2">
+      <div className="flex-1 overflow-y-auto px-3 pb-4">
         {groups.length === 0 && (
           <p className="mt-6 text-center text-xs text-muted-foreground">
             {query ? '没有匹配的对话' : '暂无历史对话'}
           </p>
         )}
         {groups.map(([label, list]) => (
-          <div key={label} className="mb-4">
-            <p className="px-2 pb-1 text-xs text-muted-foreground">{label}</p>
-            <div className="space-y-0.5">
+          <div key={label} className="mb-5">
+            <p className="px-2 pb-1.5 text-xs text-muted-foreground">{label}</p>
+            <div className="space-y-1">
               {list.map((s) => (
                 <div
                   key={s.id}
@@ -156,14 +156,11 @@ export function SessionSidebar({
                     onMobileClose()
                   }}
                   className={cn(
-                    'group flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 transition-colors',
+                    'group flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 transition-colors',
                     s.id === activeId ? 'ds-session-active' : 'hover:bg-chat-hover',
                   )}
                 >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm">{s.title}</span>
-                    <span className="block text-xs opacity-60">{sessionGroupLabel(s.updatedAt)}</span>
-                  </span>
+                  <span className="block min-w-0 flex-1 truncate text-sm">{s.title}</span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
@@ -203,7 +200,7 @@ export function SessionSidebar({
       </div>
 
       {/* 底部：用户 */}
-      <div className="p-3">
+      <div className="border-t border-border/50 p-4">
         <div className="flex items-center gap-2">
           <Avatar className="h-8 w-8">
             <AvatarFallback>{user?.username?.[0]?.toUpperCase() ?? 'U'}</AvatarFallback>
@@ -280,7 +277,7 @@ export function SessionSidebar({
       {/* 桌面端 */}
       <aside
         className={cn(
-          'hidden shrink-0 flex-col transition-all duration-200 lg:flex',
+          'hidden shrink-0 flex-col bg-sidebar transition-all duration-200 lg:flex',
           collapsed ? 'w-[60px]' : 'w-[264px]',
         )}
       >

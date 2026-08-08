@@ -43,7 +43,7 @@ export function ChatInput({
   }
 
   return (
-    <div className="mx-auto w-full max-w-[780px] px-4 pb-4 pt-2 md:px-6">
+    <div className="mx-auto w-full max-w-[860px] px-4 pb-4 pt-2 md:px-6">
       <div
         className={cn(
           'rounded-[20px] border bg-background transition-shadow',

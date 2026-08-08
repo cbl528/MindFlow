@@ -36,7 +36,7 @@
     /* 对话专用 */
     --user-bubble: 230 100% 97%; /* #eef1ff */
     --chat-hover: 220 14% 96%; /* #f5f5f7 */
-    --sidebar: 0 0% 100%;
+    --sidebar: 0 0% 97%; /* #f7f7f8 侧栏较深灰，与聊天背景区分 */
     --sidebar-foreground: 216 14% 14%;
 
     --radius: 0.5rem;
@@ -67,7 +67,7 @@
 
     --user-bubble: 229 30% 22%;
     --chat-hover: 0 0% 15%;
-    --sidebar: 0 0% 12%;
+    --sidebar: 0 0% 10%; /* #1a1a1a 深色模式侧栏较深灰 */
     --sidebar-foreground: 0 0% 88%;
   }
 

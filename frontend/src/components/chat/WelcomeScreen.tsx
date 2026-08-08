@@ -47,7 +47,7 @@ export function WelcomeScreen({ onAsk }: WelcomeScreenProps) {
         有什么可以帮您？
       </h1>
 
-      <div className="grid w-full max-w-[720px] grid-cols-1 gap-3 sm:grid-cols-6">
+      <div className="grid w-full max-w-[860px] grid-cols-1 gap-3 sm:grid-cols-6">
         {(questions ?? Array.from({ length: 5 })).map((q, i) =>
           !questions ? (
             <Skeleton key={i} className={`h-[72px] w-full rounded-xl ${colClass(i)}`} />
