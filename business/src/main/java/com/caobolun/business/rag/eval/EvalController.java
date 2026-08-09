@@ -39,7 +39,7 @@ public class EvalController {
     private final KnowledgeChunkMapper knowledgeChunkMapper;
     private final KnowledgeDocumentMapper knowledgeDocumentMapper;
 
-    @GetMapping("/rag/eval")
+    @GetMapping("/mindflow/rag/eval")
     public Result<EvalResponse> chat(@RequestParam String question) {
         long start = System.currentTimeMillis();
 

@@ -22,10 +22,12 @@ interface ChatState {
   streamTaskId: string | null
   controller: AbortController | null
   deepThinking: boolean
+  /** init 是否已完成（会话列表已就绪），就绪前不激活会话避免竞态 */
+  initialized: boolean
 
   init: () => Promise<void>
   toggleDeepThinking: () => void
-  newSession: () => string
+  newSession: () => string | null
   deleteSession: (id: string) => void
   renameSession: (id: string, title: string) => void
   clearSessions: () => void
@@ -198,6 +200,7 @@ export const useChatStore = create<ChatState>((set, get) => {
     streamTaskId: null,
     controller: null,
     deepThinking: false,
+    initialized: false,
 
     init: async () => {
       if (!USE_BACKEND) {
@@ -206,9 +209,9 @@ export const useChatStore = create<ChatState>((set, get) => {
           const raw = localStorage.getItem(STORAGE_KEY)
           const sessions = raw ? (JSON.parse(raw) as ChatSession[]) : []
           const activeId = localStorage.getItem(ACTIVE_KEY)
-          set({ sessions, activeId })
+          set({ sessions, activeId, initialized: true })
         } catch {
-          set({ sessions: [], activeId: null })
+          set({ sessions: [], activeId: null, initialized: true })
         }
         return
       }
@@ -227,15 +230,15 @@ export const useChatStore = create<ChatState>((set, get) => {
             messagesStatus: 'idle',
           }
         })
-        set({ sessions, activeId: null })
+        set({ sessions, activeId: null, initialized: true })
       } catch {
         // 后端不可达时回退到本地缓存，保证页面可用
         try {
           const raw = localStorage.getItem(STORAGE_KEY)
           const sessions = raw ? (JSON.parse(raw) as ChatSession[]) : []
-          set({ sessions, activeId: null })
+          set({ sessions, activeId: null, initialized: true })
         } catch {
-          set({ sessions: [], activeId: null })
+          set({ sessions: [], activeId: null, initialized: true })
         }
       }
     },
@@ -243,16 +246,12 @@ export const useChatStore = create<ChatState>((set, get) => {
     toggleDeepThinking: () => set((s) => ({ deepThinking: !s.deepThinking })),
 
     newSession: () => {
-      const session: ChatSession = {
-        id: uid('sess'),
-        title: '新对话',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        messages: [],
-      }
-      set((s) => ({ sessions: [session, ...s.sessions], activeId: session.id }))
+      if (get().isStreaming) get().stopStreaming()
+      // 只清空当前会话、进入空白新对话页，不在列表中预创建会话；
+      // 真正的新会话在发送首条消息时才创建（见 sendMessage）
+      set({ activeId: null })
       get()._persist()
-      return session.id
+      return null
     },
 
     deleteSession: (id) => {
@@ -301,6 +300,16 @@ export const useChatStore = create<ChatState>((set, get) => {
       const session = get().sessions.find((s) => s.id === sessionId)
       if (!session?.conversationId) return
       if (session.messagesStatus === 'loaded' || session.messagesStatus === 'loading') return
+      // 会话已携带本地消息（当前会话刚流式生成）时，直接标记已加载，
+      // 避免与后端历史消息重复合并
+      if (session.messages.length > 0) {
+        set((s) => ({
+          sessions: s.sessions.map((x) =>
+            x.id === sessionId ? { ...x, messagesStatus: 'loaded' } : x,
+          ),
+        }))
+        return
+      }
       set((s) => ({
         sessions: s.sessions.map((x) =>
           x.id === sessionId ? { ...x, messagesStatus: 'loading' } : x,

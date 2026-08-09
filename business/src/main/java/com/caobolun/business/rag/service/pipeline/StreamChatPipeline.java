@@ -66,7 +66,9 @@ public class StreamChatPipeline {
     public void execute(StreamChatContext ctx) {
         loadMemory(ctx); // 加载记忆
         rewriteQueryWithSplit(ctx); // 问题改写+问题拆分
-        resolveIntents(ctx); // 意图识别
+        // 意图识别 读取redis或数据库中IntentNode节点信息，然后装配到提示词中发送给LLM，然后对LLM的返回结果进行解析，主要是为了将返回结果规范为理想的json数据
+        // 以及减少LLM生成不存在的数据和多余的内容，然后对分析出来的意图节点
+        resolveIntents(ctx);
         // 提问引导
         if (handleGuidance(ctx)) {
             return;

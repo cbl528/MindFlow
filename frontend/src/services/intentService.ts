@@ -23,21 +23,21 @@ export interface IntentNodePayload {
   paramPromptTemplate?: string
 }
 
-// 注意：后端意图树部分端点缺少 /mindflow 前缀，部分返回裸 void（204）
+// 对应后端 IntentTreeController，统一 /mindflow/intent-tree 前缀（部分端点返回裸 204）
 export const intentService = {
   async trees() {
     if (!USE_BACKEND) {
       await delay(300)
       return seed.intentTree
     }
-    return request<IntentNodeTreeVO[]>({ url: '/intent-tree/trees', method: 'get' })
+    return request<IntentNodeTreeVO[]>({ url: '/mindflow/intent-tree/trees', method: 'get' })
   },
   async create(data: IntentNodePayload) {
     if (!USE_BACKEND) {
       await delay(300)
       return `demo-intent-${Date.now()}`
     }
-    return request<string>({ url: '/intent-tree', method: 'post', data })
+    return request<string>({ url: '/mindflow/intent-tree', method: 'post', data })
   },
   async update(id: string, data: IntentNodePayload) {
     if (!USE_BACKEND) {

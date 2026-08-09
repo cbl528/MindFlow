@@ -9,6 +9,14 @@ import { ChatInput } from '@/components/chat/ChatInput'
 import { WelcomeScreen } from '@/components/chat/WelcomeScreen'
 import { Loading } from '@/components/shared/Loading'
 
+// 首屏整页加载标记：进入系统（打开/刷新页面）时一律从新对话页开始；
+// 挂在 window 上以在 Vite HMR 期间保持已标记状态（整页刷新后自动重置）
+declare global {
+  interface Window {
+    __mfFreshChatEntry?: boolean
+  }
+}
+
 export default function ChatPage() {
   const { sessionId } = useParams()
   const navigate = useNavigate()
@@ -25,14 +33,24 @@ export default function ChatPage() {
   const activeId = useChatStore((s) => s.activeId)
   const isStreaming = useChatStore((s) => s.isStreaming)
   const deepThinking = useChatStore((s) => s.deepThinking)
+  const initialized = useChatStore((s) => s.initialized)
 
   const { setActive, toggleDeepThinking } = useChatStore.getState()
 
   // 路由 → 激活会话
+  // - 整页加载进入系统时不恢复旧会话 URL，直接跳到新对话页
+  // - 会话列表（init）就绪前不激活，避免 init 异步返回后覆盖已选中的会话
   useEffect(() => {
-    setActive(sessionId ?? null)
+    if (!window.__mfFreshChatEntry) {
+      window.__mfFreshChatEntry = true
+      if (sessionId) {
+        navigate('/chat', { replace: true })
+        return
+      }
+    }
+    if (initialized) setActive(sessionId ?? null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId])
+  }, [sessionId, initialized])
 
   const activeSession = useMemo(
     () => sessions.find((s) => s.id === activeId) ?? null,
@@ -48,8 +66,9 @@ export default function ChatPage() {
   }, [activeId, activeSession?.id, activeSession?.messagesStatus])
 
   function handleNew() {
-    const id = useChatStore.getState().newSession()
-    navigate(`/chat/${id}`)
+    // 进入空白新对话页；会话在发送首条消息时才创建
+    useChatStore.getState().newSession()
+    navigate('/chat')
   }
 
   function handleToggleCollapsed() {
@@ -66,6 +85,8 @@ export default function ChatPage() {
 
   function handleSelect(id: string) {
     navigate(`/chat/${id}`)
+    // 重复点击当前会话时 URL 不变化，仍尝试触发消息加载（幂等，不会重复合并）
+    if (id === activeId) void useChatStore.getState().loadConversationMessages(id)
   }
 
   function handleDelete(id: string) {
