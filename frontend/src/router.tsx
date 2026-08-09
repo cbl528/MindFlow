@@ -14,6 +14,7 @@ import IntentTreePage from '@/pages/admin/intent/IntentTreePage'
 import IntentListPage from '@/pages/admin/intent/IntentListPage'
 import IntentEditPage from '@/pages/admin/intent/IntentEditPage'
 import IngestionPage from '@/pages/admin/ingestion/IngestionPage'
+import QueryTermMappingPage from '@/pages/admin/queryTermMapping/QueryTermMappingPage'
 import RagTracePage from '@/pages/admin/traces/RagTracePage'
 import RagTraceDetailPage from '@/pages/admin/traces/RagTraceDetailPage'
 import ChangeLogPage from '@/pages/admin/ChangeLogPage'
@@ -72,6 +73,7 @@ export const router = createBrowserRouter([
           { path: 'intent-list', element: <IntentListPage /> },
           { path: 'intent-list/:id/edit', element: <IntentEditPage /> },
           { path: 'ingestion', element: <IngestionPage /> },
+          { path: 'mappings', element: <QueryTermMappingPage /> },
           { path: 'traces', element: <RagTracePage /> },
           { path: 'traces/:traceId', element: <RagTraceDetailPage /> },
           { path: 'change-logs', element: <ChangeLogPage /> },

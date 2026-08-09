@@ -250,6 +250,31 @@ export interface SampleQuestionVO {
   updateTime?: string
 }
 
+// ---------- 关键词映射 ----------
+
+export interface QueryTermMappingVO {
+  id: string
+  sourceTerm: string
+  targetTerm: string
+  /** 匹配类型 1：精确匹配 2：前缀匹配 3：正则匹配 4：整词匹配 */
+  matchType: number
+  /** 优先级，数值越小优先级越高 */
+  priority: number
+  enabled: boolean
+  remark?: string | null
+  createTime?: string
+  updateTime?: string
+}
+
+export interface QueryTermMappingPayload {
+  sourceTerm?: string
+  targetTerm?: string
+  matchType?: number
+  priority?: number
+  enabled?: boolean
+  remark?: string | null
+}
+
 // ---------- 链路追踪 ----------
 
 export interface RagTraceRunVO {

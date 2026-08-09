@@ -25,6 +25,7 @@ import type {
   KnowledgeDocumentVO,
   LoginVO,
   PageResult,
+  QueryTermMappingVO,
   RagTraceDetailVO,
   RagTraceNodeVO,
   RagTraceRunVO,
@@ -250,6 +251,15 @@ export const seed = {
     { id: 'sq5', title: '帮助', description: '深度思考模式怎么开启', question: '深度思考模式怎么开启？', createTime: '2026-07-10 11:00:00', updateTime: '2026-07-10 11:00:00' },
     { id: 'sq6', title: '入门', description: '第一次使用应该做什么', question: '第一次使用 MindFlow 应该做什么？', createTime: '2026-07-12 16:20:00', updateTime: '2026-07-12 16:20:00' },
   ] as SampleQuestionVO[],
+
+  queryTermMappings: [
+    { id: 'm1', sourceTerm: '年假', targetTerm: '带薪年休假', matchType: 1, priority: 0, enabled: true, remark: '员工制度咨询常用词', createTime: '2026-07-20 10:00:00', updateTime: '2026-07-28 09:30:00' },
+    { id: 'm2', sourceTerm: '病假', targetTerm: '病假申请', matchType: 1, priority: 1, enabled: true, remark: '', createTime: '2026-07-20 10:05:00', updateTime: '2026-07-20 10:05:00' },
+    { id: 'm3', sourceTerm: '请假', targetTerm: '请假流程', matchType: 4, priority: 2, enabled: true, remark: '整词匹配，避免命中「请假条」', createTime: '2026-07-21 14:00:00', updateTime: '2026-07-26 11:20:00' },
+    { id: 'm4', sourceTerm: '薪', targetTerm: '薪酬福利', matchType: 2, priority: 3, enabled: false, remark: '前缀匹配，命中「薪资/薪水」', createTime: '2026-07-22 09:00:00', updateTime: '2026-07-22 09:00:00' },
+    { id: 'm5', sourceTerm: '转正', targetTerm: '试用期转正', matchType: 1, priority: 0, enabled: true, remark: '', createTime: '2026-07-23 16:00:00', updateTime: '2026-07-25 15:40:00' },
+    { id: 'm6', sourceTerm: '报销|报销单', targetTerm: '费用报销', matchType: 3, priority: 4, enabled: true, remark: '正则匹配多写法', createTime: '2026-07-24 11:00:00', updateTime: '2026-07-24 11:00:00' },
+  ] as QueryTermMappingVO[],
 
   recommendedQuestions: {
     status: 'SUCCESS',
