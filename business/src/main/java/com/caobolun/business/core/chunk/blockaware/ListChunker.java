@@ -15,6 +15,12 @@ import java.util.List;
  *   <li>长列表：按 listItemsPerChunk 分组，每组一个 chunk</li>
  * </ul>
  * 渲染为标准 markdown 列表（{@code -} 或 {@code 1.}）
+ * 逻辑：先算整列表渲染长度。≤3072 整表一块；超过才按 1024
+ *   按项贪心累加切，单项超预算独立成块。有序列表每块从 startNumber 重新编号。
+ *
+ *   例：30 项超长列表 → 按 1024 分组（比如每 8 项一块），有序列表第二块从 9. 起编号：
+ *   - content = 9. 第九项\n10. 第十项...
+ *   - body = content（无显式 body，二者相同）
  */
 @Component
 public class ListChunker implements BlockChunker<ListBlock> {

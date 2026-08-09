@@ -23,6 +23,16 @@ import java.util.List;
  *   <li>sectionContext 写入 sheet 名 + 表头摘要，便于检索时回填上下文</li>
  *   <li>无数据行的 TableBlock（仅 headers）：产生一个仅含表头的 chunk</li>
  * </ul>
+ *
+ * ImageChunker — 图片
+ *
+ *   逻辑：一个图片 → 一个草稿，永不切。content = 描述 + markdown 图链，body = 纯描述（去
+ *   URL 噪声）。caption 优先取 caption，没有取 altText。图片 AssetRef 挂进
+ *   metadata.assets。
+ *
+ *   例：描述"系统架构图"、URL https://cdn.example.com/arch.png
+ *   - content = 系统架构图\n\n![系统架构图](https://cdn.example.com/arch.png)
+ *   - body = 系统架构图
  */
 @Component
 public class TableChunker implements BlockChunker<TableBlock> {

@@ -55,6 +55,10 @@ public class MultiChannelRetrievalEngine {
         }
 
         // 【阶段2：后置处理器链】
+        // 1. 按照chunk.id进行去重
+        // 2. 对多链路chunk聚合并截断
+        // 3. 重排序
+        // 4. 文本富化，根据chunkid去关系数据库中查找chunk原文
         return executePostProcessors(channelResults, context);
     }
 

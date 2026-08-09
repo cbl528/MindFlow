@@ -13,6 +13,15 @@ import java.util.List;
  * <p>
  * 标题不产块的话，{@code content} 就不是文档原貌而是被剥掉全部结构的裸正文，命中的块回填模型时也无从
  * 判断出自哪一节；井号数取原始级别，不按路径深度重算
+ * HeadingChunker — 标题
+ *
+ *   逻辑：一个标题 → 一个草稿。content 还原成 markdown 井号，body
+ *   只留纯文字（井号对嵌入模型是零信息 token）。标记
+ *   heading=true，这是打包阶段分节的依据。
+ *
+ *   例：## 3.2 保证金制度
+ *   - content = ## 3.2 保证金制度
+ *   - body = 3.2 保证金制度
  */
 @Component
 public class HeadingChunker implements BlockChunker<HeadingBlock> {

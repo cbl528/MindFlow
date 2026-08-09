@@ -33,6 +33,15 @@ import java.util.List;
  * <p>
  * 永不切分 —— 代码块语法对完整性敏感（缺少 fence 或半截行会破坏前端渲染与 LLM 理解）
  * 渲染为标准 markdown 代码块 ``` 围栏
+ *
+ * 逻辑：永不主动切，一个代码块 = 一个草稿。只有代码超过 3072 才按行累加切，每片包进
+ *   围栏；单行超预算整行独立成块，绝不从行中间切。
+ *
+ *   例：100 行 / 5000 字符的 Java 代码 → 按行累加切成若干片（每片 ≤1024），每片：
+ *   - content = ```java\n...代码片...\n```
+ *   - body = 裸代码（不带围栏）
+ *
+ *   原因：代码缺 fence 或半截行会破坏前端渲染和 LLM 理解。
  */
 @Component
 public class CodeChunker implements BlockChunker<CodeBlock> {

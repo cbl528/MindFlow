@@ -62,7 +62,9 @@ public class BlockAwareChunkerDispatcher {
             }
             drafts.addAll(chunkOne(block, ChunkContext.of(outline.path(), budget)));
         }
-
+        // 组装分为两部：
+        // 1. 打包，相邻两个标题之间当作一个语义节，然后进行分块
+        // 2. 首先分配标识，然后通过双文本设计一个展示文本，一个向量文本，然后组装Metadata数据
         return ChunkAssembler.assembleAll(chunkPacker.pack(drafts, budget));
     }
 

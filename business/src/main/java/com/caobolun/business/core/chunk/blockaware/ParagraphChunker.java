@@ -31,6 +31,13 @@ import java.util.List;
  * <p>
  * 切分一律委托 {@link TextSplitter}，由它做边界回溯（换行 / 中文句末 / 英文句末）与文本归一化
  * （URL 断行修复、CJK 软换行合并），本类不自行按下标截断
+ *  逻辑：整段先按 3072 量一次——切不动就整段一块；量出多片说明太长，回退用 1024
+ *   重切。切分委托 TextSplitter，在句末/换行处回溯，绝不按下标硬切。
+ *
+ *   例：
+ *   - 一段 1500 字 → 整段一个草稿（<3072）
+ *   - 一段 8000 字 → 先用 3072 试 → 要多片，改用 1024 重切 → 8 片，每片标 piece，带 128
+ *   字重叠
  */
 @Component
 public class ParagraphChunker implements BlockChunker<ParagraphBlock> {
