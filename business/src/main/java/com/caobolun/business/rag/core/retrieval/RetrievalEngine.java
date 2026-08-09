@@ -66,9 +66,9 @@ public class RetrievalEngine {
         // 不再被 max(意图节点 topK) 抬高（node.topK 仍生效，但只管该意图向量召回深度，见 IntentParallelRetriever）
         int contextTopK = searchProperties.getDefaultTopK();
         RetrievalBudget budget = new RetrievalBudget(
-                searchProperties.resolveRecallBudget(contextTopK),
-                searchProperties.getFusion().getRerankCandidateLimit(),
-                contextTopK
+                searchProperties.resolveRecallBudget(contextTopK), // 每条通路的检索结果
+                searchProperties.getFusion().getRerankCandidateLimit(), // 融合后检索重排序的候选池
+                contextTopK // 最终进入LLM的检索数
         );
         List<CompletableFuture<SubQuestionContext>> tasks = subIntents.stream()
                 .map(si -> CompletableFuture.supplyAsync(
@@ -137,9 +137,11 @@ public class RetrievalEngine {
     }
 
     private SubQuestionContext buildSubQuestionContext(SubQuestionIntent intent, RetrievalBudget budget) {
+        // 获取KB类型的意图节点
         List<NodeScore> kbIntents = NodeScoreFilters.kb(intent.nodeScores());
+        // 获取MCP类型的意图节点
         List<NodeScore> mcpIntents = NodeScoreFilters.mcp(intent.nodeScores());
-
+        // 知识库检索和重排序结果
         KbResult kbResult = retrieveAndRerank(intent, kbIntents, budget);
 
         String mcpContext = CollUtil.isNotEmpty(mcpIntents)

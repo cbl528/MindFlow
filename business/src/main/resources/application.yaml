@@ -71,6 +71,7 @@ ai:
       endpoints:
         chat: /v1/chat/completions
         embedding: /v1/embeddings
+        rerank: /v1/rerank
     aihubmix: # AI Hub Mix（OpenAI 风格聚合网关）
       url: https://aihubmix.com
       api-key:                  # 或环境变量 AIHUBMIX_API_KEY

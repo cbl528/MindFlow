@@ -60,14 +60,18 @@ public class VectorSearchChannel implements SearchChannel {
         long startTime = System.currentTimeMillis();
 
         try {
+            // 从意图识别结果中筛出"KB 类型、分数达标、有库可查"的意图作为决策输入
             List<NodeScore> kbIntents = extractKbIntents(context);
 
             List<RetrievedChunk> chunks;
             Map<String, Object> metadata;
+            // 判断是否收缩检索域
             if (shouldNarrowToIntent(kbIntents)) {
+                // 根据意图节点检索
                 chunks = retrieveByIntent(context, kbIntents);
                 metadata = Map.of("scope", "intent", "intentCount", kbIntents.size());
             } else {
+                // 全局检索
                 chunks = retrieveGlobal(context);
                 metadata = Map.of("scope", "global");
             }

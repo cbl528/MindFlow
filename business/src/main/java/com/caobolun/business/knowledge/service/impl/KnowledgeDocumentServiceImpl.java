@@ -476,28 +476,39 @@ public class KnowledgeDocumentServiceImpl implements KnowledgeDocumentService {
             condition = BizChangeLogContext.RECORD_CONDITION
     )
     public void delete(String docId) {
+        // 加载文档实体：不存在直接抛错；同时留一份 before 快照给审计日志做变更前后对比
         KnowledgeDocumentDO documentDO = documentMapper.selectById(docId);
         Assert.notNull(documentDO, () -> new ClientException("文档不存在"));
         bizChangeLogContext.putName(documentDO.getDocName());
         KnowledgeDocumentDO before = BeanUtil.copyProperties(documentDO, KnowledgeDocumentDO.class);
 
-        // 禁止在文档分块运行时删除
+        // 禁止在文档分块运行时删除：RUNNING 状态下摄取任务可能在任意时刻往各索引落点写块，
+        // 此刻删除会与写入交错产生「删完又冒出新块」的竞态，故先拦下
         if (DocumentStatus.RUNNING.getCode().equals(documentDO.getStatus())) {
             throw new ClientException("文档正在分块中，无法删除");
         }
 
+        // ① 删定时调度：URL 文档可能配置了定时拉取，先移除调度记录，防止删除后仍被定时任务重新拉取执行
         scheduleService.deleteByDocId(docId);
+        // ② 删分块日志：每次分块运行都会留一条 t_knowledge_document_chunk_log，
+        //    与文档生命周期绑定的过程记录一并清除，避免孤儿日志残留
         chunkLogMapper.delete(Wrappers.lambdaQuery(KnowledgeDocumentChunkLogDO.class)
                 .eq(KnowledgeDocumentChunkLogDO::getDocId, docId));
 
+        // ③ 软删文档：不物理删行，置 deleted=1 走逻辑删除，查询侧统一过滤 deleted=0，
+        //    保证历史引用不悬挂；本行与下方索引扇出在同一个 @Transactional 事务内，任一步失败整体回滚
         documentDO.setDeleted(1);
         documentDO.setUpdatedBy(UserContext.getUsername());
         documentMapper.deleteById(documentDO);
 
-        // 一次调用覆盖全部落点：关系库块与向量都在扇出里，未来加索引后端也自动跟随
+        // ④ 索引扇出：一次调用覆盖全部落点——关系库块(t_knowledge_chunk)与向量(Milvus，含 ES 关键词/图谱装饰器)，
+        //    未来加索引后端只需新增 ChunkSink bean 自动跟随；向量落点身份由知识库配置解析，保证删到正确的逻辑分区
         KnowledgeBaseDO kbDO = knowledgeBaseMapper.selectById(documentDO.getKbId());
         chunkIndexWriter.deleteDocument(vectorTargetResolver.resolve(kbDO), documentRef(documentDO));
+        // ⑤ 删对象存储文件：删除原始文档字节（MinIO/OSS），best-effort 吞异常只告警——失败最多留下无主对象，
+        //    删知识库时 deleteKnowledgeSpace 会按前缀兜底清掉，不阻断文档删除主链路
         deleteStoredFileQuietly(documentDO);
+        // ⑥ 审计收口：记录删除操作（after 为 null 表示已删除），供变更日志展示
         bizChangeLogContext.put(docId, before, null);
     }
 

@@ -31,7 +31,9 @@ public class RAGChatServiceImpl implements RAGChatService {
     public void streamChat(String question, String conversationId, Boolean deepThinking, SseEmitter emitter) {
         String actualConversationId = StrUtil.isBlank(conversationId) ? IdUtil.getSnowflakeNextIdStr() : conversationId;
         String taskId = IdUtil.getSnowflakeNextIdStr();
-        StreamCallback callback = callbackFactory.createChatEventHandler(emitter, conversationId, taskId);
+        // 必须传 actualConversationId：handler 的 conversationId 字段同时用于 META 事件与完成/取消时消息落库，
+        // 传原始空值会导致新建会话的助手消息 append 被空白校验拦下而静默不落库
+        StreamCallback callback = callbackFactory.createChatEventHandler(emitter, actualConversationId, taskId);
 
         chatQueueLimiter.enqueue(question, actualConversationId, emitter,
                 () -> traceRunner.run(question, conversationId, taskId, callback, traceAware -> {

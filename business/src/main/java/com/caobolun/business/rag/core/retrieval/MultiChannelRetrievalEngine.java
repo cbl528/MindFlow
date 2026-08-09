@@ -194,10 +194,10 @@ public class MultiChannelRetrievalEngine {
         String question = CollUtil.isEmpty(subIntents) ? "" : subIntents.getFirst().subQuestion();
 
         return SearchContext.builder()
-                .originalQuestion(question)
-                .rewrittenQuestion(question)
-                .intents(subIntents)
-                .budget(budget)
+                .originalQuestion(question) // 原始问题
+                .rewrittenQuestion(question) // 重写问题
+                .intents(subIntents) // 意图节选
+                .budget(budget) // 检索预算
                 .build();
     }
 }

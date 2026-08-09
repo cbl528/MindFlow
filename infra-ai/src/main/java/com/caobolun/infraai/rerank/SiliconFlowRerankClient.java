@@ -1,0 +1,180 @@
+package com.caobolun.infraai.rerank;
+
+import cn.hutool.core.collection.CollUtil;
+import com.caobolun.framework.convention.RetrievedChunk;
+import com.caobolun.infraai.config.AIModelProperties;
+import com.caobolun.infraai.enums.ModelCapability;
+import com.caobolun.infraai.enums.ModelProvider;
+import com.caobolun.infraai.http.*;
+import com.caobolun.infraai.model.ModelTarget;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * 硅基流动（SiliconFlow）Rerank 客户端
+ * <p>
+ * 调用 SiliconFlow 的 /v1/rerank 端点对检索到的文档片段进行重排序。
+ * 请求体为顶层平铺结构 {@code {model, query, documents, top_n, return_documents}}，
+ * 响应 {@code results} 直接位于顶层（区别于百炼的 output 包装）。
+ */
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class SiliconFlowRerankClient implements RerankClient {
+
+    @Qualifier("syncHttpClient")
+    private final OkHttpClient httpClient;
+
+    @Override
+    public String provider() {
+        return ModelProvider.SILICON_FLOW.getId();
+    }
+
+    @Override
+    public List<RetrievedChunk> rerank(String query, List<RetrievedChunk> candidates, int topN, ModelTarget target) {
+        if (candidates == null || candidates.isEmpty()) {
+            return List.of();
+        }
+
+        List<RetrievedChunk> dedup = new ArrayList<>(candidates.size());
+        Set<String> seen = new HashSet<>();
+        for (RetrievedChunk rc : candidates) {
+            if (seen.add(rc.getId())) {
+                dedup.add(rc);
+            }
+        }
+
+        if (topN <= 0 || dedup.size() <= topN) {
+            return dedup;
+        }
+
+        return doRerank(query, dedup, topN, target);
+    }
+
+    private List<RetrievedChunk> doRerank(String query, List<RetrievedChunk> candidates, int topN, ModelTarget target) {
+        AIModelProperties.ProviderConfig provider = HttpResponseHelper.requireProvider(target, provider());
+
+        if (candidates == null || candidates.isEmpty() || topN <= 0) {
+            return List.of();
+        }
+
+        JsonObject reqBody = new JsonObject();
+        reqBody.addProperty("model", HttpResponseHelper.requireModel(target, provider()));
+        reqBody.addProperty("query", query);
+
+        JsonArray documentsArray = new JsonArray();
+        for (RetrievedChunk each : candidates) {
+            documentsArray.add(each.getText() == null ? "" : each.getText());
+        }
+        reqBody.add("documents", documentsArray);
+
+        reqBody.addProperty("top_n", topN);
+        reqBody.addProperty("return_documents", true);
+
+        Request request = new Request.Builder()
+                .url(ModelUrlResolver.resolveUrl(provider, target.candidate(), ModelCapability.RERANK))
+                .post(RequestBody.create(reqBody.toString(), HttpMediaTypes.JSON))
+                .addHeader("Authorization", "Bearer " + provider.getApiKey())
+                .build();
+
+        JsonObject respJson;
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String body = HttpResponseHelper.readBody(response.body());
+                log.warn("{} rerank 请求失败: status={}, body={}", provider(), response.code(), body);
+                throw new ModelClientException(
+                        provider() + " rerank 请求失败: HTTP " + response.code(),
+                        ModelClientErrorType.fromHttpStatus(response.code()),
+                        response.code()
+                );
+            }
+            respJson = HttpResponseHelper.parseJson(response.body(), provider());
+        } catch (IOException e) {
+            throw new ModelClientException(provider() + " rerank 请求失败: " + e.getMessage(), ModelClientErrorType.NETWORK_ERROR, null, e);
+        }
+
+        JsonArray results = requireResults(respJson);
+
+        List<RetrievedChunk> reranked = new ArrayList<>();
+        Set<String> addedIds = new HashSet<>();
+
+        for (JsonElement elem : results) {
+            if (!elem.isJsonObject()) {
+                continue;
+            }
+            JsonObject item = elem.getAsJsonObject();
+
+            if (!item.has("index")) {
+                continue;
+            }
+            int idx = item.get("index").getAsInt();
+
+            if (idx < 0 || idx >= candidates.size()) {
+                continue;
+            }
+
+            RetrievedChunk src = candidates.get(idx);
+
+            Float score = null;
+            if (item.has("relevance_score") && !item.get("relevance_score").isJsonNull()) {
+                score = item.get("relevance_score").getAsFloat();
+            }
+
+            RetrievedChunk hit = score != null
+                    ? RetrievedChunk.builder()
+                    .id(src.getId())
+                    .text(src.getText())
+                    .score(score)
+                    .docId(src.getDocId())
+                    .chunkIndex(src.getChunkIndex())
+                    .docName(src.getDocName())
+                    .build()
+                    : src;
+            reranked.add(hit);
+            addedIds.add(src.getId());
+
+            if (reranked.size() >= topN) {
+                break;
+            }
+        }
+
+        if (reranked.size() < topN) {
+            for (RetrievedChunk c : candidates) {
+                if (addedIds.add(c.getId())) {
+                    reranked.add(c);
+                }
+                if (reranked.size() >= topN) {
+                    break;
+                }
+            }
+        }
+
+        return reranked;
+    }
+
+    private JsonArray requireResults(JsonObject respJson) {
+        if (respJson == null || !respJson.has("results")) {
+            throw new ModelClientException(provider() + " rerank 响应缺少 results", ModelClientErrorType.INVALID_RESPONSE, null);
+        }
+        JsonArray results = respJson.getAsJsonArray("results");
+        if (CollUtil.isEmpty(results)) {
+            throw new ModelClientException(provider() + " rerank results 为空", ModelClientErrorType.INVALID_RESPONSE, null);
+        }
+        return results;
+    }
+}

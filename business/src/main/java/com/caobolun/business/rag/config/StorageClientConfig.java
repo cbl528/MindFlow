@@ -1,5 +1,6 @@
 package com.caobolun.business.rag.config;
 
+import com.caobolun.business.rag.core.storage.DeleteObjectsContentMd5Interceptor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,8 @@ public class StorageClientConfig {
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(s3.getAccessKey(), s3.getSecretKey())))
                 .forcePathStyle(s3.isPathStyle())
+                // MinIO/OBS/COS 等兼容存储强制校验 Content-Md5，SDK v2 默认不自动携带，由拦截器补齐
+                .overrideConfiguration(cfg -> cfg.addExecutionInterceptor(new DeleteObjectsContentMd5Interceptor()))
                 .build();
     }
 
