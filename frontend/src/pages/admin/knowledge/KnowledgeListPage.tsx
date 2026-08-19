@@ -1,11 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpen, Boxes, Clock, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
+import { BookOpen, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { knowledgeBaseService } from '@/services/knowledgeService'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -31,62 +38,39 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Textarea } from '@/components/ui/textarea'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { formatDateTime } from '@/lib/time'
 import type { KnowledgeBaseVO } from '@/types'
 
-/** 卡片右上角「⋯」悬浮菜单（重命名 / 删除） */
+/** 卡片右上角「⋯」点击菜单（编辑 / 删除） */
 function CardActions({
   kb,
-  onRename,
+  onEdit,
   onDelete,
 }: {
   kb: KnowledgeBaseVO
-  onRename: () => void
+  onEdit: () => void
   onDelete: () => void
 }) {
-  const [open, setOpen] = useState(false)
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const enter = useCallback(() => {
-    if (closeTimer.current) clearTimeout(closeTimer.current)
-    setOpen(true)
-  }, [])
-
-  const leave = useCallback(() => {
-    if (closeTimer.current) clearTimeout(closeTimer.current)
-    closeTimer.current = setTimeout(() => setOpen(false), 120)
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      if (closeTimer.current) clearTimeout(closeTimer.current)
-    }
-  }, [])
-
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu>
       <DropdownMenuTrigger
         asChild
         onClick={(e) => e.stopPropagation()}
-        onMouseEnter={enter}
-        onMouseLeave={leave}
       >
         <button
           type="button"
           aria-label={`${kb.name} 操作`}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground opacity-70 transition-opacity hover:bg-muted hover:opacity-100"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground opacity-70 transition-all hover:bg-muted hover:opacity-100 active:scale-95"
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <MoreHorizontal className="h-[18px] w-[18px]" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={6} onMouseEnter={enter} onMouseLeave={leave}>
-        <DropdownMenuItem
-          onSelect={onRename}
-          onClick={(e) => e.stopPropagation()}
-        >
+      <DropdownMenuContent align="end" sideOffset={6}>
+        <DropdownMenuItem onSelect={onEdit} onClick={(e) => e.stopPropagation()}>
           <Pencil />
-          重命名
+          编辑
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={onDelete}
@@ -108,11 +92,11 @@ export default function KnowledgeListPage() {
   const [loading, setLoading] = useState(false)
 
   const [createOpen, setCreateOpen] = useState(false)
-  const [createForm, setCreateForm] = useState({ name: '', embeddingModel: '', collectionName: '' })
+  const [createForm, setCreateForm] = useState({ name: '', remark: '', embeddingModel: 'bge-m3', collectionName: '' })
   const [creating, setCreating] = useState(false)
 
-  const [renameTarget, setRenameTarget] = useState<KnowledgeBaseVO | null>(null)
-  const [renameValue, setRenameValue] = useState('')
+  const [editTarget, setEditTarget] = useState<KnowledgeBaseVO | null>(null)
+  const [editForm, setEditForm] = useState({ name: '', remark: '' })
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeBaseVO | null>(null)
 
   const load = useCallback(async () => {
@@ -136,16 +120,21 @@ export default function KnowledgeListPage() {
       toast.error('请输入知识库名称')
       return
     }
+    if (!createForm.embeddingModel) {
+      toast.error('请选择 Embedding 模型')
+      return
+    }
     setCreating(true)
     try {
       const id = await knowledgeBaseService.create({
         name: createForm.name.trim(),
-        embeddingModel: createForm.embeddingModel || undefined,
+        remark: createForm.remark.trim() || undefined,
+        embeddingModel: createForm.embeddingModel,
         collectionName: createForm.collectionName || undefined,
       })
       toast.success('知识库创建成功')
       setCreateOpen(false)
-      setCreateForm({ name: '', embeddingModel: '', collectionName: '' })
+      setCreateForm({ name: '', remark: '', embeddingModel: 'bge-m3', collectionName: '' })
       load()
       navigate(`/admin/knowledge/${id}`)
     } catch {
@@ -155,12 +144,15 @@ export default function KnowledgeListPage() {
     }
   }
 
-  async function handleRename() {
-    if (!renameTarget || !renameValue.trim()) return
+  async function handleEdit() {
+    if (!editTarget || !editForm.name.trim()) return
     try {
-      await knowledgeBaseService.update(renameTarget.id, { name: renameValue.trim() })
-      toast.success('已重命名')
-      setRenameTarget(null)
+      await knowledgeBaseService.update(editTarget.id, {
+        name: editForm.name.trim(),
+        remark: editForm.remark.trim(),
+      })
+      toast.success('已保存')
+      setEditTarget(null)
       load()
     } catch {
       /* 已提示 */
@@ -183,13 +175,13 @@ export default function KnowledgeListPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">知识库管理</h1>
-          <p className="text-sm text-muted-foreground">创建与管理知识库，为 RAG 提供检索源</p>
+          <h1 className="text-2xl font-semibold tracking-tight">知识库管理</h1>
+          <p className="text-base text-muted-foreground">创建与管理知识库，为 RAG 提供检索源</p>
         </div>
 
         <div className="flex items-center gap-2">
           <div className="relative w-64">
-            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="搜索知识库"
               value={keyword}
@@ -215,14 +207,14 @@ export default function KnowledgeListPage() {
       {loading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-border bg-background p-4">
+            <div key={i} className="rounded-2xl border border-border bg-background p-5">
               <div className="flex items-start justify-between">
-                <Skeleton className="h-9 w-9 rounded-lg" />
-                <Skeleton className="h-7 w-7 rounded-md" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-8 w-8 rounded-lg" />
               </div>
-              <Skeleton className="mt-3 h-4 w-3/4" />
-              <Skeleton className="mt-4 h-3 w-full" />
-              <Skeleton className="mt-2 h-3 w-1/2" />
+              <Skeleton className="mt-2 h-4 w-full" />
+              <Skeleton className="mt-4 h-4 w-full" />
+              <Skeleton className="mt-2 h-4 w-1/2" />
             </div>
           ))}
         </div>
@@ -232,12 +224,12 @@ export default function KnowledgeListPage() {
           <button
             type="button"
             onClick={() => setCreateOpen(true)}
-            className="group flex min-h-[176px] flex-col items-center justify-center gap-2.5 rounded-xl border border-dashed border-border bg-background text-muted-foreground transition-colors hover:border-primary/50 hover:bg-accent/40 hover:text-primary"
+            className="group flex min-h-[190px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-background text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-accent/40 hover:text-primary hover:shadow-md active:translate-y-0 active:scale-[0.98]"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted transition-colors group-hover:bg-primary/10">
-              <Plus className="h-5 w-5" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted transition-colors group-hover:bg-primary/10">
+              <Plus className="h-6 w-6" />
             </span>
-            <span className="text-sm font-medium">新增知识库</span>
+            <span className="text-base font-medium">新增知识库</span>
           </button>
 
           {/* 知识库卡片 */}
@@ -245,33 +237,27 @@ export default function KnowledgeListPage() {
             <div
               key={kb.id}
               onClick={() => navigate(`/admin/knowledge/${kb.id}`)}
-              className="group flex min-h-[176px] cursor-pointer flex-col rounded-xl border border-border bg-background p-4 transition-colors hover:border-primary/40 hover:bg-accent/40"
+              className="group flex min-h-[190px] cursor-pointer flex-col rounded-2xl border border-border bg-background p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent/40 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-                  <BookOpen className="h-4 w-4 text-primary" />
-                </span>
+                <h3 className="line-clamp-1 text-base font-semibold text-foreground">{kb.name}</h3>
                 <CardActions
                   kb={kb}
-                  onRename={() => {
-                    setRenameTarget(kb)
-                    setRenameValue(kb.name)
+                  onEdit={() => {
+                    setEditTarget(kb)
+                    setEditForm({ name: kb.name, remark: kb.remark ?? '' })
                   }}
                   onDelete={() => setDeleteTarget(kb)}
                 />
               </div>
-              <h3 className="mt-3 line-clamp-1 font-medium text-foreground">{kb.name}</h3>
-              <div className="mt-auto space-y-1.5 pt-4 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <Boxes className="h-3.5 w-3.5 shrink-0" />
-                  <span className="line-clamp-1" title={kb.embeddingModel}>
-                    {kb.embeddingModel || '—'}
-                  </span>
+              <p className="mt-1.5 line-clamp-2 text-base text-muted-foreground">
+                {kb.remark || '暂无备注'}
+              </p>
+              <div className="mt-auto space-y-1.5 pt-4 text-sm text-muted-foreground">
+                <div className="line-clamp-1" title={kb.embeddingModel}>
+                  {kb.embeddingModel || '—'}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5 shrink-0" />
-                  <span>{formatDateTime(kb.createTime)}</span>
-                </div>
+                <div>{formatDateTime(kb.createTime)}</div>
               </div>
             </div>
           ))}
@@ -304,12 +290,26 @@ export default function KnowledgeListPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Embedding 模型</Label>
+              <Label>备注</Label>
               <Input
-                value={createForm.embeddingModel}
-                onChange={(e) => setCreateForm((f) => ({ ...f, embeddingModel: e.target.value }))}
-                placeholder="留空使用默认模型"
+                value={createForm.remark}
+                onChange={(e) => setCreateForm((f) => ({ ...f, remark: e.target.value }))}
+                placeholder="选填，例如：面向全体员工的规章制度"
               />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Embedding 模型 *</Label>
+              <Select
+                value={createForm.embeddingModel}
+                onValueChange={(v) => setCreateForm((f) => ({ ...f, embeddingModel: v }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="请选择 Embedding 模型" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bge-m3">bge-m3</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label>向量集合名</Label>
@@ -331,18 +331,42 @@ export default function KnowledgeListPage() {
         </DialogContent>
       </Dialog>
 
-      {/* 重命名 */}
-      <Dialog open={!!renameTarget} onOpenChange={(v) => !v && setRenameTarget(null)}>
+      {/* 编辑知识库 */}
+      <Dialog open={!!editTarget} onOpenChange={(v) => !v && setEditTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>重命名知识库</DialogTitle>
+            <DialogTitle>编辑知识库</DialogTitle>
+            <DialogDescription>修改知识库名称与备注</DialogDescription>
           </DialogHeader>
-          <Input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} autoFocus />
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>名称 *</Label>
+              <Input
+                value={editForm.name}
+                onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="例如：产品手册"
+                autoFocus
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>备注</Label>
+              <Textarea
+                value={editForm.remark}
+                onChange={(e) => setEditForm((f) => ({ ...f, remark: e.target.value.slice(0, 50) }))}
+                placeholder="选填，例如：面向全体员工的规章制度"
+                rows={3}
+                maxLength={50}
+              />
+              <p className="text-right text-xs text-muted-foreground">{editForm.remark.length}/50</p>
+            </div>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRenameTarget(null)}>
+            <Button variant="outline" onClick={() => setEditTarget(null)}>
               取消
             </Button>
-            <Button onClick={handleRename}>保存</Button>
+            <Button onClick={handleEdit} disabled={!editForm.name.trim()}>
+              保存
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -57,9 +57,9 @@ export default function RagTraceDetailPage() {
       </div>
 
       {/* 概览 */}
-      <div className="rounded-xl border border-border bg-background p-5">
+      <div className="rounded-2xl border border-border bg-background p-5 shadow-sm">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-lg font-semibold tracking-tight">{run.question || 'RAG 请求'}</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{run.question || 'RAG 请求'}</h1>
           <StatusBadge status={run.status} />
           {run.traceName && <Badge variant="secondary">{run.traceName}</Badge>}
         </div>
@@ -75,8 +75,8 @@ export default function RagTraceDetailPage() {
       </div>
 
       {/* 节点瀑布 */}
-      <div className="rounded-xl border border-border bg-background p-5">
-        <h2 className="mb-4 text-sm font-medium">执行节点（{nodes.length}）</h2>
+      <div className="rounded-2xl border border-border bg-background p-5 shadow-sm">
+        <h2 className="mb-4 text-base font-medium">执行节点（{nodes.length}）</h2>
         {nodes.length === 0 ? (
           <EmptyState title="暂无节点记录" />
         ) : (
@@ -90,17 +90,17 @@ export default function RagTraceDetailPage() {
                 <div key={nodeKey}>
                   <button
                     onClick={() => toggleExpand(nodeKey)}
-                    className="w-full rounded-lg border border-border p-3 text-left transition-colors hover:bg-muted/50"
+                    className="w-full rounded-xl border border-border p-3.5 text-left transition-all hover:bg-muted/50 active:scale-[0.995]"
                   >
                     <div className="flex items-center gap-3">
                       {isExpanded ? (
-                        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
                       ) : (
-                        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                       )}
-                      <span className="text-xs text-muted-foreground">{i + 1}</span>
-                      <span className="w-40 shrink-0 truncate text-sm font-medium">{n.nodeName || n.nodeType}</span>
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                      <span className="text-sm text-muted-foreground">{i + 1}</span>
+                      <span className="w-40 shrink-0 truncate text-base font-medium">{n.nodeName || n.nodeType}</span>
+                      <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
                         <div
                           className={cn(
                             'h-full rounded-full',
@@ -113,14 +113,14 @@ export default function RagTraceDetailPage() {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className="w-20 shrink-0 text-right text-xs text-muted-foreground">
+                      <span className="w-20 shrink-0 text-right text-sm text-muted-foreground">
                         {duration > 0 ? `${(duration / 1000).toFixed(2)}s` : '—'}
                       </span>
                       <StatusBadge status={n.status} />
                     </div>
                   </button>
                   {isExpanded && (
-                    <div className="mt-1 ml-9 rounded-lg border border-border bg-muted/40 p-3 text-xs leading-6 text-muted-foreground">
+                    <div className="mt-1 ml-9 rounded-xl border border-border bg-muted/40 p-3.5 text-sm leading-6 text-muted-foreground">
                       <p>
                         <span className="font-medium text-foreground">类型：</span>
                         {n.nodeType || '—'}
@@ -154,11 +154,11 @@ export default function RagTraceDetailPage() {
 function Meta({ label, value, mono, danger }: { label: string; value: string; mono?: boolean; danger?: boolean }) {
   return (
     <div className="min-w-0">
-      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm text-muted-foreground">{label}</p>
       <p
         className={cn(
-          'mt-0.5 truncate text-sm font-medium',
-          mono && 'font-mono text-xs',
+          'mt-0.5 truncate text-base font-medium',
+          mono && 'font-mono text-sm',
           danger && 'text-destructive',
         )}
       >

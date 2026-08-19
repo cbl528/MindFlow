@@ -27,12 +27,12 @@ export function Citation({
 
 function CodeBlock({ lang, code }: { lang: string; code: string }) {
   return (
-    <div className="group my-3 overflow-hidden rounded-lg border border-border bg-[#f6f7f9] dark:bg-[#262626]">
-      <div className="flex items-center justify-between border-b border-border/60 px-3 py-1.5">
-        <span className="text-xs text-muted-foreground">{lang || 'code'}</span>
+    <div className="group my-3 overflow-hidden rounded-xl border border-border bg-[#f6f7f9] dark:bg-[#262626]">
+      <div className="flex items-center justify-between border-b border-border/60 px-4 py-2">
+        <span className="text-sm text-muted-foreground">{lang || 'code'}</span>
         <CopyButton text={code} />
       </div>
-      <pre className="overflow-x-auto p-3 text-[13px] leading-relaxed">
+      <pre className="overflow-x-auto p-4 text-sm leading-relaxed">
         <code className="font-mono">{code}</code>
       </pre>
     </div>
@@ -110,12 +110,12 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
             </div>
           ),
           th: ({ children }: { children?: ReactNode }) => (
-            <th className="border-b border-border bg-muted/50 px-3 py-2 text-left font-medium">
+            <th className="border-b border-border bg-muted/50 px-4 py-2.5 text-left font-medium">
               {children}
             </th>
           ),
           td: ({ children }: { children?: ReactNode }) => (
-            <td className="border-b border-border/60 px-3 py-2">{children}</td>
+            <td className="border-b border-border/60 px-4 py-2.5">{children}</td>
           ),
           } as never
         }

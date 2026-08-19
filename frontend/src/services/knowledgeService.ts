@@ -33,14 +33,14 @@ export const knowledgeBaseService = {
     }
     return request<KnowledgeBaseVO>({ url: `/mindflow/knowledge-base/${id}`, method: 'get' })
   },
-  async create(data: { name: string; embeddingModel?: string; collectionName?: string }) {
+  async create(data: { name: string; embeddingModel?: string; collectionName?: string; remark?: string }) {
     if (!USE_BACKEND) {
       await delay(400)
       return `demo-kb-${Date.now()}`
     }
     return request<string>({ url: '/mindflow/knowledge-base', method: 'post', data })
   },
-  async update(id: string, data: { name?: string; embeddingModel?: string }) {
+  async update(id: string, data: { name?: string; embeddingModel?: string; remark?: string }) {
     if (!USE_BACKEND) {
       await delay(300)
       return undefined

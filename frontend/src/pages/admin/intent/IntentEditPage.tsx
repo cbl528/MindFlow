@@ -106,18 +106,18 @@ export default function IntentEditPage() {
     <div className="mx-auto max-w-2xl space-y-5">
       <button
         onClick={() => navigate('/admin/intent-list')}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="inline-flex items-center gap-1 text-base text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         返回意图列表
       </button>
 
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">编辑意图节点</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">编辑意图节点</h1>
         <p className="text-sm text-muted-foreground">父节点：{form.parentCode || '（根节点）'}</p>
       </div>
 
-      <div className="space-y-4 rounded-xl border border-border bg-background p-5">
+      <div className="space-y-4 rounded-2xl border border-border bg-background p-5 shadow-sm">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label>名称 *</Label>
@@ -137,7 +137,7 @@ export default function IntentEditPage() {
                 key={i}
                 onClick={() => setForm((f) => ({ ...f, kind: i }))}
                 className={cn(
-                  'flex-1 rounded-lg border px-3 py-1.5 text-sm transition-colors',
+                  'flex-1 cursor-pointer rounded-xl border px-4 py-2 text-base transition-all active:scale-[0.98]',
                   form.kind === i
                     ? 'border-primary bg-accent font-medium text-primary'
                     : 'border-border text-muted-foreground hover:bg-muted',

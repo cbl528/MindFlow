@@ -32,11 +32,11 @@ export function Pagination({ pageNo, pageSize, total, onChange, className }: Pag
         <Button
           variant="outline"
           size="icon"
-          className="h-7 w-7"
+          className="h-8 w-8"
           disabled={pageNo <= 1}
           onClick={() => onChange(pageNo - 1)}
         >
-          <ChevronLeft className="h-3.5 w-3.5" />
+          <ChevronLeft className="h-4 w-4" />
         </Button>
         {items.map((item, i) =>
           item === '…' ? (
@@ -48,9 +48,9 @@ export function Pagination({ pageNo, pageSize, total, onChange, className }: Pag
               key={item}
               onClick={() => onChange(item)}
               className={cn(
-                'h-7 min-w-7 rounded-md px-1.5 text-sm transition-colors',
+                'h-8 min-w-8 cursor-pointer rounded-lg px-2 text-sm transition-all active:scale-95',
                 item === pageNo
-                  ? 'bg-primary font-medium text-primary-foreground'
+                  ? 'bg-primary font-medium text-primary-foreground shadow-sm'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
@@ -61,11 +61,11 @@ export function Pagination({ pageNo, pageSize, total, onChange, className }: Pag
         <Button
           variant="outline"
           size="icon"
-          className="h-7 w-7"
+          className="h-8 w-8"
           disabled={pageNo >= pages}
           onClick={() => onChange(pageNo + 1)}
         >
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

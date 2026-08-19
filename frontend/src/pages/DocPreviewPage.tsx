@@ -161,7 +161,7 @@ export default function DocPreviewPage() {
   return (
     <div className="flex h-screen flex-col bg-muted/30">
       <header className="flex h-12 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
-        <Link to="/admin/knowledge" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted">
+        <Link to="/admin/knowledge" className="rounded-xl p-2 text-muted-foreground transition-all hover:bg-muted active:scale-95">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <FileText className="h-4 w-4 text-muted-foreground" />
@@ -170,7 +170,7 @@ export default function DocPreviewPage() {
           {blobUrl && (
             <Button variant="outline" size="sm" asChild>
               <a href={blobUrl} download={doc?.docName}>
-                <Download className="h-3.5 w-3.5" />
+                <Download />
                 下载
               </a>
             </Button>
@@ -186,15 +186,15 @@ export default function DocPreviewPage() {
         ) : (
           <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
             {kind === 'image' && blobUrl && (
-              <img src={blobUrl} alt={doc.docName} className="w-full rounded-xl" />
+              <img src={blobUrl} alt={doc.docName} className="w-full rounded-2xl" />
             )}
             {kind === 'markdown' && (
-              <div className="rounded-xl border border-border bg-background p-6">
+              <div className="rounded-2xl border border-border bg-background p-6 shadow-sm">
                 <MarkdownRenderer content={markdownText} />
               </div>
             )}
             {kind === 'text' && (
-              <pre className="overflow-x-auto rounded-xl border border-border bg-background p-6 font-mono text-sm leading-7">
+              <pre className="overflow-x-auto rounded-2xl border border-border bg-background p-6 font-mono text-sm leading-7 shadow-sm">
                 {markdownText}
               </pre>
             )}
@@ -202,7 +202,7 @@ export default function DocPreviewPage() {
               <div className="space-y-4">
                 {pdfPages.length === 0 && <Loading label="正在渲染 PDF…" />}
                 {pdfPages.map((src, i) => (
-                  <div key={i} className="overflow-hidden rounded-xl border border-border bg-white">
+                  <div key={i} className="overflow-hidden rounded-2xl border border-border bg-white">
                     <img src={src} alt={`第 ${i + 1} 页`} className="mx-auto" />
                   </div>
                 ))}
@@ -211,14 +211,14 @@ export default function DocPreviewPage() {
             {kind === 'docx' && (
               <div
                 ref={docxRef}
-                className="rounded-xl border border-border bg-white p-8 [&_section]:mb-6"
+                className="rounded-2xl border border-border bg-white p-8 shadow-sm [&_section]:mb-6"
               />
             )}
-            {kind === 'excel' && <div ref={excelRef} className="rounded-xl border border-border bg-white" />}
+            {kind === 'excel' && <div ref={excelRef} className="rounded-2xl border border-border bg-white shadow-sm" />}
             {kind === 'other' && (
-              <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-background p-16">
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-background p-16 shadow-sm">
                 <FileText className="h-10 w-10 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">该格式暂不支持在线预览</p>
+                <p className="text-base text-muted-foreground">该格式暂不支持在线预览</p>
                 {blobUrl && (
                   <Button asChild>
                     <a href={blobUrl} download={doc?.docName}>

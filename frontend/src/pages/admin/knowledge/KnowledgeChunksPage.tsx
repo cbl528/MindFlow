@@ -145,7 +145,7 @@ export default function KnowledgeChunksPage() {
           文档
         </Link>
         <span className="text-muted-foreground">/</span>
-        <h1 className="text-xl font-semibold tracking-tight">分块管理</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">分块管理</h1>
         <span className="text-sm text-muted-foreground">· {doc?.docName}</span>
       </div>
 
@@ -166,7 +166,7 @@ export default function KnowledgeChunksPage() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-background">
+      <div className="rounded-2xl border border-border bg-background shadow-sm">
         {!loading && list.length === 0 ? (
           <EmptyState title="暂无分块" description="上传文档后自动分块，或手动新增" />
         ) : (
@@ -197,7 +197,7 @@ export default function KnowledgeChunksPage() {
                   </TableCell>
                   <TableCell className="text-muted-foreground">{chunk.chunkIndex}</TableCell>
                   <TableCell className="max-w-[480px]">
-                    <p className="line-clamp-3 text-sm leading-6">{chunk.content}</p>
+                    <p className="line-clamp-3 text-base leading-7">{chunk.content}</p>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{chunk.charCount ?? 0}</TableCell>
                   <TableCell className="text-muted-foreground">{chunk.tokenCount ?? 0}</TableCell>

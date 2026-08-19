@@ -41,28 +41,28 @@ export function WelcomeScreen({ onAsk }: WelcomeScreenProps) {
   return (
     <div className="flex h-full flex-col items-center justify-center px-4 pb-16">
       <div className="mb-6 animate-fade-in-up">
-        <Logo size={56} />
+        <Logo size={60} />
       </div>
-      <h1 className="mb-8 animate-fade-in-up text-2xl font-semibold tracking-tight text-foreground">
+      <h1 className="mb-8 animate-fade-in-up text-3xl font-semibold tracking-tight text-foreground">
         有什么可以帮您？
       </h1>
 
-      <div className="grid w-full max-w-[860px] grid-cols-1 gap-3 sm:grid-cols-6">
+      <div className="grid w-full max-w-[920px] grid-cols-1 gap-3.5 sm:grid-cols-6">
         {(questions ?? Array.from({ length: 5 })).map((q, i) =>
           !questions ? (
-            <Skeleton key={i} className={`h-[72px] w-full rounded-xl ${colClass(i)}`} />
+            <Skeleton key={i} className={`h-[84px] w-full rounded-2xl ${colClass(i)}`} />
           ) : (
             <button
               key={q.id}
               onClick={() => onAsk(q.question)}
-              className={`group animate-fade-in-up rounded-xl border border-border p-4 text-left transition-all hover:border-primary/40 hover:bg-accent/60 ${colClass(i)}`}
+              className={`group animate-fade-in-up rounded-2xl border border-border p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent/60 hover:shadow-md active:translate-y-0 active:scale-[0.98] ${colClass(i)}`}
               style={{ animationDelay: `${i * 60}ms` }}
             >
-              <p className="text-sm font-medium text-foreground group-hover:text-primary">
+              <p className="text-base font-medium text-foreground group-hover:text-primary">
                 {q.title || q.question}
               </p>
               {q.description && (
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">{q.description}</p>
+                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{q.description}</p>
               )}
             </button>
           ),

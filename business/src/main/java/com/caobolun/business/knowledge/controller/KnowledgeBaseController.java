@@ -35,12 +35,13 @@ public class KnowledgeBaseController {
     }
 
     /**
-     * 重命名知识库
+     * 更新知识库（名称 / 备注 / Embedding 模型）
      */
     @PutMapping("/mindflow/knowledge-base/{kb-id}")
-    public Result<Void> renameKnowledgeBase(@PathVariable("kb-id") String kbId,
+    public Result<Void> updateKnowledgeBase(@PathVariable("kb-id") String kbId,
                                             @RequestBody KnowledgeBaseUpdateRequest requestParam) {
-        knowledgeBaseService.rename(kbId, requestParam);
+        requestParam.setId(kbId);
+        knowledgeBaseService.update(requestParam);
         return Results.success();
     }
 

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { authService } from '@/services/authService'
+import { useChatStore } from '@/stores/chatStore'
 import type { CurrentUserVO, LoginPayload } from '@/types'
 
 interface AuthState {
@@ -39,6 +40,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       // /me 失败不阻断登录
     }
     localStorage.setItem('mf_user', JSON.stringify(user))
+    // 切换账号：先清空上一用户的会话缓存，再从后端加载当前用户会话
+    // （chatStore.init 只在应用启动时执行一次，登录时必须重新触发）
+    useChatStore.getState().reset()
+    void useChatStore.getState().init()
     set({ token, user, isAuthenticated: true })
   },
   logout: async () => {
@@ -49,6 +54,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
     localStorage.removeItem('mf_token')
     localStorage.removeItem('mf_user')
+    // 清空会话缓存（内存 + localStorage），避免下次登录时残留上一用户数据
+    useChatStore.getState().reset()
     set({ token: null, user: null, isAuthenticated: false })
   },
   fetchMe: async () => {

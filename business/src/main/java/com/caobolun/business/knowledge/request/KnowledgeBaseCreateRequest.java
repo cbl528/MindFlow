@@ -11,6 +11,11 @@ public class KnowledgeBaseCreateRequest {
     private String name;
 
     /**
+     * 知识库备注
+     */
+    private String remark;
+
+    /**
      * 嵌入模型，如 qwen3-embedding:8b-fp16
      */
     private String embeddingModel;

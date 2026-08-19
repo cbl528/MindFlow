@@ -109,6 +109,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
         KnowledgeBaseDO kbDO = KnowledgeBaseDO.builder()
                 .name(requestParam.getName())
+                .remark(requestParam.getRemark())
                 .embeddingModel(requestParam.getEmbeddingModel())
                 .collectionName(requestParam.getCollectionName())
                 .createdBy(UserContext.getUsername())
@@ -166,54 +167,28 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             kb.setEmbeddingModel(requestParam.getEmbeddingModel());
         }
 
-        if (StringUtils.hasText(requestParam.getName())) {
+        if (StringUtils.hasText(requestParam.getName()) && !requestParam.getName().equals(kb.getName())) {
+            String name = requestParam.getName().replaceAll("\\s+", "");
+            Long count = knowledgeBaseMapper.selectCount(
+                    Wrappers.lambdaQuery(KnowledgeBaseDO.class)
+                            .eq(KnowledgeBaseDO::getName, name)
+                            .ne(KnowledgeBaseDO::getId, requestParam.getId())
+                            .eq(KnowledgeBaseDO::getDeleted, 0)
+            );
+            if (count > 0) {
+                throw new ServiceException("知识库名称已存在：" + requestParam.getName());
+            }
             kb.setName(requestParam.getName());
+        }
+
+        // 备注允许清空（null 表示未提交，空串表示清空）
+        if (requestParam.getRemark() != null) {
+            kb.setRemark(requestParam.getRemark());
         }
 
         kb.setUpdatedBy(UserContext.getUsername());
         knowledgeBaseMapper.updateById(kb);
         bizChangeLogContext.put(requestParam.getId(), before, knowledgeBaseMapper.selectById(requestParam.getId()));
-    }
-
-    @Override
-    @LogRecord(
-            success = "重命名知识库：{{#kbId}}",
-            fail = "重命名知识库失败：{{#_errorMsg}}",
-            type = BizChangeBizType.KNOWLEDGE_BASE,
-            subType = BizChangeOperationType.UPDATE,
-            bizNo = "{{#kbId}}",
-            extra = BizChangeLogContext.SNAPSHOT_EXPRESSION,
-            condition = BizChangeLogContext.RECORD_CONDITION
-    )
-    public void rename(String kbId, KnowledgeBaseUpdateRequest requestParam) {
-        KnowledgeBaseDO kb = knowledgeBaseMapper.selectById(kbId);
-        if (kb == null || kb.getDeleted() != null && kb.getDeleted() == 1) {
-            throw new ClientException("知识库不存在");
-        }
-        KnowledgeBaseDO before = BeanUtil.copyProperties(kb, KnowledgeBaseDO.class);
-
-        if (!StringUtils.hasText(requestParam.getName())) {
-            throw new ClientException("知识库名称不能为空");
-        }
-
-        // 名称重复校验（排除当前知识库）
-        String name = requestParam.getName().replaceAll("\\s+", "");
-        Long count = knowledgeBaseMapper.selectCount(
-                Wrappers.lambdaQuery(KnowledgeBaseDO.class)
-                        .eq(KnowledgeBaseDO::getName, name)
-                        .ne(KnowledgeBaseDO::getId, kbId)
-                        .eq(KnowledgeBaseDO::getDeleted, 0)
-        );
-        if (count > 0) {
-            throw new ServiceException("知识库名称已存在：" + requestParam.getName());
-        }
-
-        kb.setName(requestParam.getName());
-        kb.setUpdatedBy(UserContext.getUsername());
-        knowledgeBaseMapper.updateById(kb);
-        bizChangeLogContext.put(kbId, before, knowledgeBaseMapper.selectById(kbId));
-
-        log.info("成功重命名知识库, kbId={}, newName={}", kbId, requestParam.getName());
     }
 
     @Override

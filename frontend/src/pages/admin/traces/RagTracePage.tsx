@@ -59,19 +59,19 @@ export default function RagTracePage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">链路追踪</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">链路追踪</h1>
         <p className="text-sm text-muted-foreground">查看每次 RAG 请求的完整执行链路</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative w-64">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="搜索 Trace ID"
             value={traceId}
             onChange={(e) => setTraceId(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && setPageNo(1)}
-            className="pl-8"
+            className="pl-9"
           />
         </div>
         <Select value={status} onValueChange={(v) => { setStatus(v); setPageNo(1) }}>
@@ -90,7 +90,7 @@ export default function RagTracePage() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-background">
+      <div className="rounded-2xl border border-border bg-background shadow-sm">
         {!loading && list.length === 0 ? (
           <EmptyState icon={Activity} title="暂无追踪记录" description="发起 RAG 对话后会自动记录" />
         ) : (

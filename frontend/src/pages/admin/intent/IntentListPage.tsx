@@ -76,7 +76,7 @@ export default function IntentListPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">意图列表</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">意图列表</h1>
           <p className="text-sm text-muted-foreground">扁平化浏览所有意图节点，支持批量启停与删除</p>
         </div>
         <Button variant="outline" onClick={load}>
@@ -86,12 +86,12 @@ export default function IntentListPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative w-64">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="搜索名称或编码"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="pl-8"
+            className="pl-9"
           />
         </div>
         {selected.length > 0 && (
@@ -109,7 +109,7 @@ export default function IntentListPage() {
         )}
       </div>
 
-      <div className="rounded-xl border border-border bg-background">
+      <div className="rounded-2xl border border-border bg-background shadow-sm">
         {!loading && filtered.length === 0 ? (
           <EmptyState icon={GitBranch} title="暂无意图节点" description="请先在「意图树配置」中创建节点" />
         ) : (

@@ -72,7 +72,7 @@ export default function DashboardPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">仪表盘</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">仪表盘</h1>
           <p className="text-sm text-muted-foreground">系统运行总览与质量指标</p>
         </div>
         <Select value={window} onValueChange={setWindow}>
@@ -91,20 +91,20 @@ export default function DashboardPage() {
       ) : (
         <>
           {/* KPI 卡片 */}
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3.5 md:grid-cols-3 xl:grid-cols-6">
             {kpiCards.map((k) => {
               const kpi = kpis?.[k.key]
               return (
-                <div key={k.key} className="rounded-xl border border-border bg-background p-4">
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <k.icon className="h-3.5 w-3.5" />
-                    <span className="text-xs">{k.label}</span>
+                <div key={k.key} className="rounded-2xl border border-border bg-background p-5 transition-all hover:shadow-md">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <k.icon className="h-[18px] w-[18px]" />
+                    <span className="text-sm">{k.label}</span>
                   </div>
-                  <p className="mt-2 text-2xl font-semibold">{kpi?.value ?? '—'}</p>
+                  <p className="mt-2.5 text-3xl font-semibold tracking-tight">{kpi?.value ?? '—'}</p>
                   {kpi && kpi.deltaPct != null && (
                     <p
                       className={cn(
-                        'mt-0.5 text-xs',
+                        'mt-1 text-sm',
                         kpi.deltaPct >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive',
                       )}
                     >
@@ -118,16 +118,16 @@ export default function DashboardPage() {
           </div>
 
           {/* 性能快照 */}
-          <div className="rounded-xl border border-border bg-background p-5">
-            <h2 className="mb-4 text-sm font-medium">质量快照</h2>
+          <div className="rounded-2xl border border-border bg-background p-5">
+            <h2 className="mb-4 text-base font-medium">质量快照</h2>
             {perfItems.length === 0 ? (
               <EmptyState title="暂无质量数据" />
             ) : (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
                 {perfItems.map((p) => (
                   <div key={p.label}>
-                    <p className="text-xs text-muted-foreground">{p.label}</p>
-                    <p className="mt-1 text-lg font-medium">{p.value}</p>
+                    <p className="text-sm text-muted-foreground">{p.label}</p>
+                    <p className="mt-1 text-xl font-medium">{p.value}</p>
                   </div>
                 ))}
               </div>
@@ -135,17 +135,17 @@ export default function DashboardPage() {
           </div>
 
           {/* 趋势图 */}
-          <div className="rounded-xl border border-border bg-background p-5">
+          <div className="rounded-2xl border border-border bg-background p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-medium">趋势</h2>
-              <div className="flex gap-1 rounded-lg bg-muted p-0.5">
+              <h2 className="text-base font-medium">趋势</h2>
+              <div className="flex gap-1 rounded-xl bg-muted p-1">
                 {METRICS.map((m) => (
                   <button
                     key={m.key}
                     onClick={() => setMetric(m.key)}
                     className={cn(
-                      'rounded-md px-3 py-1 text-xs transition-colors',
-                      metric === m.key ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground',
+                      'rounded-lg px-4 py-1.5 text-sm transition-all active:scale-95',
+                      metric === m.key ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
                     {m.label}

@@ -21,6 +21,11 @@ public class KnowledgeBaseVO {
     private String name;
 
     /**
+     * 知识库备注
+     */
+    private String remark;
+
+    /**
      * 嵌入模型标识
      */
     private String embeddingModel;

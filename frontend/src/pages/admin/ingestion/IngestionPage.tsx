@@ -54,7 +54,7 @@ export default function IngestionPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">数据通道</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">数据通道</h1>
         <p className="text-sm text-muted-foreground">配置摄入流水线并管理采集任务</p>
       </div>
       <Tabs defaultValue="pipelines">
@@ -191,7 +191,7 @@ function PipelinesTab() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-background">
+      <div className="rounded-2xl border border-border bg-background shadow-sm">
         {!loading && list.length === 0 ? (
           <EmptyState title="暂无流水线" description="点击「新建流水线」配置摄入流程" />
         ) : (
@@ -273,8 +273,8 @@ function PipelinesTab() {
               </div>
               <div className="space-y-2">
                 {form.nodes.map((node, i) => (
-                  <div key={i} className="flex items-center gap-2 rounded-lg border border-border p-2">
-                    <span className="text-xs text-muted-foreground">#{i + 1}</span>
+                  <div key={i} className="flex items-center gap-2 rounded-xl border border-border p-2.5">
+                    <span className="text-sm text-muted-foreground">#{i + 1}</span>
                     <Select value={node.nodeType} onValueChange={(v) => updateNode(i, { nodeType: v })}>
                       <SelectTrigger className="w-28">
                         <SelectValue />
@@ -310,7 +310,7 @@ function PipelinesTab() {
                   </div>
                 ))}
                 {form.nodes.length === 0 && (
-                  <p className="rounded-lg bg-muted p-3 text-center text-xs text-muted-foreground">
+                  <p className="rounded-xl bg-muted p-4 text-center text-sm text-muted-foreground">
                     尚未添加节点
                   </p>
                 )}
@@ -336,13 +336,13 @@ function PipelinesTab() {
           </DialogHeader>
           <div className="space-y-2">
             {viewTarget?.nodes?.map((n, i) => (
-              <div key={i} className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+              <div key={i} className="flex items-center gap-2 rounded-xl border border-border p-3.5 text-base">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
                   {i + 1}
                 </span>
                 <span className="font-medium">{NODE_LABEL[n.nodeType] ?? n.nodeType}</span>
-                <span className="text-xs text-muted-foreground">({n.nodeId})</span>
-                <span className="ml-auto text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">({n.nodeId})</span>
+                <span className="ml-auto text-sm text-muted-foreground">
                   → {n.nextNodeId || '结束'}
                 </span>
               </div>
@@ -463,7 +463,7 @@ function TasksTab() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-background">
+      <div className="rounded-2xl border border-border bg-background shadow-sm">
         {!loading && list.length === 0 ? (
           <EmptyState title="暂无任务" description="选择流水线上传文件创建任务" />
         ) : (
@@ -540,7 +540,7 @@ function TasksTab() {
                 if (f) setFile(f)
               }}
               onClick={() => document.getElementById('task-file-input')?.click()}
-              className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/40"
+              className="flex cursor-pointer flex-col items-center justify-center gap-2.5 rounded-xl border-2 border-dashed border-border p-8 text-center transition-all hover:border-primary/40 active:scale-[0.99]"
             >
               {file ? (
                 <p className="text-sm text-foreground">{file.name}</p>
@@ -589,7 +589,7 @@ function TasksTab() {
               <div className="space-y-2">
                 {detailNodes.length === 0 && <p className="text-xs text-muted-foreground">暂无节点执行记录</p>}
                 {detailNodes.map((n) => (
-                  <div key={n.id} className="flex items-center gap-3 rounded-lg border border-border p-3 text-sm">
+                  <div key={n.id} className="flex items-center gap-3 rounded-xl border border-border p-3.5 text-base">
                     <span className={cn('h-2 w-2 rounded-full', n.status === 'success' ? 'bg-emerald-500' : n.status === 'failed' ? 'bg-destructive' : 'bg-amber-500')} />
                     <span className="font-medium">{NODE_LABEL[n.nodeType] ?? n.nodeType}</span>
                     <span className="text-xs text-muted-foreground">

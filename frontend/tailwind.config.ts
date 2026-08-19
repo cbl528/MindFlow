@@ -81,6 +81,17 @@ const config: Config = {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      // 全局字号放大一档：text-xs/sm/base 整体上调，让界面更饱满
+      fontSize: {
+        xs: ['0.8125rem', { lineHeight: '1.0625rem' }],
+        sm: ['0.9375rem', { lineHeight: '1.375rem' }],
+        base: ['1rem', { lineHeight: '1.6rem' }],
+        lg: ['1.125rem', { lineHeight: '1.75rem' }],
+        xl: ['1.3125rem', { lineHeight: '1.8125rem' }],
+        '2xl': ['1.5625rem', { lineHeight: '2.0625rem' }],
+        '3xl': ['1.875rem', { lineHeight: '2.375rem' }],
+        '4xl': ['2.25rem', { lineHeight: '2.75rem' }],
+      },
       boxShadow: {
         'chat-input': '0 0 0 1px hsl(var(--border)), 0 4px 24px rgba(0,0,0,0.04)',
         'chat-input-focus': '0 0 0 1px hsl(var(--ring)), 0 4px 24px rgba(77,107,254,0.10)',

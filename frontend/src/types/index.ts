@@ -60,6 +60,8 @@ export interface UserVO {
 export interface KnowledgeBaseVO {
   id: string
   name: string
+  /** 知识库备注 */
+  remark?: string
   embeddingModel?: string
   collectionName?: string
   documentCount?: number

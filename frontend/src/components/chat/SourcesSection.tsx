@@ -25,39 +25,39 @@ export function SourcesSection({ sources, highlightIndex, open, onToggle }: Sour
     <div className="mt-4">
       <button
         onClick={() => setOpen(!isOpen)}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="inline-flex items-center gap-1 text-base text-muted-foreground transition-all hover:text-foreground active:scale-95"
       >
         <span className="font-medium">来源 {sources.length} 个</span>
-        <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', isOpen && 'rotate-180')} />
+        <ChevronDown className={cn('h-4 w-4 transition-transform', isOpen && 'rotate-180')} />
       </button>
 
       {isOpen && (
-        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {sources.map((s, i) => (
             <div
               key={s.docId + i}
               className={cn(
-                'flex flex-col gap-1 rounded-lg border border-border p-3 text-sm transition-colors',
+                'flex flex-col gap-1.5 rounded-xl border border-border p-3.5 text-base transition-colors',
                 highlightIndex === s.index && 'border-primary bg-accent',
               )}
             >
               <div className="flex items-center gap-2">
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-medium text-primary-foreground">
+                <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-1 text-sm font-semibold text-primary-foreground">
                   {s.index}
                 </span>
                 <span className="truncate font-medium">{s.docName || '未命名文档'}</span>
               </div>
               {s.excerpt && (
-                <p className="line-clamp-3 text-xs leading-5 text-muted-foreground">{s.excerpt}</p>
+                <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">{s.excerpt}</p>
               )}
               <Link
                 to={`/preview/doc/${s.docId}`}
                 target="_blank"
-                className="mt-1 inline-flex w-fit items-center gap-1 text-xs text-primary hover:underline"
+                className="mt-1 inline-flex w-fit items-center gap-1 text-sm text-primary hover:underline"
               >
-                <FileText className="h-3 w-3" />
+                <FileText className="h-3.5 w-3.5" />
                 预览原文
-                <ExternalLink className="h-3 w-3" />
+                <ExternalLink className="h-3.5 w-3.5" />
               </Link>
             </div>
           ))}

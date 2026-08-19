@@ -47,14 +47,6 @@ public interface KnowledgeBaseService {
     void update(KnowledgeBaseUpdateRequest requestParam);
 
     /**
-     * 重命名知识库
-     *
-     * @param kbId         知识库ID
-     * @param requestParam 重命名请求参数
-     */
-    void rename(String kbId, KnowledgeBaseUpdateRequest requestParam);
-
-    /**
      * 删除知识库
      *
      * @param kbId 知识库ID

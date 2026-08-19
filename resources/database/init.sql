@@ -184,6 +184,7 @@ CREATE TABLE `t_biz_change_log` (
 CREATE TABLE `t_knowledge_base` (
     `id`              varchar(20) NOT NULL COMMENT '主键ID（雪花ID）',
     `name`            varchar(128) NOT NULL COMMENT '知识库名称',
+    `remark`          varchar(255) DEFAULT NULL COMMENT '备注',
     `embedding_model` varchar(64)  NOT NULL COMMENT '嵌入模型标识',
     `collection_name` varchar(64)  NOT NULL COMMENT 'Collection名称（Milvus 中对应集合）',
     `created_by`      varchar(20)  NOT NULL COMMENT '创建人',

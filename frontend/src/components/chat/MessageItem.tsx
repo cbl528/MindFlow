@@ -43,10 +43,10 @@ export const MessageItem = memo(function MessageItem({
   }
 
   return (
-    <div className="w-full py-5">
+    <div className="w-full py-4">
       {isUser ? (
         <div className="flex justify-end">
-          <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl bg-user-bubble px-4 py-3 leading-7">
+          <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl bg-user-bubble px-5 py-3.5 leading-7">
             {message.content}
           </div>
         </div>
@@ -60,9 +60,9 @@ export const MessageItem = memo(function MessageItem({
                 className="thinking-toggle"
               >
                 {showThinking ? (
-                  <ChevronDown className="h-3.5 w-3.5" />
+                  <ChevronDown className="h-4 w-4" />
                 ) : (
-                  <ChevronRight className="h-3.5 w-3.5" />
+                  <ChevronRight className="h-4 w-4" />
                 )}
                 {message.status === 'thinking' && !message.thinkingContent
                   ? '深度思考中'
@@ -78,7 +78,7 @@ export const MessageItem = memo(function MessageItem({
                 )}
               </button>
               {showThinking && message.thinkingContent && (
-                <div className="mt-2 whitespace-pre-wrap rounded-lg bg-muted/70 p-3 text-sm leading-7 text-muted-foreground">
+                <div className="mt-2.5 whitespace-pre-wrap rounded-xl bg-muted/70 p-4 text-base leading-7 text-muted-foreground">
                   {message.thinkingContent}
                 </div>
               )}
@@ -89,14 +89,11 @@ export const MessageItem = memo(function MessageItem({
           <div className="w-full">
             <MarkdownRenderer content={message.content} onCitation={openCitation} />
             {message.status === 'streaming' && <span className="stream-cursor" />}
-            {message.status === 'thinking' && !message.content && (
-              <span className="stream-cursor" />
-            )}
           </div>
 
           {/* 错误提示 */}
           {message.status === 'error' && (
-            <p className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <p className="mt-3 rounded-xl bg-destructive/10 px-4 py-3 text-base text-destructive">
               {message.error || '生成失败，请重试'}
             </p>
           )}
@@ -105,34 +102,34 @@ export const MessageItem = memo(function MessageItem({
           {isDone && (
             <div className="mt-3 flex items-center gap-1 text-muted-foreground">
               <ActionIcon title={copied ? '已复制' : '复制'} onClick={handleCopy}>
-                {copied ? <CheckIcon /> : <Copy className="h-4 w-4" />}
+                {copied ? <CheckIcon /> : <Copy className="h-[18px] w-[18px]" />}
               </ActionIcon>
               <ActionIcon title="重新生成" onClick={() => useChatActions().regenerate()}>
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw className="h-[18px] w-[18px]" />
               </ActionIcon>
-              <div className="mx-1 h-4 w-px bg-border" />
+              <div className="mx-1 h-5 w-px bg-border" />
               <ActionIcon
                 title="有帮助"
                 onClick={() => setVote(vote === 1 ? null : 1)}
                 className={cn(vote === 1 && 'text-primary')}
               >
-                <ThumbsUp className="h-4 w-4" />
+                <ThumbsUp className="h-[18px] w-[18px]" />
               </ActionIcon>
               <ActionIcon
                 title="没帮助"
                 onClick={() => setVote(vote === -1 ? null : -1)}
                 className={cn(vote === -1 && 'text-destructive')}
               >
-                <ThumbsDown className="h-4 w-4" />
+                <ThumbsDown className="h-[18px] w-[18px]" />
               </ActionIcon>
               {message.messageId && !message.recommendedQuestions && !message.recStatus && (
                 <>
-                  <div className="mx-1 h-4 w-px bg-border" />
+                  <div className="mx-1 h-5 w-px bg-border" />
                   <button
                     onClick={() => useChatActions().loadRecommended(sessionId, message.id)}
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm transition-colors hover:bg-muted hover:text-foreground"
+                    className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-base transition-all hover:bg-muted hover:text-foreground active:scale-95"
                   >
-                    <Sparkles className="h-4 w-4" />
+                    <Sparkles className="h-[18px] w-[18px]" />
                     推荐追问
                   </button>
                 </>
@@ -142,10 +139,10 @@ export const MessageItem = memo(function MessageItem({
 
           {/* 推荐追问胶囊 */}
           {message.recStatus === 'loading' && (
-            <div className="mt-3 text-sm text-muted-foreground">正在生成推荐问题…</div>
+            <div className="mt-3 text-base text-muted-foreground">正在生成推荐问题…</div>
           )}
           {message.recStatus === 'error' && !message.recommendedQuestions && (
-            <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="mt-3 flex items-center gap-2 text-base text-muted-foreground">
               <span>推荐问题生成失败</span>
               <button
                 className="text-primary hover:underline"
@@ -161,7 +158,7 @@ export const MessageItem = memo(function MessageItem({
                 <button
                   key={q}
                   onClick={() => onAskQuestion(q)}
-                  className="max-w-full truncate rounded-full border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-primary/40 hover:bg-accent hover:text-primary"
+                  className="max-w-full truncate rounded-full border border-border bg-background px-4 py-2 text-base transition-all hover:border-primary/50 hover:bg-accent hover:text-primary active:scale-[0.98]"
                 >
                   {q}
                 </button>
@@ -209,7 +206,7 @@ function ActionIcon({
       title={title}
       onClick={onClick}
       className={cn(
-        'rounded-lg p-1.5 transition-colors hover:bg-muted hover:text-foreground',
+        'rounded-lg p-2 transition-all hover:bg-muted hover:text-foreground active:scale-95',
         className,
       )}
     >

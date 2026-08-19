@@ -112,7 +112,7 @@ export default function SampleQuestionPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">示例问题</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">示例问题</h1>
           <p className="text-sm text-muted-foreground">配置欢迎页的推荐问题卡片</p>
         </div>
         <Button onClick={openCreate}>
@@ -121,7 +121,7 @@ export default function SampleQuestionPage() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-background">
+      <div className="rounded-2xl border border-border bg-background shadow-sm">
         {!loading && list.length === 0 ? (
           <EmptyState icon={Sparkles} title="暂无示例问题" description="点击「新增示例」添加" />
         ) : (
@@ -147,7 +147,7 @@ export default function SampleQuestionPage() {
                   <TableCell>
                     <div className="flex justify-end gap-1">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(q)}>
-                        <Pencil className="h-3.5 w-3.5" />
+                        <Pencil />
                       </Button>
                       <Button
                         variant="ghost"
@@ -155,7 +155,7 @@ export default function SampleQuestionPage() {
                         className="text-destructive hover:text-destructive"
                         onClick={() => setDeleteTarget(q)}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 />
                       </Button>
                     </div>
                   </TableCell>

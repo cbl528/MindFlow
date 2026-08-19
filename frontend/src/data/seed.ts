@@ -60,12 +60,12 @@ export const seed = {
   ] as UserVO[],
 
   knowledgeBases: [
-    { id: 'kb1', name: '员工手册与制度', embeddingModel: 'bge-m3', collectionName: 'kb_emp_handbook', documentCount: 18, createdBy: 'admin', createTime: '2026-07-02 10:00:00', updateTime: '2026-07-30 15:20:00' },
-    { id: 'kb2', name: '产品文档', embeddingModel: 'bge-m3', collectionName: 'kb_product', documentCount: 42, createdBy: 'admin', createTime: '2026-07-02 10:05:00', updateTime: '2026-07-29 11:30:00' },
-    { id: 'kb3', name: '技术支持知识库', embeddingModel: 'text-embedding-3', collectionName: 'kb_support', documentCount: 27, createdBy: 'zhangwei', createTime: '2026-07-06 16:00:00', updateTime: '2026-07-28 09:10:00' },
-    { id: 'kb4', name: '财务报销制度', embeddingModel: 'bge-m3', collectionName: 'kb_finance', documentCount: 9, createdBy: 'admin', createTime: '2026-07-09 10:30:00', updateTime: '2026-07-25 14:40:00' },
-    { id: 'kb5', name: '信息安全规范', embeddingModel: 'text-embedding-3', collectionName: 'kb_security', documentCount: 6, createdBy: 'chenjing', createTime: '2026-07-11 09:00:00', updateTime: '2026-07-24 17:05:00' },
-    { id: 'kb6', name: '招聘与入职指南', embeddingModel: 'bge-m3', collectionName: 'kb_hr', documentCount: 12, createdBy: 'wangfang', createTime: '2026-07-14 11:20:00', updateTime: '2026-07-22 10:35:00' },
+    { id: 'kb1', name: '员工手册与制度', remark: '涵盖考勤、薪酬、请假等全体员工制度，供人事类问题检索', embeddingModel: 'bge-m3', collectionName: 'kb_emp_handbook', documentCount: 18, createdBy: 'admin', createTime: '2026-07-02 10:00:00', updateTime: '2026-07-30 15:20:00' },
+    { id: 'kb2', name: '产品文档', remark: '产品白皮书、API 对接文档与路线图，供产品技术类问题检索', embeddingModel: 'bge-m3', collectionName: 'kb_product', documentCount: 42, createdBy: 'admin', createTime: '2026-07-02 10:05:00', updateTime: '2026-07-29 11:30:00' },
+    { id: 'kb3', name: '技术支持知识库', remark: '常见问题排查、工单 SLA 说明等技术支持资料', embeddingModel: 'text-embedding-3', collectionName: 'kb_support', documentCount: 27, createdBy: 'zhangwei', createTime: '2026-07-06 16:00:00', updateTime: '2026-07-28 09:10:00' },
+    { id: 'kb4', name: '财务报销制度', remark: '', embeddingModel: 'bge-m3', collectionName: 'kb_finance', documentCount: 9, createdBy: 'admin', createTime: '2026-07-09 10:30:00', updateTime: '2026-07-25 14:40:00' },
+    { id: 'kb5', name: '信息安全规范', remark: '数据分级、账号密码与安全事件上报规范', embeddingModel: 'text-embedding-3', collectionName: 'kb_security', documentCount: 6, createdBy: 'chenjing', createTime: '2026-07-11 09:00:00', updateTime: '2026-07-24 17:05:00' },
+    { id: 'kb6', name: '招聘与入职指南', remark: '新员工入职、招聘流程等 HR 相关文档', embeddingModel: 'bge-m3', collectionName: 'kb_hr', documentCount: 12, createdBy: 'wangfang', createTime: '2026-07-14 11:20:00', updateTime: '2026-07-22 10:35:00' },
   ] as KnowledgeBaseVO[],
 
   documents: [

@@ -31,6 +31,8 @@ interface ChatState {
   deleteSession: (id: string) => void
   renameSession: (id: string, title: string) => void
   clearSessions: () => void
+  /** 登出/切换账号时清空会话状态（内存 + localStorage），并复位 initialized 等待重新 init */
+  reset: () => void
   setActive: (id: string | null) => void
   /** 从后端懒加载指定会话的消息历史 */
   loadConversationMessages: (sessionId: string) => Promise<void>
@@ -287,6 +289,21 @@ export const useChatStore = create<ChatState>((set, get) => {
       if (get().isStreaming) get().stopStreaming()
       set({ sessions: [], activeId: null })
       get()._persist()
+    },
+
+    reset: () => {
+      if (get().isStreaming) get().stopStreaming()
+      // 清掉本地持久化的会话缓存，避免切换账号后残留上一用户数据
+      localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem(ACTIVE_KEY)
+      set({
+        sessions: [],
+        activeId: null,
+        isStreaming: false,
+        streamTaskId: null,
+        controller: null,
+        initialized: false,
+      })
     },
 
     setActive: (id) => {

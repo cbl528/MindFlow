@@ -59,7 +59,7 @@ export default function ChangeLogPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">审计日志</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">审计日志</h1>
         <p className="text-sm text-muted-foreground">业务操作变更记录，含变更前后快照与 Diff</p>
       </div>
 
@@ -102,12 +102,12 @@ export default function ChangeLogPage() {
             load()
           }}
         >
-          <Search className="h-3.5 w-3.5" />
+          <Search />
           查询
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-background">
+      <div className="rounded-2xl border border-border bg-background shadow-sm">
         {!loading && list.length === 0 ? (
           <EmptyState icon={ClipboardList} title="暂无日志记录" />
         ) : (
@@ -127,14 +127,14 @@ export default function ChangeLogPage() {
               {list.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell className="max-w-[300px] truncate font-medium">{log.actionDesc || '—'}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
+                  <TableCell className="text-sm text-muted-foreground">
                     {[log.bizType, log.operationType].filter(Boolean).join(' / ') || '—'}
                   </TableCell>
                   <TableCell>{log.operatorName || '—'}</TableCell>
                   <TableCell>
                     {log.success ? <Badge variant="success">成功</Badge> : <Badge variant="destructive">失败</Badge>}
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{log.ip || '—'}</TableCell>
+                  <TableCell className="font-mono text-sm text-muted-foreground">{log.ip || '—'}</TableCell>
                   <TableCell className="text-muted-foreground">{formatDateTime(log.createTime)}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" onClick={() => setDetail(log)}>
@@ -168,8 +168,8 @@ export default function ChangeLogPage() {
           </div>
           {detail?.changeDiff && (
             <div>
-              <p className="mb-1 text-xs font-medium text-muted-foreground">变更 Diff</p>
-              <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 font-mono text-xs leading-5">
+              <p className="mb-1 text-sm font-medium text-muted-foreground">变更 Diff</p>
+              <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 font-mono text-sm leading-6">
                 {detail.changeDiff}
               </pre>
             </div>
@@ -188,13 +188,13 @@ export default function ChangeLogPage() {
 function SnapshotBlock({ title, content }: { title: string; content?: string }) {
   return (
     <div>
-      <p className="mb-1 text-xs font-medium text-muted-foreground">{title}</p>
+      <p className="mb-1 text-sm font-medium text-muted-foreground">{title}</p>
       {content ? (
-        <pre className="max-h-48 overflow-y-auto rounded-lg bg-muted/60 p-3 font-mono text-xs leading-5">
+        <pre className="max-h-48 overflow-y-auto rounded-lg bg-muted/60 p-3 font-mono text-sm leading-6">
           {content}
         </pre>
       ) : (
-        <p className="rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground">—</p>
+        <p className="rounded-lg bg-muted/30 p-3 text-sm text-muted-foreground">—</p>
       )}
     </div>
   )

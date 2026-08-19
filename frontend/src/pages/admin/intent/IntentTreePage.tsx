@@ -273,21 +273,21 @@ export default function IntentTreePage() {
           onClick={() => selectNode(node)}
           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && selectNode(node)}
           className={cn(
-            'flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 transition-colors',
+            'flex cursor-pointer items-center gap-1 rounded-xl px-2.5 py-2 transition-all active:scale-[0.99]',
             isSelected ? 'bg-accent text-accent-foreground' : 'hover:bg-muted',
           )}
-          style={{ paddingLeft: `${depth * 20 + 8}px` }}
+          style={{ paddingLeft: `${depth * 20 + 10}px` }}
         >
           <button
             onClick={(e) => {
               e.stopPropagation()
               toggleCollapse(node.id)
             }}
-            className={cn('rounded p-0.5 text-muted-foreground', !hasChildren && 'invisible')}
+            className={cn('rounded p-0.5 text-muted-foreground hover:bg-muted/70', !hasChildren && 'invisible')}
           >
-            {isCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
-          <span className={cn('flex-1 truncate text-sm', !node.enabled && 'text-muted-foreground line-through')}>
+          <span className={cn('flex-1 truncate text-base', !node.enabled && 'text-muted-foreground line-through')}>
             {node.name}
           </span>
           <Badge variant={KIND_COLOR[node.kind ?? 0]}>
@@ -309,7 +309,7 @@ export default function IntentTreePage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">意图树配置</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">意图树配置</h1>
           <p className="text-sm text-muted-foreground">构建多级意图识别树，命中节点引导检索与回答</p>
         </div>
         <div className="flex gap-2">
@@ -326,10 +326,10 @@ export default function IntentTreePage() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         {/* 左侧：只读意图树 */}
         <div className="lg:col-span-2">
-          <div className="rounded-xl border border-border bg-background p-4">
+          <div className="rounded-2xl border border-border bg-background p-4 shadow-sm">
             <div className="mb-2 flex items-center justify-between px-1">
-              <h2 className="text-sm font-medium text-muted-foreground">意图树</h2>
-              <span className="text-xs text-muted-foreground">点击节点查看详情</span>
+              <h2 className="text-base font-medium text-muted-foreground">意图树</h2>
+              <span className="text-sm text-muted-foreground">点击节点查看详情</span>
             </div>
             {loading ? (
               <p className="py-12 text-center text-sm text-muted-foreground">加载中…</p>
@@ -343,7 +343,7 @@ export default function IntentTreePage() {
 
         {/* 右侧：节点详情（只读）+ 操作 */}
         <div className="lg:col-span-3">
-          <div className="rounded-xl border border-border bg-background p-5">
+          <div className="rounded-2xl border border-border bg-background p-5 shadow-sm">
             {!selectedNode ? (
               <EmptyState
                 icon={GitBranch}
@@ -466,7 +466,7 @@ export default function IntentTreePage() {
                     key={i}
                     onClick={() => setEditForm((f) => ({ ...f, kind: i }))}
                     className={cn(
-                      'flex-1 rounded-lg border px-3 py-1.5 text-sm transition-colors',
+                      'flex-1 cursor-pointer rounded-xl border px-4 py-2 text-base transition-all active:scale-[0.98]',
                       editForm.kind === i
                         ? 'border-primary bg-accent font-medium text-primary'
                         : 'border-border text-muted-foreground hover:bg-muted',
@@ -580,7 +580,7 @@ export default function IntentTreePage() {
                     key={i}
                     onClick={() => setCreateForm((f) => ({ ...f, kind: i }))}
                     className={cn(
-                      'flex-1 rounded-lg border px-3 py-1.5 text-sm transition-colors',
+                      'flex-1 cursor-pointer rounded-xl border px-4 py-2 text-base transition-all active:scale-[0.98]',
                       createForm.kind === i
                         ? 'border-primary bg-accent font-medium text-primary'
                         : 'border-border text-muted-foreground hover:bg-muted',
@@ -674,20 +674,20 @@ function Detail({
     if (code) return null
     return (
       <div className="space-y-1">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="text-sm text-muted-foreground">—</p>
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <p className="text-base text-muted-foreground">—</p>
       </div>
     )
   }
   return (
     <div className="space-y-1">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium text-muted-foreground">{label}</p>
       {code ? (
-        <pre className="whitespace-pre-wrap rounded-lg bg-muted p-3 font-mono text-xs leading-relaxed">
+        <pre className="whitespace-pre-wrap rounded-xl bg-muted p-3.5 font-mono text-sm leading-relaxed">
           {value}
         </pre>
       ) : (
-        <p className="text-sm">{value}</p>
+        <p className="text-base">{value}</p>
       )}
     </div>
   )

@@ -39,7 +39,7 @@
     --sidebar: 0 0% 97%; /* #f7f7f8 侧栏较深灰，与聊天背景区分 */
     --sidebar-foreground: 216 14% 14%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 
   .dark {
@@ -83,11 +83,11 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.6;
   }
 
-  /* 细滚动条，悬停时出现 */
+  /* 稍宽的滚动条，悬停时出现 */
   * {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
@@ -96,38 +96,49 @@
     scrollbar-color: hsl(var(--border)) transparent;
   }
   *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
   *::-webkit-scrollbar-thumb {
     background: hsl(var(--border));
-    border-radius: 3px;
+    border-radius: 6px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
   }
   *::-webkit-scrollbar-track {
     background: transparent;
+  }
+
+  /* lucide 图标整体加粗 + 圆角端点，更有质感 */
+  svg.lucide {
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 }
 
 @layer components {
   /* 通用表单样式（仿 DeepSeek 圆角输入） */
   .ds-input {
-    @apply w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring;
+    @apply w-full rounded-xl border border-input bg-transparent px-3.5 py-2.5 text-base outline-none transition-all placeholder:text-muted-foreground hover:border-muted-foreground/40 focus:border-ring focus:ring-2 focus:ring-ring/30;
   }
 
   /* 次级按钮：白底描边，hover 变灰 */
   .ds-btn-secondary {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background px-4 py-2 text-sm text-foreground transition-all hover:bg-muted hover:shadow-sm active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
   }
 
   /* 主按钮：DeepSeek 蓝 */
   .ds-btn-primary {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm text-primary-foreground transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40;
   }
 
   /* 会话列表项激活态 */
   .ds-session-active {
     background: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
+    font-weight: 500;
   }
 
   /* 流式光标 */
@@ -137,7 +148,7 @@
     height: 1.2em;
     vertical-align: text-bottom;
     margin-left: 2px;
-    border-radius: 1px;
+    border-radius: 2px;
     background: hsl(var(--primary));
     animation: blink 1s step-end infinite;
   }
@@ -147,7 +158,7 @@
    聊天 Markdown 排版（基于 @tailwindcss/typography 微调）
    ============================================================ */
 .prose-chat {
-  @apply prose prose-sm prose-neutral max-w-none dark:prose-invert prose-headings:font-semibold prose-p:leading-7 prose-pre:bg-[#f6f7f9] prose-pre:text-foreground dark:prose-pre:bg-[#262626] prose-code:before:content-none prose-code:after:content-none prose-a:text-primary;
+  @apply prose prose-base prose-neutral max-w-none dark:prose-invert prose-headings:font-semibold prose-p:leading-7 prose-pre:bg-[#f6f7f9] prose-pre:text-foreground dark:prose-pre:bg-[#262626] prose-code:before:content-none prose-code:after:content-none prose-a:text-primary;
 }
 
 .prose-chat :where(code):not(:where(pre code)) {
@@ -156,7 +167,7 @@
 
 /* 来源角标 [N] */
 .citation-ref {
-  @apply mx-0.5 inline-flex min-w-[1.35rem] items-center justify-center rounded-full bg-primary/10 px-1 text-[0.72rem] font-medium leading-[1.35rem] text-primary no-underline align-super;
+  @apply mx-0.5 inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-primary/10 px-1 text-[0.78rem] font-semibold leading-[1.5rem] text-primary no-underline align-super transition-all;
 }
 .citation-ref:hover {
   @apply bg-primary text-primary-foreground;

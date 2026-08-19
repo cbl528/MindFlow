@@ -22,8 +22,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { sessionGroupLabel } from '@/lib/time'
@@ -89,23 +87,23 @@ export function SessionSidebar({
       {/* 顶栏：品牌 + 主题 + 收起侧栏 */}
       <div className="flex h-14 items-center justify-between gap-2 px-4 pb-1">
         <div className="flex min-w-0 items-center gap-2">
-          <Logo size={28} />
-          <span className="truncate text-sm font-semibold tracking-tight">MindFlow</span>
+          <Logo size={30} />
+          <span className="truncate text-base font-semibold tracking-tight">MindFlow</span>
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
           <button
             onClick={toggleTheme}
-            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted"
+            className="rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted active:scale-95"
             title="切换主题"
           >
-            {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            {theme === 'light' ? <Moon className="h-[18px] w-[18px]" /> : <Sun className="h-[18px] w-[18px]" />}
           </button>
           <button
             onClick={onToggleCollapsed}
-            className="hidden rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted lg:block"
+            className="hidden rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted active:scale-95 lg:block"
             title="收起侧栏"
           >
-            <PanelLeftClose className="h-4 w-4" />
+            <PanelLeftClose className="h-[18px] w-[18px]" />
           </button>
         </div>
       </div>
@@ -113,12 +111,12 @@ export function SessionSidebar({
       {/* 搜索 */}
       <div className="px-4 pb-3">
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="搜索对话"
-            className="h-9 w-full rounded-lg border border-transparent bg-muted pl-8 pr-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/30 focus:bg-background"
+            className="h-10 w-full rounded-xl border border-transparent bg-muted pl-9 pr-3 text-base outline-none transition-all placeholder:text-muted-foreground hover:border-muted-foreground/30 focus:border-primary/40 focus:bg-background"
           />
         </div>
       </div>
@@ -130,9 +128,9 @@ export function SessionSidebar({
             onNew()
             onMobileClose()
           }}
-          className="flex h-9 w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          className="flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-base font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md active:scale-[0.98]"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-[18px] w-[18px]" />
           新对话
         </button>
       </div>
@@ -145,8 +143,8 @@ export function SessionSidebar({
           </p>
         )}
         {groups.map(([label, list]) => (
-          <div key={label} className="mb-5">
-            <p className="px-2 pb-1.5 text-xs text-muted-foreground">{label}</p>
+          <div key={label} className="mb-4">
+            <p className="px-2 pb-1 text-xs text-muted-foreground">{label}</p>
             <div className="space-y-1">
               {list.map((s) => (
                 <div
@@ -156,23 +154,22 @@ export function SessionSidebar({
                     onMobileClose()
                   }}
                   className={cn(
-                    'group flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 transition-colors',
+                    'group flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 transition-all active:scale-[0.99]',
                     s.id === activeId ? 'ds-session-active' : 'hover:bg-chat-hover',
                   )}
                 >
-                  <span className="block min-w-0 flex-1 truncate text-sm">{s.title}</span>
+                  <span className="block min-w-0 flex-1 truncate text-base">{s.title}</span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
                         onClick={(e) => e.stopPropagation()}
-                        className="rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-background/60 group-hover:opacity-100"
+                        className="rounded-md p-1 text-muted-foreground opacity-0 transition-all hover:bg-background/60 hover:opacity-100 group-hover:opacity-100"
                         title="更多操作"
                       >
-                        <MoreHorizontal className="h-4 w-4" />
+                        <MoreHorizontal className="h-[18px] w-[18px]" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>对话操作</DropdownMenuLabel>
                       <DropdownMenuItem
                         onClick={() => {
                           const title = window.prompt('重命名对话', s.title)
@@ -182,7 +179,6 @@ export function SessionSidebar({
                         <Pencil />
                         重命名
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                         onClick={() => onDelete(s.id)}
@@ -201,29 +197,27 @@ export function SessionSidebar({
 
       {/* 底部：用户 */}
       <div className="border-t border-border/50 p-4">
-        <div className="flex items-center gap-2">
-          <Avatar className="h-8 w-8">
+        <div className="flex items-center gap-2.5">
+          <Avatar className="h-9 w-9">
             <AvatarFallback>{user?.username?.[0]?.toUpperCase() ?? 'U'}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{user?.username}</p>
-            <p className="text-xs text-muted-foreground">{user?.role === 'admin' ? '管理员' : '用户'}</p>
+            <p className="truncate text-base font-medium">{user?.username}</p>
+            <p className="text-sm text-muted-foreground">{user?.role === 'admin' ? '管理员' : '用户'}</p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted">
-                <Settings className="h-4 w-4" />
+              <button className="rounded-lg p-1.5 text-muted-foreground transition-all hover:bg-muted active:scale-95">
+                <Settings className="h-[18px] w-[18px]" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuLabel>{user?.username}</DropdownMenuLabel>
               {user?.role === 'admin' && (
                 <DropdownMenuItem onClick={() => navigate('/admin/dashboard')}>
                   <LayoutDashboard />
                   管理后台
                 </DropdownMenuItem>
               )}
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut />
                 退出登录
@@ -239,31 +233,31 @@ export function SessionSidebar({
   const collapsedContent = (
     <div className="flex h-full flex-col items-center gap-1 px-2 py-3">
       <div className="pb-2">
-        <Logo size={28} />
+        <Logo size={30} />
       </div>
       <button
         onClick={() => {
           onNew()
           onMobileClose()
         }}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-90"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md active:scale-95"
         title="新对话"
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="h-[18px] w-[18px]" />
       </button>
       <button
         onClick={toggleTheme}
-        className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted"
+        className="rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted active:scale-95"
         title="切换主题"
       >
-        {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+        {theme === 'light' ? <Moon className="h-[18px] w-[18px]" /> : <Sun className="h-[18px] w-[18px]" />}
       </button>
       <button
         onClick={onToggleCollapsed}
-        className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted"
+        className="rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted active:scale-95"
         title="展开侧栏"
       >
-        <PanelLeftOpen className="h-4 w-4" />
+        <PanelLeftOpen className="h-[18px] w-[18px]" />
       </button>
     </div>
   )

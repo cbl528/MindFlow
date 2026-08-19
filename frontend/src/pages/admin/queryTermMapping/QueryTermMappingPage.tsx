@@ -181,18 +181,18 @@ export default function QueryTermMappingPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">关键词映射</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">关键词映射</h1>
           <p className="text-sm text-muted-foreground">配置查询归一化的关键词映射规则</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="搜索原始词 / 目标词"
-              className="w-[240px] pl-8"
+              className="w-[240px] pl-9"
             />
           </div>
           <Button variant="outline" onClick={handleSearch}>
@@ -209,11 +209,11 @@ export default function QueryTermMappingPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-background">
+      <div className="rounded-2xl border border-border bg-background shadow-sm">
         {!loading && list.length === 0 ? (
           <EmptyState icon={KeyRound} title="暂无映射规则" description="点击「新增映射」添加" />
         ) : (
-          <Table>
+          <Table className="[&_th]:px-4 [&_td]:px-4">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[170px]">原始词</TableHead>
@@ -222,7 +222,8 @@ export default function QueryTermMappingPage() {
                 <TableHead className="w-[80px]">优先级</TableHead>
                 <TableHead className="w-[80px]">状态</TableHead>
                 <TableHead>备注</TableHead>
-                <TableHead className="w-[150px]">更新时间</TableHead>
+                <TableHead className="w-[170px] whitespace-nowrap">创建时间</TableHead>
+                <TableHead className="w-[170px] whitespace-nowrap">更新时间</TableHead>
                 <TableHead className="w-[110px] text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
@@ -247,7 +248,8 @@ export default function QueryTermMappingPage() {
                   <TableCell className="max-w-[220px] truncate text-muted-foreground" title={item.remark ?? ''}>
                     {item.remark || '—'}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{formatDateTime(item.updateTime)}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{formatDateTime(item.createTime)}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{formatDateTime(item.updateTime)}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(item)}>
@@ -326,10 +328,10 @@ export default function QueryTermMappingPage() {
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
+            <div className="flex items-center justify-between rounded-xl border border-border px-3.5 py-3">
               <div>
                 <Label>启用状态</Label>
-                <p className="text-xs text-muted-foreground">关闭后该规则将不参与查询归一化</p>
+                <p className="text-sm text-muted-foreground">关闭后该规则将不参与查询归一化</p>
               </div>
               <Switch
                 checked={form.enabled}

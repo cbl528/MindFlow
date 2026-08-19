@@ -222,7 +222,7 @@ export default function KnowledgeDocumentsPage() {
             知识库
           </Link>
           <span className="text-muted-foreground">/</span>
-          <h1 className="text-xl font-semibold tracking-tight">{kb?.name ?? '文档管理'}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{kb?.name ?? '文档管理'}</h1>
         </div>
         <Button onClick={() => setUploadOpen(true)}>
           <Upload />
@@ -260,7 +260,7 @@ export default function KnowledgeDocumentsPage() {
       </div>
 
       {/* 列表 */}
-      <div className="rounded-xl border border-border bg-background">
+      <div className="rounded-2xl border border-border bg-background shadow-sm">
         {!loading && list.length === 0 ? (
           <EmptyState icon={FileText} title="暂无文档" description="点击「上传文档」添加内容" />
         ) : (
@@ -384,7 +384,7 @@ export default function KnowledgeDocumentsPage() {
                   key={t}
                   onClick={() => setUploadForm((f) => ({ ...f, sourceType: t }))}
                   className={cn(
-                    'flex-1 rounded-lg border px-3 py-2 text-sm transition-colors',
+                    'flex-1 cursor-pointer rounded-xl border px-4 py-2.5 text-base transition-all active:scale-[0.98]',
                     uploadForm.sourceType === t
                       ? 'border-primary bg-accent font-medium text-primary'
                       : 'border-border text-muted-foreground hover:bg-muted',
@@ -409,8 +409,8 @@ export default function KnowledgeDocumentsPage() {
                   if (file) setUploadFile(file)
                 }}
                 className={cn(
-                  'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 transition-colors',
-                  dragOver ? 'border-primary bg-accent/60' : 'border-border hover:border-primary/40',
+                  'flex cursor-pointer flex-col items-center justify-center gap-2.5 rounded-xl border-2 border-dashed p-8 transition-all hover:border-primary/40 active:scale-[0.99]',
+                  dragOver ? 'border-primary bg-accent/60' : 'border-border',
                 )}
                 onClick={() => document.getElementById('doc-file-input')?.click()}
               >
@@ -444,7 +444,7 @@ export default function KnowledgeDocumentsPage() {
                   key={m}
                   onClick={() => setUploadForm((f) => ({ ...f, processMode: m }))}
                   className={cn(
-                    'flex-1 rounded-lg border px-3 py-2 text-sm transition-colors',
+                    'flex-1 cursor-pointer rounded-xl border px-4 py-2.5 text-base transition-all active:scale-[0.98]',
                     uploadForm.processMode === m
                       ? 'border-primary bg-accent font-medium text-primary'
                       : 'border-border text-muted-foreground hover:bg-muted',
@@ -477,10 +477,10 @@ export default function KnowledgeDocumentsPage() {
             )}
 
             {/* 定时 */}
-            <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
+            <div className="flex items-center justify-between rounded-xl border border-border px-3.5 py-3">
               <div>
-                <p className="text-sm">定时调度</p>
-                <p className="text-xs text-muted-foreground">按 Cron 周期重新拉取/分块</p>
+                <p className="text-base">定时调度</p>
+                <p className="text-sm text-muted-foreground">按 Cron 周期重新拉取/分块</p>
               </div>
               <Switch
                 checked={uploadForm.scheduleEnabled}

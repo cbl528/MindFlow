@@ -51,15 +51,15 @@ export default function LoginPage() {
         {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
       </button>
 
-      <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <Logo size={44} />
-          <h1 className="text-2xl font-semibold tracking-tight">MindFlow</h1>
-          <p className="text-sm text-muted-foreground">智能知识助手 · 登录以继续</p>
+      <div className="w-full max-w-md">
+        <div className="mb-9 flex flex-col items-center gap-3">
+          <Logo size={48} />
+          <h1 className="text-3xl font-semibold tracking-tight">MindFlow</h1>
+          <p className="text-base text-muted-foreground">智能知识助手 · 登录以继续</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
             <Label htmlFor="username">用户名</Label>
             <Input
               id="username"
@@ -70,7 +70,7 @@ export default function LoginPage() {
               autoFocus
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="password">密码</Label>
             <div className="relative">
               <Input
